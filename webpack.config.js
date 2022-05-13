@@ -2,7 +2,7 @@ module.exports = {
     mode: 'development',
     devtool: 'inline-source-map',
     entry: {
-        lib: './src/index'
+        index: './src/index'
     },
     output: {
         library: "nftrade",

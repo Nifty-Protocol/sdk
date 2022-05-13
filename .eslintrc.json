@@ -12,7 +12,6 @@
         "modules": true,
         "experimentalObjectRestSpread": true
     },
-    "extends": ["airbnb"],
     "rules": {
         "jsx-quotes": [2, "prefer-double"],
         "quotes": [2, "single"],

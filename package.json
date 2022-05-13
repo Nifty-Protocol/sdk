@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "nftrade-sdk",
   "author": "NFTrade",
-  "main": "dist/lib.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "webpack -w",
     "build": "webpack"
