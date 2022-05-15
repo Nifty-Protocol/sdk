@@ -1,5 +1,5 @@
 import HttpRequest from '../utils/HttpRequest';
-import config from '../../config';
+import config from '../config';
 
 const URL = `${config.api}contracts`;
 

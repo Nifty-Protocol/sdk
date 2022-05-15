@@ -1,20 +1,18 @@
 import { signatureUtils } from 'signature-utils';
 import BigNumber from 'bignumber.js';
 import { toBuffer } from 'ethereumjs-util';
-import abi from 'ethereumjs-abi';
 import Contracts from './contracts';
 import { createOrder, destructOrder } from './order';
-import { signTyped } from '../signature';
-import {
+import { signTyped } from './signature';
+/* import {
   CREATING,
-  CREATING_GASLESS,
   APPROVING,
   SIGN,
   APPROVED,
   CHECKING_BALANCE,
   CONVERT,
   APPROVING_FILL,
-} from '../transaction-actions';
+} from '../transaction-actions'; */
 import api from '../api';
 import { findChainById } from '../chain';
 import { NULL_ADDRESS } from './constants';
@@ -22,6 +20,7 @@ import chains from '../../chains';
 import { checkIfNativeSupport } from '../etherUtils';
 
 export default class Transaction {
+  listener: Function;
   constructor({
     web3, provider, address, networkId, chainId,
   }) {
@@ -33,7 +32,7 @@ export default class Transaction {
     this.contracts = new Contracts(this.web3, this.address, this.chainId);
   }
 
-  setStatusListener(listener) {
+  setStatusListener(listener: Function) {
     this.listener = listener;
   }
 
@@ -480,26 +479,6 @@ export default class Transaction {
    * @param {object} order
    */
   async createNFT(metadata, address) {
-    /* let tokenID;
-    const chain = findChainById(this.chainId);
-    if (chain.hasGasless) {
-      this.setStatus(CREATING_GASLESS);
-
-      const signature = await this.signGasless(metadata);
-
-      this.setStatus(CREATING);
-
-      const receipt = await api.transactions.gasless({
-        chainId: this.chainId,
-        metadata,
-        address: this.address,
-        signature,
-      });
-    } else {
-      this.setStatus(CREATING);
-      tokenID = await this.contracts.createToken(metadata);
-    } */
-
     this.setStatus(CREATING);
     const tx = await this.contracts.createToken(metadata, address);
 
@@ -518,21 +497,6 @@ export default class Transaction {
 
   getCollections() {
     return this.contracts.getCollections();
-  }
-
-  async signGasless(metadata) {
-    const nonce = await this.contracts.get721Nonce();
-    const functionSignature = this.contracts.create721ABI(metadata);
-
-    const messageToSign = abi.soliditySHA3(
-      ['uint256', 'address', 'uint256', 'bytes'],
-      [nonce, this.contracts.addresses.NFTrade721, this.chainId, toBuffer(functionSignature)],
-    );
-
-    return this.web3.eth.personal.sign(
-      `0x${messageToSign.toString('hex')}`,
-      this.address,
-    );
   }
 
   async transfer(item, reciver) {

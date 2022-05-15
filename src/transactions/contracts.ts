@@ -1,20 +1,21 @@
 import BigNumber from 'bignumber.js';
-import addresses from '../../addresses';
-import transactionConfirmation from './transactionConfirmation';
-import { NULL_ADDRESS, ZERO } from './constants';
-import ERC721ABI from '../abis/ERC721ABI';
-import ERC1155ABI from '../abis/ERC1155ABI';
-import ERC20ABI from '../abis/ERC20ABI';
-import DevUtilsABI from '../abis/DevUtilsABI';
-import ExchangeABI from '../abis/ExchangeABI';
-import ForwarderABI from '../abis/ForwarderABI';
-import PlantATreeABI from '../abis/PlantATreeABI';
-import CollectionsABI from '../abis/CollectionsABI';
-import RoyaltiesManagerABI from '../abis/RoyaltiesManagerABI';
-import RoyaltiesABI from '../abis/RoyaltiesABI';
-import send from '../send';
+import addresses from '../addresses';
+import transactionConfirmation from '../utils/transactionConfirmation';
+import { NULL_ADDRESS, ZERO } from '../constants';
+import ERC721ABI from './abis/ERC721ABI';
+import ERC1155ABI from './abis/ERC1155ABI';
+import ERC20ABI from './abis/ERC20ABI';
+import DevUtilsABI from './abis/DevUtilsABI';
+import ExchangeABI from './abis/ExchangeABI';
+import ForwarderABI from './abis/ForwarderABI';
+import CollectionsABI from './abis/CollectionsABI';
+import RoyaltiesManagerABI from './abis/RoyaltiesManagerABI';
+import send from '../utils/send';
 
 export default class Contracts {
+  address: any;
+  web3: any;
+  addresses: any;
   constructor(web3, address, chainId) {
     this.web3 = web3;
     this.address = address;
@@ -43,7 +44,7 @@ export default class Contracts {
     if (!isApprovedForAll) {
       const ERC721Approval = await erc721Token.methods
         .setApprovalForAll(this.addresses.ERC721Proxy, true);
-      const { transactionHash } = await send(ERC721Approval, { from: this.address });
+      const { transactionHash } = (await send(ERC721Approval, { from: this.address })) as any;
 
       await transactionConfirmation(this.web3, transactionHash);
     }
@@ -63,7 +64,7 @@ export default class Contracts {
       const ERC1155Approval = await erc1155Token.methods
         .setApprovalForAll(this.addresses.ERC1155Proxy, true);
 
-      const { transactionHash } = await send(ERC1155Approval, { from: this.address });
+      const { transactionHash } = (await send(ERC1155Approval, { from: this.address })) as any;
 
       await transactionConfirmation(this.web3, transactionHash);
     }
@@ -163,10 +164,10 @@ export default class Contracts {
     const buyOrder = await exchangeContract.methods.fillOrder(
       signedOrder, signedOrder.takerAssetAmount, signedOrder.signature,
     );
-    const { transactionHash } = await send(buyOrder, {
+    const { transactionHash } = (await send(buyOrder, {
       from: this.address,
       value,
-    });
+    })) as any;
     return transactionHash;
   }
 
@@ -176,31 +177,18 @@ export default class Contracts {
 
     const takerAssetAmount = new BigNumber(signedOrder.takerAssetAmount);
     const takerFee = new BigNumber(signedOrder.takerFee);
-    let buyOrder = '';
-    if (isGreenPay) {
-      const platATreeContract = new this.web3.eth.Contract(PlantATreeABI, this.addresses.GreenPay);
-      buyOrder = await platATreeContract.methods.marketBuyOrdersWithEth(
-        [signedOrder],
-        signedOrder.makerAssetAmount,
-        [signedOrder.signature],
-        [String(affiliateFee)],
-        [affiliateFeeRecipient],
-        greenPayFee || ZERO,
-      );
-    } else {
-      const forwarderContract = new this.web3.eth.Contract(ForwarderABI, this.addresses.Forwarder);
-      buyOrder = await forwarderContract.methods.marketBuyOrdersWithEth(
-        [signedOrder],
-        signedOrder.makerAssetAmount,
-        [signedOrder.signature],
-        [String(affiliateFee)],
-        [affiliateFeeRecipient],
-      );
-    }
-    const { transactionHash } = await send(buyOrder, {
+    const forwarderContract = new this.web3.eth.Contract(ForwarderABI, this.addresses.Forwarder);
+    const buyOrder = await forwarderContract.methods.marketBuyOrdersWithEth(
+      [signedOrder],
+      signedOrder.makerAssetAmount,
+      [signedOrder.signature],
+      [String(affiliateFee)],
+      [affiliateFeeRecipient],
+    );
+    const { transactionHash } = (await send(buyOrder, {
       from : this.address,
-      value: takerAssetAmount.plus(takerFee).plus(affiliateFee).plus(greenPayFee),
-    });
+      value: takerAssetAmount.plus(takerFee).plus(affiliateFee),
+    })) as any;
     return transactionHash;
   }
 
@@ -252,7 +240,7 @@ export default class Contracts {
     });
   }
 
-  async deploy721Contract(name, symbol) {
+  /* async deploy721Contract(name, symbol) {
     const contract = require('../abis/721Token.json');
     const MyContract = new this.web3.eth.Contract(contract.abi);
     const method = MyContract.deploy({
@@ -269,56 +257,13 @@ export default class Contracts {
     return send(method, {
       from: this.address,
     });
-  }
+  } */
 
   async getCollections() {
     const collectionsContract = new this.web3.eth.Contract(
       CollectionsABI, this.addresses.Collections,
     );
     return collectionsContract.methods.getCollections().call({
-      from: this.address,
-    });
-  }
-
-  /* Royalties */
-
-  getRoyalties(collectionAddress, tokenId, salePrice) {
-    const royaltiesContract = new this.web3.eth.Contract(
-      RoyaltiesManagerABI, this.addresses.RoyaltiesManager,
-    );
-    return royaltiesContract.methods.getRoyalties(collectionAddress, tokenId, salePrice)
-      .call({ from: this.address });
-  }
-
-  async getRoyaltiesSplit(address) {
-    const royaltyAddressContract = new this.web3.eth.Contract(
-      RoyaltiesABI, address,
-    );
-    try {
-      const res = await royaltyAddressContract.methods.getRoyalties()
-        .call({ from: this.address });
-      return res;
-    } catch (error) {
-      console.error(error);
-      return {};
-    }
-  }
-
-  async getTokenRoyaltyBalance(tokenID, contractAddress) {
-    const royaltyAddressContract = new this.web3.eth.Contract(
-      RoyaltiesABI, contractAddress,
-    );
-    const res = await royaltyAddressContract.methods.getTokenBalance(tokenID)
-      .call({ from: this.address });
-    return res;
-  }
-
-  async claimCommunityBatch(tokenIDs, contractAddress) {
-    const royaltyAddressContract = new this.web3.eth.Contract(
-      RoyaltiesABI, contractAddress,
-    );
-    const method = royaltyAddressContract.methods.claimCommunityBatch(tokenIDs);
-    return send(method, {
       from: this.address,
     });
   }

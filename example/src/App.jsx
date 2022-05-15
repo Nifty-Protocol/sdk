@@ -52,7 +52,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    sdk = nftradeSDK({});
+    sdk = nftradeSDK({env: 'testnet'});
     sdk.api.tokens.getAll({
       sort: 'listed_desc'
     }).then((res) => {
@@ -64,6 +64,15 @@ const App = () => {
     sdk.api.orders.get(orderId).then((res) => {
       console.log(res.data);
       console.log(wallet.web3);
+      const transaction = new sdk.Transaction({
+        web3: wallet.web3,
+        provider: wallet.web3.currentProvider,
+        address: wallet.account,
+        chainId: wallet.chainId,
+        networkId: wallet.chainId,
+      });
+      transaction.buy(res.data);
+      debugger;
     })
     sdk.test({test: orderId});
     console.log()
