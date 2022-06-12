@@ -255,10 +255,10 @@ export const signTyped = async (provider, order, from) => {
 
   let signature;
   try {
-    if (!window.ethereum || !window.ethereum.isMetaMask) {
+    /* if (!window.ethereum || !window.ethereum.isMetaMask) {
       // if not using metamask use signEth
       throw new Error('using eth_sign');
-    }
+    } */
     signature = await signTypedData(provider, from, typedData);
   } catch (err) {
     // HACK: We are unable to handle specific errors thrown since provider is not an object
