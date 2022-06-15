@@ -1,6 +1,7 @@
 import api from './api';
 import transactions from './transactions';
 import sign from './signature';
+import { setWallet } from './wallet/setWallet';
 
 interface Test {
   test: string
@@ -9,17 +10,17 @@ interface Test {
 const nftdaoSDK = ({
   marketplaceId,
 }) => {
-  let web3;
+  let data;
   const _transactions = transactions(marketplaceId);
-  const setWeb3 = async (_web3) => {
-    web3 = _web3;
-    await _transactions.setWeb3(_web3);
+  const setWeb3 = async (provider: any, providerType: 'EVM' | 'immutablex' | 'solana') => {
+     data = setWallet(provider,providerType);
+    await _transactions.setWalletData(data);
   };
   return {
     api: api,
     transactions: _transactions,
     sign,
-    test      : (payload: Test) => console.log(payload),
+    test: (payload: Test) => console.log(payload),
     setWeb3,
   }
 };

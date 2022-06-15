@@ -1,10 +1,7 @@
-import addresses from '../addresses';
-import { findChainById } from '../utils/chain';
-
+import addresses from '../../addresses';
+import { findChainById } from '../chain';
 
 class Evm {
-  walletProvider:any;
-
   constructor(walletProvider) {
     this.walletProvider = walletProvider;
   }
