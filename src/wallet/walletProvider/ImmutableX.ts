@@ -2,6 +2,8 @@ import { ethers } from 'ethers';
 import Web3 from 'web3';
 
 class ImmutableX {
+  walletProvider:any
+  
   constructor(walletProvider) {
     this.walletProvider = walletProvider;
   }

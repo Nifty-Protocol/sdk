@@ -20,10 +20,10 @@ class Transaction {
     this.marketplaceId = marketplaceId;
   }
 
-  async setWalletData({ walletProvider, address, chainId }) {
-    this.walletProvider = walletProvider;
-    this.address = address;
-    this.chainId = chainId;
+  async setWalletData(data) {
+    this.walletProvider = data.walletProvider;
+    this.address = data.address;
+    this.chainId = data.chainId;
     this.contracts = new Contracts(this.walletProvider, this.address, this.chainId);
   }
 
@@ -88,6 +88,19 @@ class Transaction {
     this.setStatus(APPROVED);
 
     return { ...item, txHash };
+  }
+
+  async canList(contractAddress: string, tokenId: string, contractType: string) {
+
+    let connectedAddressBalance;
+
+    if (contractType == 'EIP1155') {
+      connectedAddressBalance = await this.contracts.balanceOfERC1155(contractAddress, tokenId);
+    }
+    const isUserHasBalance = connectedAddressBalance > 0;
+    const tokenOwner = await this.contracts.getOwner(contractAddress, tokenId);
+    const isUserOwner = tokenOwner === this.address;
+    return isUserHasBalance || isUserOwner;
   }
 }
 

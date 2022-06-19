@@ -1,5 +1,5 @@
 import * as web3 from '@solana/web3.js';
-import { RPC_URL } from '../solana';
+import { RPC_URL } from '../../utils/solana';
 
 // check solana on window. This is useful to fetch address of your wallet.
 const getProvider = () => {
@@ -20,6 +20,8 @@ const connect = async () => {
 };
 
 class Solana {
+  walletProvider:any
+
   constructor(walletProvider) {
     this.walletProvider = walletProvider;
   }

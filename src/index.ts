@@ -13,7 +13,7 @@ const nftdaoSDK = ({
   let data;
   const _transactions = transactions(marketplaceId);
   const setWeb3 = async (provider: any, providerType: 'EVM' | 'immutablex' | 'solana') => {
-     data = setWallet(provider,providerType);
+    await setWallet(provider, providerType);
     await _transactions.setWalletData(data);
   };
   return {

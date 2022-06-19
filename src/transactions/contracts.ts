@@ -16,6 +16,7 @@ export default class Contracts {
   address: any;
   walletProvider: any;
   addresses: any;
+
   constructor(walletProvider, address, chainId) {
     this.walletProvider = walletProvider.walletProvider;
     this.address = address;
@@ -186,7 +187,7 @@ export default class Contracts {
       [affiliateFeeRecipient],
     );
     const { transactionHash } = (await send(buyOrder, {
-      from : this.address,
+      from: this.address,
       value: takerAssetAmount.plus(takerFee).plus(affiliateFee),
     })) as any;
     return transactionHash;
