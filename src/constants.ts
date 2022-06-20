@@ -3,6 +3,9 @@ import BigNumber from 'bignumber.js';
 export const PROD = 'prod';
 export const TESTNET = 'testnet';
 
+export const SIGNATURE_DOMAIN = 'NiftyProtocol';
+export const SIGNATURE_VERSION = '2.0.0';
+
 export const CREATING = 'creating';
 export const CREATING_GASLESS = 'creating_gasless';
 export const APPROVING = 'approving';

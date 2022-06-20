@@ -1,3 +1,4 @@
+import { Wallet } from './../wallet/types';
 import BigNumber from 'bignumber.js';
 import Contracts from './contracts';
 import { createOrder, destructOrder } from './order';
@@ -8,23 +9,19 @@ import {
   CONVERT,
 } from '../constants';
 
-class Transaction {
+export default class Transaction {
   listener: Function;
   marketplaceId: string;
-  walletProvider: any;
+  wallet: Wallet;
   address: any;
   chainId: any;
   contracts: any;
 
-  constructor(marketplaceId: string) {
-    this.marketplaceId = marketplaceId;
-  }
-
-  async setWalletData(data) {
-    this.walletProvider = data.walletProvider;
+  constructor(data) {
+    this.wallet = data.wallet;
     this.address = data.address;
     this.chainId = data.chainId;
-    this.contracts = new Contracts(this.walletProvider, this.address, this.chainId);
+    this.contracts = new Contracts(this.wallet, this.address, this.chainId);
   }
 
 
@@ -103,8 +100,3 @@ class Transaction {
     return isUserHasBalance || isUserOwner;
   }
 }
-
-
-const transactions = (marketplaceId: string) => new Transaction(marketplaceId);
-
-export default transactions;

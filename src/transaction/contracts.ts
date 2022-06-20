@@ -17,8 +17,8 @@ export default class Contracts {
   walletProvider: any;
   addresses: any;
 
-  constructor(walletProvider, address, chainId) {
-    this.walletProvider = walletProvider.walletProvider;
+  constructor(wallet, address, chainId) {
+    this.walletProvider = wallet.provider.walletProvider;
     this.address = address;
     this.addresses = addresses[chainId];
   }

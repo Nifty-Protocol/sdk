@@ -1,7 +1,7 @@
 import { toBuffer } from 'ethereumjs-util';
 import { signatureTypes } from './types';
 import addresses from '../addresses';
-import { DOMAIN, VERSION } from './constants';
+import { SIGNATURE_DOMAIN as DOMAIN, SIGNATURE_VERSION as VERSION } from '../constants';
 import { send, signTypedDataUtils } from './utils';
 
 /**

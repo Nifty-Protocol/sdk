@@ -1,32 +1,51 @@
 import api from './api';
-import transactions from './transactions';
+import Transaction from './transaction';
 import sign from './signature';
-import { setWallet } from './wallet/setWallet';
+import Wallet from './wallet';
 import { findChainById } from './utils/chain';
 
-interface Test {
-  test: string
+class Nifty {
+  wallet: Wallet;
+  marketplace: string;
+  listener: Function;
+
+  constructor(options) {
+    this.marketplace = options.marketplace;
+  }
+
+  initWallet(type: string, provider: any) {
+    this.wallet = new Wallet(type, provider);
+  }
+
+  setStatusListener(listener: Function) {
+    this.listener = listener;
+  }
+
+  async buy(item) {
+    const address = await this.wallet.provider.getUserAddress();
+    const chainId = await this.wallet.provider.chainId();
+    const transaction = new Transaction({
+      wallet: this.wallet,
+      address,
+      chainId,
+    });
+    if (this.listener) {
+      transaction.setStatusListener(this.listener);
+    }
+    return transaction.buy(item);
+  }
+
+  getNFTs(options) {
+    return api.tokens.getAll(options);
+  }
+
+  getListing(orderId) {
+    return api.orders.get(orderId);
+  }
+  
+  static utils = {
+    findChainById
+  };
 }
 
-const nftdaoSDK = ({
-  marketplaceId,
-}) => {
-  let data;
-  const _transactions = transactions(marketplaceId);
-
-  const setWeb3 = async (provider: any, providerType: 'EVM' | 'immutablex' | 'solana') => {
-    await setWallet(provider, providerType);
-    await _transactions.setWalletData(data);
-  };
-
-  return {
-    api: api,
-    transactions: _transactions,
-    sign,
-    findChain:(chain :number) => findChainById(chain),
-    test: (payload: Test) => console.log(payload),
-    setWeb3,
-  }
-};
-
-export default nftdaoSDK;
+export default Nifty;
