@@ -21,7 +21,7 @@ class Nifty {
     this.listener = listener;
   }
 
-  async buy(item) {
+  async buy(order) {
     const address = await this.wallet.provider.getUserAddress();
     const chainId = await this.wallet.provider.chainId();
     const transaction = new Transaction({
@@ -32,11 +32,18 @@ class Nifty {
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
-    return transaction.buy(item);
+    return transaction.buy(order);
+  }
+
+  verifyMarkletplace() {
+    if (!this.marketplace) {
+      throw new Error('marketplace id is missing');
+    }
   }
 
   getNFTs(options) {
-    return api.tokens.getAll(options);
+    this.verifyMarkletplace();
+    return api.tokens.getAll({...options, marketplace: this.marketplace}); 
   }
 
   getListing(orderId) {
