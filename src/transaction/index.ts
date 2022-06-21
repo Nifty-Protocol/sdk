@@ -16,9 +16,9 @@ export default class Transaction {
   listener: Function;
   marketplaceId: string;
   wallet: Wallet;
-  address: any;
-  chainId: any;
-  contracts: any;
+  address: string;
+  chainId: string;
+  contracts: Contracts;
 
   constructor(data) {
     this.wallet = data.wallet;
@@ -90,7 +90,11 @@ export default class Transaction {
     return { ...item, txHash };
   }
 
-  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress }) {
+  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress,itemChainId }) {
+
+    if (String(itemChainId) !== String(this.chainId)) {
+      throw new Error(`Please connect to ${itemChainId}`);
+    }
 
     this.setStatus(APPROVING);
 
@@ -140,12 +144,11 @@ export default class Transaction {
     });
 
     const signedOrder = await signature(
-      this.wallet.provider.walletProvider.currentProvider,
+      this.wallet.provider,
       order,
       this.address,
       exchangeAddress
     );
-    console.log('signedOrder', signedOrder);
     
     const { orderHash } = await this.contracts.getOrderInfo(signedOrder);
 

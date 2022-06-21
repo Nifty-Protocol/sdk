@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import addresses from '../addresses';
+import addresses, { addressesParameter } from '../addresses';
 import transactionConfirmation from '../utils/transactionConfirmation';
 import { NULL_ADDRESS, ZERO } from '../constants';
 import ERC721ABI from './abis/ERC721ABI';
@@ -14,9 +14,9 @@ import send from '../utils/send';
 import { Wallet } from '../wallet/Wallet';
 
 export default class Contracts {
-  address: any;
+  address: string;
   wallet: Wallet;
-  addresses: any;
+  addresses: addressesParameter;
 
   constructor(wallet, address, chainId) {
     this.wallet = wallet;
@@ -173,7 +173,7 @@ export default class Contracts {
     return transactionHash;
   }
 
-  async marketBuyOrdersWithEth(signedOrder, isGreenPay, greenPayFee) {
+  async marketBuyOrdersWithEth(signedOrder) {
     const affiliateFeeRecipient = NULL_ADDRESS;
     const affiliateFee = ZERO;
 

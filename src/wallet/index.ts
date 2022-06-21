@@ -1,4 +1,4 @@
-import { EVM, IMMUTABLEX, SOLANA } from '../constants';
+import { EVM, IMMUTABLEX, SOLANA } from '../utils/chains';
 import { findChainById } from '../utils/chain';
 import { Wallet } from './Wallet';
 import Evm from './walletProvider/evm';

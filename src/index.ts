@@ -5,6 +5,7 @@ import { findChainById } from './utils/chain';
 import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses from './addresses';
+import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
 
 class Nifty {
   wallet: Wallet;
@@ -23,26 +24,29 @@ class Nifty {
     this.listener = listener;
   }
 
-  async buy(order) {
-    const address = await this.wallet.provider.getUserAddress();
-    const chainId = await this.wallet.provider.chainId();
+  async buy(order: any) {
+    const address = await this.wallet.getUserAddress();
+    const chainId = await this.wallet.chainId();
+
     const transaction = new Transaction({
       wallet: this.wallet,
       address,
       chainId,
     });
+
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
     return transaction.buy(order);
   }
 
-  async sell(token,price) {
-    const { contractAddress, tokenID } = token
-    const  contractType  = token.contract.type
+  async sell(item: any, price: number | string) {
+    const { contractAddress, tokenID } = item
+    const contractType = item.contract.type
+    const itemChainId = item.chainId
 
-    const address = await this.wallet.provider.getUserAddress();
-    const chainId = await this.wallet.provider.chainId();
+    const address = await this.wallet.getUserAddress();
+    const chainId = await this.wallet.chainId();
     const exchangeAddress = addresses[chainId].Exchange;
 
     const transaction = new Transaction({
@@ -50,12 +54,11 @@ class Nifty {
       address,
       chainId,
     });
+
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
-    return transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress });
-    // return ({ contractAddress, tokenID, contractType, price, exchangeAddress });
-
+    return transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId });
   }
 
   verifyMarkletplace() {
@@ -64,18 +67,30 @@ class Nifty {
     }
   }
 
-  getNFTs(options) {
+  getNFTs(options: object) {
     this.verifyMarkletplace();
     return api.tokens.getAll({ ...options, marketplace: this.marketplace });
   }
 
-  getListing(orderId) {
+  getNFT(contractAddress: string, tokenID: number, chainId: number) {
+    this.verifyMarkletplace();
+    return api.tokens.get(contractAddress, tokenID, { chainId });
+  }
+
+  getListing(orderId: number) {
     return api.orders.get(orderId);
   }
 
   static utils = {
     findChainById
   };
+
+  static evmTypes = {
+    EVM,
+    IMMUTABLEX,
+    SOLANA,
+  };
+
 }
 
 export default Nifty;
