@@ -1,15 +1,16 @@
 import orders from './orders';
 import tokens from './tokens';
-import contracts from './contracts';
-import users from './users';
 import trades from './trades';
+import config from '../config';
 
-const api = {
-  orders,
-  tokens,
-  contracts,
-  users,
-  trades,
+export default function(env) {
+  const base = config.api[env];
+  if (!base) {
+    throw new Error('unknown env');
+  }
+  return {
+    orders: orders(base),
+    tokens: tokens(base),
+    trades: trades(base),
+  }
 };
-
-export default api;

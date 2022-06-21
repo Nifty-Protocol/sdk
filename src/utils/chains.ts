@@ -202,9 +202,6 @@ const productionChains : chainType = [
     },
     explorer: 'https://blockscout.moonbeam.network',
   },
-];
-
-const testnetsChains = [
   {
     name            : 'Rinkeby',
     chainId         : 4,

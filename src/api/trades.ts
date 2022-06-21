@@ -1,21 +1,15 @@
 import HttpRequest from '../utils/HttpRequest';
-import config from '../config';
 
-const TRADES = `${config.api}trades`;
+const ENDPOINT = 'trades';
 
-const getStats = (params = {}) => HttpRequest({ url: `${TRADES}/stats/`, params });
-
-const getAll = (data) => HttpRequest({
-  url: `${TRADES}`,
-});
-
-const getGraph = (params = {}) => HttpRequest({
-  url: `${TRADES}/graph`,
-  params,
-});
-
-export default {
-  getStats,
-  getAll,
-  getGraph,
+export default function(base) {
+  const URL = base + ENDPOINT;
+  return {
+    getAll: (data) => HttpRequest({url: URL}),
+    getStats: (params = {}) => HttpRequest({ url: `${URL}/stats`, params }),
+    getGraph: (params = {}) => HttpRequest({
+      url: `${URL}/graph`,
+      params,
+    })
+  }
 };

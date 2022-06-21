@@ -1,3 +1,4 @@
+import { PROD, TESTNET } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import sign from './signature';
@@ -9,11 +10,15 @@ import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
 
 class Nifty {
   wallet: Wallet;
-  marketplace: string;
+  key: string;
+  env: string;
+  api: any;
   listener: Function;
 
   constructor(options) {
-    this.marketplace = options.marketplace;
+    this.key = options.key;
+    this.env = options.env;
+    this.api = api(this.env);
   }
 
   initWallet(type: string, provider: any) {
@@ -62,33 +67,39 @@ class Nifty {
   }
 
   verifyMarkletplace() {
-    if (!this.marketplace) {
-      throw new Error('marketplace id is missing');
+    if (!this.key) {
+      throw new Error('key id is missing');
     }
   }
 
   getNFTs(options: object) {
     this.verifyMarkletplace();
-    return api.tokens.getAll({ ...options, marketplace: this.marketplace });
+    return this.api.tokens.getAll({ ...options, key: this.key });
   }
 
   getNFT(contractAddress: string, tokenID: number, chainId: number) {
     this.verifyMarkletplace();
-    return api.tokens.get(contractAddress, tokenID, { chainId });
+    return this.api.tokens.get(contractAddress, tokenID, { chainId });
   }
 
   getListing(orderId: number) {
-    return api.orders.get(orderId);
+    this.verifyMarkletplace();  
+    return this.api.orders.get(orderId);
   }
 
   static utils = {
     findChainById
   };
 
-  static evmTypes = {
+  static networkTypes = {
     EVM,
     IMMUTABLEX,
     SOLANA,
+  };
+
+  static envs = {
+    PROD,
+    TESTNET
   };
 
 }
