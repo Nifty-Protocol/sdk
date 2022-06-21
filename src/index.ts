@@ -1,8 +1,9 @@
 import api from './api';
 import Transaction from './transaction';
 import sign from './signature';
-import Wallet from './wallet';
 import { findChainById } from './utils/chain';
+import { Wallet } from './wallet/Wallet';
+import wallet from './wallet';
 
 class Nifty {
   wallet: Wallet;
@@ -14,7 +15,7 @@ class Nifty {
   }
 
   initWallet(type: string, provider: any) {
-    this.wallet = new Wallet(type, provider);
+    this.wallet = wallet(type, provider);
   }
 
   setStatusListener(listener: Function) {

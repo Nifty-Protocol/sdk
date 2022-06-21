@@ -1,67 +1,63 @@
-class Evm {
-  walletProvider:any;
+import { Wallet } from "../Wallet";
 
-  constructor(walletProvider) {
-    this.walletProvider = walletProvider;
+class Evm implements Wallet {
+  provider: any;
+
+  constructor(provider: any) {
+    this.provider = provider;
   }
 
-  async getUserAddress() {
-    console.log(this.walletProvider);
-    debugger;
-    const accounts = await this.walletProvider.eth.getAccounts();
+  async getUserAddress(): Promise<string> {
+    const accounts = await this.provider.eth.getAccounts();
     return accounts[0].toLowerCase();
   }
 
-  async getId() {
-    return this.walletProvider.eth.net.getId();
+  async chainId(): Promise<string> {
+    return this.provider.eth.getChainId();
   }
 
-  async chainId() {
-    return this.walletProvider.eth.getChainId();
-  }
-
-  async getBalance(address) {
-    return this.walletProvider.eth.getBalance(address);
+  async getBalance(address: string): Promise<string> {
+    return this.provider.eth.getBalance(address);
   }
 
   humanFormatDigit(number) {
-    return this.walletProvider.utils.fromWei(String(number));
+    return this.provider.utils.fromWei(String(number));
   }
 
   blockchainFormatDigit(number) {
-    return this.walletProvider.utils.toWei(String(number));
+    return this.provider.utils.toWei(String(number));
   }
 
   isAddress(address) {
-    return this.walletProvider.utils.isAddress(address);
+    return this.provider.utils.isAddress(address);
   }
 
   toHex(string) {
-    return this.walletProvider.utils.toHex(string);
+    return this.provider.utils.toHex(string);
   }
 
   encode(string) {
-    return this.walletProvider.utils.keccak256(string);
+    return this.provider.utils.keccak256(string);
   }
 
   async personalSign(hash, address, password) {
-    return this.walletProvider.eth.personal.sign(hash, address, password);
+    return this.provider.eth.personal.sign(hash, address, password);
   }
 
   async sign(hash, address) {
-    return this.walletProvider.eth.sign(hash, address);
+    return this.provider.eth.sign(hash, address);
   }
 
   Contract(abi, contract) {
-    return new this.walletProvider.eth.Contract(abi, contract);
+    return new this.provider.eth.Contract(abi, contract);
   }
 
   async getTransactionReceipt(txnHash) {
-    return this.walletProvider.eth.getTransactionReceipt(txnHash);
+    return this.provider.eth.getTransactionReceipt(txnHash);
   }
 
   async getGasPrice() {
-    return this.walletProvider.eth.getGasPrice();
+    return this.provider.eth.getGasPrice();
   }
 }
 
