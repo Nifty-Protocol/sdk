@@ -7,6 +7,7 @@ import {
   NULL_BYTES,
   ZERO,
 } from '../constants';
+import web3 from 'web3';
 
 export const generatePseudoRandom256BitNumber = () => {
   const randomNumber = BigNumber.random(MAX_DIGITS_IN_UNSIGNED_256_INT);
@@ -42,7 +43,7 @@ export const createOrder = ({
   senderAddress        : NULL_ADDRESS,
   feeRecipientAddress,
   expirationTimeSeconds: tenYearsInSeconds.toString(),
-  salt                 : generatePseudoRandom256BitNumber().toString(),
+  salt                 : web3.utils.randomHex(32),
   makerAssetAmount     : makerAssetAmount.toString(),
   takerAssetAmount     : takerAssetAmount.toString(),
   makerAssetData,

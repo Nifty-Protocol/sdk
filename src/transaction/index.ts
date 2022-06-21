@@ -7,7 +7,10 @@ import {
   APPROVING,
   APPROVED,
   CONVERT,
+  SIGN,
+  NULL_ADDRESS,
 } from '../constants';
+import signature from '../signature';
 
 export default class Transaction {
   listener: Function;
@@ -87,7 +90,69 @@ export default class Transaction {
     return { ...item, txHash };
   }
 
-  async canList(contractAddress: string, tokenId: string, contractType: string) {
+  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress }) {
+
+    this.setStatus(APPROVING);
+
+    if (contractType === 'EIP721') {
+      await this.contracts.erc721ApproveForAll(contractAddress);
+    } else if (contractType === 'EIP1155') {
+      await this.contracts.erc1155ApproveForAll(contractAddress);
+    }
+
+    this.setStatus(SIGN);
+    let makerAssetData = '';
+    if (contractType === 'EIP721') {
+      makerAssetData = await this.contracts.encodeERC721AssetData(contractAddress, tokenID);
+    } else if (contractType === 'EIP1155') {
+      makerAssetData = await this.contracts.encodeERC1155AssetData(contractAddress, tokenID, 1);
+    }
+
+    const takerAssetData = await this.contracts.encodeERC20AssetData();
+
+    // the amount the maker is selling of maker asset (1 ERC721 Token)
+    const makerAssetAmount = new BigNumber(1);
+    // the amount the maker wants of taker asset
+    const unit = new BigNumber(10).pow(18);
+    const baseUnitAmount = unit.times(new BigNumber(price));
+    let takerAssetAmount = baseUnitAmount;
+
+    let receiver = NULL_ADDRESS;
+    let royaltyAmount = 0;
+
+    // try {
+    //   ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
+    // } catch (e) {
+    //   console.error(e);
+    // }
+
+    takerAssetAmount = takerAssetAmount.minus(royaltyAmount);
+
+    const order = createOrder({
+      chainId: this.chainId,
+      makerAddress: this.address,
+      takerFee: String(royaltyAmount),
+      feeRecipientAddress: receiver,
+      makerAssetAmount,
+      takerAssetAmount,
+      makerAssetData,
+      takerAssetData,
+    });
+
+    const signedOrder = await signature(
+      this.wallet.provider.walletProvider.currentProvider,
+      order,
+      this.address,
+      exchangeAddress
+    );
+    console.log('signedOrder', signedOrder);
+    
+    const { orderHash } = await this.contracts.getOrderInfo(signedOrder);
+
+    return { ...signedOrder, orderHash };
+  }
+
+  async isOwner(contractAddress: string, tokenId: string, contractType: string) {
 
     let connectedAddressBalance;
 
