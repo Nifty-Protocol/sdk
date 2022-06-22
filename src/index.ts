@@ -92,6 +92,17 @@ class Nifty {
     return this.api.tokens.get(contractAddress, tokenID, { chainId });
   }
 
+  getGraphData(contractAddress: string, tokenID: number, id: string, chainId: number, contractType: string) {
+    this.verifyMarkletplace();
+    return this.api.tokens.getGraph({
+      contractAddress: contractAddress,
+      tokenID: tokenID,
+      tokenId: id,
+      chainId: chainId,
+      contractType: contractType,
+    })
+  }
+  
   getListing(orderId: number) {
     this.verifyMarkletplace();
     return this.api.orders.get(orderId);
