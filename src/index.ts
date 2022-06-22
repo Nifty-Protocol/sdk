@@ -30,6 +30,11 @@ class Nifty {
   }
 
   async buy(order: any) {
+
+    if (!this.wallet) {
+      throw new Error('Please set wallet');
+    }
+
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
 
@@ -46,6 +51,11 @@ class Nifty {
   }
 
   async sell(item: any, price: number | string) {
+
+    if (!this.wallet) {
+      throw new Error('Please set wallet');
+    }
+
     const { contractAddress, tokenID } = item
     const contractType = item.contract.type
     const itemChainId = item.chainId
@@ -83,7 +93,7 @@ class Nifty {
   }
 
   getListing(orderId: number) {
-    this.verifyMarkletplace();  
+    this.verifyMarkletplace();
     return this.api.orders.get(orderId);
   }
 
