@@ -90,7 +90,7 @@ export default class Transaction {
     return { ...item, txHash };
   }
 
-  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress,itemChainId }) {
+  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
@@ -149,21 +149,25 @@ export default class Transaction {
       this.address,
       exchangeAddress
     );
-    
+
     const { orderHash } = await this.contracts.getOrderInfo(signedOrder);
 
     return { ...signedOrder, orderHash };
   }
 
-  async isOwner(contractAddress: string, tokenId: string, contractType: string) {
+  async isOwner(contractAddress: string, tokenId: number, contractType: string) {
 
     let connectedAddressBalance;
+    let tokenOwner;
 
     if (contractType == 'EIP1155') {
       connectedAddressBalance = await this.contracts.balanceOfERC1155(contractAddress, tokenId);
     }
+    else if (contractType == 'EIP721') {
+      tokenOwner = await this.contracts.getOwner(contractAddress, tokenId);
+    }
+
     const isUserHasBalance = connectedAddressBalance > 0;
-    const tokenOwner = await this.contracts.getOwner(contractAddress, tokenId);
     const isUserOwner = tokenOwner === this.address;
     return isUserHasBalance || isUserOwner;
   }
