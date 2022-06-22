@@ -102,7 +102,31 @@ class Nifty {
       contractType: contractType,
     })
   }
-  
+
+  async getUserAvailableMethods(listings: any, token: any) {
+    this.verifyMarkletplace();
+    
+    if (!this.wallet) {
+      throw new Error('Please set wallet');
+    }
+
+    const address = await this.wallet.getUserAddress();
+    const chainId = await this.wallet.chainId();
+
+    const transaction = new Transaction({ wallet: this.wallet, address, chainId });
+    const isOwner = await transaction.isOwner(token.contractAddress, token.tokenID, token.contract.type);
+
+    const activeListings = listings.filter((list) => list.state === 'ADDED');
+    const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
+    const isUserListingToken = activeListings.some((list) => list.makerAddress === address);
+
+    return {
+      canBuy: (!isOwner || isListedByOtherThanUser) && token.price,
+      canSell: isOwner && !isUserListingToken,
+    }
+  }
+
+
   getListing(orderId: number) {
     this.verifyMarkletplace();
     return this.api.orders.get(orderId);
