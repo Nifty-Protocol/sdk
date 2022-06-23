@@ -130,10 +130,6 @@ class Nifty {
     const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
     const isUserListingToken = activeListings.some((list) => list.makerAddress === address);
 
-    console.log('isOwner', isOwner)
-    console.log('isListedByOtherThanUser', isListedByOtherThanUser);
-    console.log('!token.price', !!token.price);
-
     return ({
       canBuy: (!isOwner || isListedByOtherThanUser) && !!token.price,
       canSell: isOwner && !isUserListingToken,
