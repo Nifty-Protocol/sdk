@@ -92,26 +92,30 @@ class Nifty {
     return this.api.tokens.get(contractAddress, tokenID, { chainId });
   }
 
-  getGraphData(contractAddress: string, tokenID: number, id: string, chainId: number, contractType: string) {
+  getNFTData(token) {
     this.verifyMarkletplace();
     return this.api.tokens.getGraph({
-      contractAddress: contractAddress,
-      tokenID: tokenID,
-      tokenId: id,
-      chainId: chainId,
-      contractType: contractType,
+      contractAddress: token.contractAddress,
+      tokenID: token.tokenID,
+      tokenId: token.id,
+      chainId: token.chainId,
+      contractType: token.contract.type,
     })
   }
 
   async getUserAvailableMethods(listings: any, token: any) {
     this.verifyMarkletplace();
-    
+
     if (!this.wallet) {
       throw new Error('Please set wallet');
     }
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
+
+    if (String(token.chainId) !== String(chainId)) {
+      throw new Error(`Please connect to ${token.chainId}`);
+    }
 
     const transaction = new Transaction({ wallet: this.wallet, address, chainId });
     const isOwner = await transaction.isOwner(token.contractAddress, token.tokenID, token.contract.type);
@@ -120,10 +124,10 @@ class Nifty {
     const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
     const isUserListingToken = activeListings.some((list) => list.makerAddress === address);
 
-    return {
-      canBuy: (!isOwner || isListedByOtherThanUser) && token.price,
+    return ({
+      canBuy: (!isOwner || isListedByOtherThanUser) && !!token.price,
       canSell: isOwner && !isUserListingToken,
-    }
+    })
   }
 
 
