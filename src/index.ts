@@ -7,6 +7,7 @@ import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses from './addresses';
 import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
+import { tokenInferface } from './types/itemInterface';
 
 class Nifty {
   wallet: Wallet;
@@ -92,14 +93,14 @@ class Nifty {
     return this.api.tokens.get(contractAddress, tokenID, { chainId });
   }
 
-  getNFTData(token) {
+  getNFTData(token:tokenInferface) {
     this.verifyMarkletplace();
     return this.api.tokens.getGraph({
       contractAddress: token.contractAddress,
       tokenID: token.tokenID,
       tokenId: token.id,
       chainId: token.chainId,
-      contractType: token.contract.type,
+      contractType: token.contractType,
     })
   }
 
