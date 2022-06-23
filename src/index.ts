@@ -74,7 +74,8 @@ class Nifty {
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
-    return transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId });
+    const sellOrder = await transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId });
+    return this.api.orders.create(sellOrder);
   }
 
   verifyMarkletplace() {
@@ -83,17 +84,17 @@ class Nifty {
     }
   }
 
-  getNFTs(options: object) {
+  getNFTs(options: object): Promise<object> {
     this.verifyMarkletplace();
     return this.api.tokens.getAll({ ...options, key: this.key });
   }
 
-  getNFT(contractAddress: string, tokenID: number, chainId: number) {
+  getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<object> {
     this.verifyMarkletplace();
     return this.api.tokens.get(contractAddress, tokenID, { chainId });
   }
 
-  getNFTData(token:tokenInferface) {
+  getNFTData(token: tokenInferface): Promise<object> {
     this.verifyMarkletplace();
     return this.api.tokens.getGraph({
       contractAddress: token.contractAddress,
@@ -103,8 +104,12 @@ class Nifty {
       contractType: token.contractType,
     })
   }
-
-  async getUserAvailableMethods(listings: any, token: any) {
+  // class A {
+  //   getObj(): { name: string; age: number } {
+  //     return { name: 'Tom', age: 30 };
+  //   }
+  // }
+  async getUserAvailableMethods(listings: any, token: any): Promise<object> {
     this.verifyMarkletplace();
 
     if (!this.wallet) {
@@ -125,6 +130,10 @@ class Nifty {
     const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
     const isUserListingToken = activeListings.some((list) => list.makerAddress === address);
 
+    console.log('isOwner', isOwner)
+    console.log('isListedByOtherThanUser', isListedByOtherThanUser);
+    console.log('!token.price', !!token.price);
+
     return ({
       canBuy: (!isOwner || isListedByOtherThanUser) && !!token.price,
       canSell: isOwner && !isUserListingToken,
@@ -132,7 +141,7 @@ class Nifty {
   }
 
 
-  getListing(orderId: number) {
+  getListing(orderId: number): object {
     this.verifyMarkletplace();
     return this.api.orders.get(orderId);
   }
