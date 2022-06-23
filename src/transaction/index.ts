@@ -144,7 +144,7 @@ export default class Transaction {
     });
 
     const signedOrder = await signature(
-      this.wallet.provider,
+      this.wallet.provider.currentProvider,
       order,
       this.address,
       exchangeAddress
@@ -168,7 +168,8 @@ export default class Transaction {
     }
 
     const isUserHasBalance = connectedAddressBalance > 0;
-    const isUserOwner = tokenOwner === this.address;
+    const isUserOwner = tokenOwner.toLowerCase() === this.address.toLowerCase();
+
     return isUserHasBalance || isUserOwner;
   }
 }
