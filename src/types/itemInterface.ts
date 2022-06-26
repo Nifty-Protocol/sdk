@@ -1,5 +1,5 @@
 
-export interface tokenInferface {
+export interface itemInterface {
   id: string;
   contractName: string;
   contractAddress: string;
