@@ -90,7 +90,7 @@ export default class Transaction {
     return { ...item, txHash };
   }
 
-  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId }) {
+  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime = 315569520 }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
@@ -124,6 +124,8 @@ export default class Transaction {
     let receiver = NULL_ADDRESS;
     let royaltyAmount = 0;
 
+    let expirationTimeSeconds =   new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
+
     // try {
     //   ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
     // } catch (e) {
@@ -137,6 +139,7 @@ export default class Transaction {
       makerAddress: this.address,
       takerFee: String(royaltyAmount),
       feeRecipientAddress: receiver,
+      expirationTimeSeconds,
       makerAssetAmount,
       takerAssetAmount,
       makerAssetData,

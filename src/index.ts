@@ -51,7 +51,7 @@ class Nifty {
     return transaction.buy(order);
   }
 
-  async sell(item: any, price: number | string) {
+  async sell({ item, price, expirationTime }: { item: any, price: number | string, expirationTime: number }): Promise<object> {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
@@ -74,7 +74,7 @@ class Nifty {
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
-    const sellOrder = await transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId });
+    const sellOrder = await transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime });
     return this.api.orders.create(sellOrder);
   }
 
