@@ -7,7 +7,7 @@ import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses from './addresses';
 import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
-import { tokenInferface } from './types/itemInterface';
+import { itemInterface } from './types/itemInterface';
 
 class Nifty {
   wallet: Wallet;
@@ -30,6 +30,12 @@ class Nifty {
     this.listener = listener;
   }
 
+
+  /**
+  * @param order recived from api
+  * @returns returns item
+  * @returns returns tnx hash value
+  */
   async buy(order: any) {
 
     if (!this.wallet) {
@@ -51,15 +57,22 @@ class Nifty {
     return transaction.buy(order);
   }
 
-  async sell({ item, price, expirationTime }: { item: any, price: number | string, expirationTime: number }): Promise<object> {
+
+  /**
+  * @param item item recived from api
+  * @param price price for the NFT 
+  * @param expirationTime Expiration time in UTC seconds.
+  * @returns returns order from api
+  */
+  async sell({ item, price, expirationTime }: { item: itemInterface, price: number | string, expirationTime: number }): Promise<object> {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
     }
 
-    const { contractAddress, tokenID } = item
-    const contractType = item.contract.type
-    const itemChainId = item.chainId
+    const { contractAddress, tokenID } = item;
+    const contractType = item.contractType;
+    const itemChainId = item.chainId;
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
@@ -78,38 +91,72 @@ class Nifty {
     return this.api.orders.create(sellOrder);
   }
 
+
   verifyMarkletplace() {
     if (!this.key) {
       throw new Error('key id is missing');
     }
   }
 
+
+  /**
+   * @param filter options  
+   * @param filter.contracts array of contracts to filter by
+   * @param filter.search string to search by  
+   * @param filter.order has order attached
+   * @param filter.verified only show verified listings
+   * @param filter.priceRange array of price range [min,max] 
+   * @param filter.chains array of chains [] 
+   * @param filter.address user address to filter by 
+   * @param filter.connectedChainId chain id of the user address
+   * @param filter.traits array of traits to filter by
+   * @param filter.sort string to sort by
+   * @param filter.limit number on NFTs to return
+   * @param filter.skip number of NFTs to skip
+   * @returns returns NFTs from api
+   */
   getNFTs(options: object): Promise<object> {
     this.verifyMarkletplace();
     return this.api.tokens.getAll({ ...options, key: this.key });
   }
 
+
+  /**
+  * @param contractAddress NFT contract address
+  * @param tokenID NFT token id 
+  * @param chainId chain id of the NFT
+  * @returns returns NFT from api
+  */
   getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<object> {
     this.verifyMarkletplace();
     return this.api.tokens.get(contractAddress, tokenID, { chainId });
   }
 
-  getNFTData(token: tokenInferface): Promise<object> {
+
+  /**
+  * @param item item recived from api
+  * @returns returns NFT balances(1155)
+  * @returns returns NFT transfers
+  * @returns returns NFT offers
+  */
+  getNFTData(item: itemInterface): Promise<object> {
     this.verifyMarkletplace();
     return this.api.tokens.getGraph({
-      contractAddress: token.contractAddress,
-      tokenID: token.tokenID,
-      tokenId: token.id,
-      chainId: token.chainId,
-      contractType: token.contractType,
+      contractAddress: item.contractAddress,
+      tokenID: item.tokenID,
+      tokenId: item.id,
+      chainId: item.chainId,
+      contractType: item.contractType,
     })
   }
-  // class A {
-  //   getObj(): { name: string; age: number } {
-  //     return { name: 'Tom', age: 30 };
-  //   }
-  // }
-  async getUserAvailableMethods(listings: any, token: any): Promise<object> {
+
+  /**
+  * @param item item recived from api
+  * @param listings array of listings from NFTData
+  * @returns returns canBuy
+  * @returns returns canSell
+  */
+  async getUserAvailableMethods(listings: any, item: any): Promise<object> {
     this.verifyMarkletplace();
 
     if (!this.wallet) {
@@ -119,19 +166,19 @@ class Nifty {
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
 
-    if (String(token.chainId) !== String(chainId)) {
-      throw new Error(`Please connect to ${token.chainId}`);
+    if (String(item.chainId) !== String(chainId)) {
+      throw new Error(`Please connect to ${item.chainId}`);
     }
 
     const transaction = new Transaction({ wallet: this.wallet, address, chainId });
-    const isOwner = await transaction.isOwner(token.contractAddress, token.tokenID, token.contract.type);
+    const isOwner = await transaction.isOwner(item.contractAddress, item.tokenID, item.contract.type);
 
     const activeListings = listings.filter((list) => list.state === 'ADDED');
     const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
     const isUserListingToken = activeListings.some((list) => list.makerAddress === address);
 
     return ({
-      canBuy: (!isOwner || isListedByOtherThanUser) && !!token.price,
+      canBuy: (!isOwner || isListedByOtherThanUser) && !!item.price,
       canSell: isOwner && !isUserListingToken,
     })
   }
