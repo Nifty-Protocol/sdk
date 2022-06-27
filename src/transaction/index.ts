@@ -90,7 +90,7 @@ export default class Transaction {
     return { ...item, txHash };
   }
 
-  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime = 315569520 }) {
+  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
