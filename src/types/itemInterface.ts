@@ -1,5 +1,5 @@
 
-export interface itemInterface {
+export interface Item {
   id: string;
   contractName: string;
   contractAddress: string;

@@ -11,6 +11,8 @@ import {
   NULL_ADDRESS,
 } from '../constants';
 import signature from '../signature';
+import addresses from '../addresses';
+import { isValidERC20 } from '../utils/isValidERC20';
 
 export default class Transaction {
   listener: Function;
@@ -55,10 +57,17 @@ export default class Transaction {
 
     const contractType = item.tokens[0].contract.type;
 
+    const { tokenAddress } = await this.contracts.decodeERC20Data(item.takerAssetData)
+
+    console.log('tokenAddress, this.chainId', tokenAddress, this.chainId);
+    if (!isValidERC20(tokenAddress, this.chainId)) {
+      throw new Error("Invalid asset data");
+    }
+
     let txHash = '';
 
-    const nativeERC20Balance = await this.contracts.balanceOfNativeERC20();
-    const proxyApprovedAllowance = await this.contracts.NativeERC20Allowance();
+    const nativeERC20Balance = await this.contracts.balanceOfERC20(this.address, tokenAddress);
+    const proxyApprovedAllowance = await this.contracts.ERC20Allowance(tokenAddress);
 
     const ERC20Balance = new BigNumber(nativeERC20Balance);
     const allowance = new BigNumber(proxyApprovedAllowance);
@@ -68,19 +77,23 @@ export default class Transaction {
     if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
       if (allowance.isLessThan(itemPrice)) {
         this.setStatus(APPROVING);
-        await this.contracts.NativeERC20Approve();
+        await this.contracts.ERC20Approve(tokenAddress);
       }
       txHash = await this.contracts.fillOrder(signedOrder);
-    } else if (contractType === 'EIP721') {
+    }
+
+    else if (contractType === 'EIP721' && addresses[this.chainId].NativeERC20 == tokenAddress) {
       txHash = await this.contracts.marketBuyOrdersWithEth(signedOrder);
-    } else if (contractType === 'EIP1155') {
+    }
+
+    else if (contractType === 'EIP1155' && addresses[this.chainId].NativeERC20 == tokenAddress) {
       this.setStatus(CONVERT);
       await this.contracts.convertToNativeERC20(
         item.takerAssetAmount - nativeERC20Balance,
       );
       this.setStatus(APPROVING);
       if (Number(proxyApprovedAllowance) < Number(item.takerAssetAmount + item.takerFee)) {
-        await this.contracts.NativeERC20Approve();
+        await this.contracts.ERC20Approve(tokenAddress);
       }
       txHash = await this.contracts.fillOrder(signedOrder);
     }
@@ -90,10 +103,14 @@ export default class Transaction {
     return { ...item, txHash };
   }
 
-  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime }) {
+  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
+    }
+
+    if (!isValidERC20(ERC20Address, this.chainId)) {
+      throw new Error("Invalid asset data");
     }
 
     this.setStatus(APPROVING);
@@ -112,7 +129,9 @@ export default class Transaction {
       makerAssetData = await this.contracts.encodeERC1155AssetData(contractAddress, tokenID, 1);
     }
 
-    const takerAssetData = await this.contracts.encodeERC20AssetData();
+    const takerAssetData = await this.contracts.encodeERC20Data(ERC20Address);
+    // const takerAssetData = await this.contracts.encodeERC20AssetData();
+
 
     // the amount the maker is selling of maker asset (1 ERC721 Token)
     const makerAssetAmount = new BigNumber(1);
@@ -124,7 +143,7 @@ export default class Transaction {
     let receiver = NULL_ADDRESS;
     let royaltyAmount = 0;
 
-    let expirationTimeSeconds =   new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
+    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
 
     // try {
     //   ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));

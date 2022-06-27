@@ -4,8 +4,8 @@ export const PROD = 'prod';
 export const TESTNET = 'testnet';
 export const LOCAL = 'local';
 
-export const SIGNATURE_DOMAIN = 'NiftyProtocol';
-export const SIGNATURE_VERSION = '2.0.0';
+export const SIGNATURE_DOMAIN = 'NFTrade';
+export const SIGNATURE_VERSION = '1.0.0';
 
 export const CREATING = 'creating';
 export const CREATING_GASLESS = 'creating_gasless';
@@ -26,6 +26,6 @@ export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 export const NULL_BYTES = '0x';
 export const ZERO = new BigNumber(0).toString();
 
-export const tenYearsInSeconds = new BigNumber(Date.now() + 315569520).toString();
+export const tenYearsInSeconds = new BigNumber(Math.round((Date.now() / 1000) + 315569520)).toString();
 export const MAX_DIGITS_IN_UNSIGNED_256_INT = 78;
 

@@ -77,6 +77,11 @@ export default class Contracts {
     return NativeERC20Contract.methods.balanceOf(address).call({ from: this.address });
   }
 
+  balanceOfERC20(address = this.address, ERC20Address:string) {
+    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, ERC20Address);
+    return NativeERC20Contract.methods.balanceOf(address).call({ from: this.address });
+  }
+
   balanceOfERC1155(contractAddress, tokenID) {
     const ERC1155Contract = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
     return ERC1155Contract.methods.balanceOf(this.address, tokenID).call({ from: this.address });
@@ -95,6 +100,15 @@ export default class Contracts {
     });
   }
 
+  ERC20Allowance(ERC20Address:string) {
+    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, ERC20Address);
+
+    return NativeERC20Contract.methods.allowance(
+      this.address,
+      this.addresses.ERC20Proxy,
+    ).call({ from: this.address });
+  }
+
   NativeERC20Allowance() {
     const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     return NativeERC20Contract.methods.allowance(
@@ -107,6 +121,13 @@ export default class Contracts {
     const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     const method = NativeERC20Contract.methods
       .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1).toString());
+    return send(method, { from: this.address });
+  }
+  ERC20Approve(erc20Address:string) {
+    // fix the amount transfered to the proxy
+    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, erc20Address);
+    const method = NativeERC20Contract.methods
+      .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1));
     return send(method, { from: this.address });
   }
 
@@ -133,7 +154,18 @@ export default class Contracts {
     return DevUtilsContract.methods.encodeERC20AssetData(this.addresses.NativeERC20)
       .call({ from: this.address });
   }
+  encodeERC20Data(erc20Address:string) {
+    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    return DevUtilsContract.methods.encodeERC20AssetData(erc20Address)
+      .call({ from: this.address });
+  }
 
+  decodeERC20Data (decodeERC20AssetData){
+    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    return DevUtilsContract.methods.decodeERC20AssetData(
+      decodeERC20AssetData,
+    ).call({ from: this.address });
+  }
   encodeMultiAssetData(makerAssetAmountArray, erc721AssetDataArray) {
     const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.encodeMultiAssetData(

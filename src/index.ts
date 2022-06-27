@@ -7,7 +7,9 @@ import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses from './addresses';
 import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
-import { itemInterface } from './types/itemInterface';
+import { Item } from './types/itemInterface';
+import currencies from './utils/currencies';
+import { isValidERC20 } from './utils/isValidERC20';
 
 class Nifty {
   wallet: Wallet;
@@ -64,7 +66,7 @@ class Nifty {
   * @param expirationTime Expiration time in UTC seconds.
   * @returns returns order from api
   */
-  async sell({ item, price, expirationTime }: { item: itemInterface, price: number | string, expirationTime: number }): Promise<object> {
+  async sell(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<object> {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
@@ -78,6 +80,10 @@ class Nifty {
     const chainId = await this.wallet.chainId();
     const exchangeAddress = addresses[chainId].Exchange;
 
+    if (!isValidERC20(ERC20Address, chainId)) {
+      throw new Error('Invalid asset data');
+    }
+
     const transaction = new Transaction({
       wallet: this.wallet,
       address,
@@ -87,7 +93,8 @@ class Nifty {
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
-    const sellOrder = await transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime });
+
+    const sellOrder = await transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
     return this.api.orders.create(sellOrder);
   }
 
@@ -139,7 +146,7 @@ class Nifty {
   * @returns returns NFT transfers
   * @returns returns NFT offers
   */
-  getNFTData(item: itemInterface): Promise<object> {
+  getNFTData(item: Item): Promise<object> {
     this.verifyMarkletplace();
     return this.api.tokens.getGraph({
       contractAddress: item.contractAddress,
@@ -187,6 +194,15 @@ class Nifty {
   getListing(orderId: number): object {
     this.verifyMarkletplace();
     return this.api.orders.get(orderId);
+  }
+
+  getAvailablePaymentMethods(chainId?: number): Array<object> {
+    this.verifyMarkletplace();
+
+    if (chainId) {
+      return currencies.filter(x => x.chainId === chainId)
+    }
+    return currencies
   }
 
   static utils = {
