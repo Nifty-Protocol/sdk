@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 
 export const PROD = 'prod';
 export const TESTNET = 'testnet';
+export const LOCAL = 'local';
 
 export const SIGNATURE_DOMAIN = 'NiftyProtocol';
 export const SIGNATURE_VERSION = '2.0.0';

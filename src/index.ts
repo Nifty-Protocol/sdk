@@ -1,4 +1,4 @@
-import { PROD, TESTNET } from './constants';
+import { PROD, TESTNET, LOCAL } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import sign from './signature';
@@ -201,7 +201,8 @@ class Nifty {
 
   static envs = {
     PROD,
-    TESTNET
+    TESTNET,
+    LOCAL,
   };
 
 }
