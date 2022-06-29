@@ -57,7 +57,7 @@ class Nifty {
           })
           const serializeOrder = serializeOpenSeaOrder(order)
           if (serializeOrder) {
-            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: "0x4bc2DD5252c0A65C7106230b65A9cC2c2bEb0CF3" })
+            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
           }
           return null;
 
