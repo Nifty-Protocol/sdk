@@ -29,3 +29,6 @@ export const ZERO = new BigNumber(0).toString();
 export const tenYearsInSeconds = new BigNumber(Math.round((Date.now() / 1000) + 315569520)).toString();
 export const MAX_DIGITS_IN_UNSIGNED_256_INT = 78;
 
+export const OPENSEA = 'OPENSEA';
+export const LOOKSRARE = 'LOOKSRARE';
+export const RARIBLE = 'RARIBLE';

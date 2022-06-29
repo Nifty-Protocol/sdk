@@ -1,7 +1,6 @@
-import { PROD, TESTNET, LOCAL } from './constants';
+import { PROD, TESTNET, LOCAL, OPENSEA } from './constants';
 import api from './api';
 import Transaction from './transaction';
-import sign from './signature';
 import { findChainById } from './utils/chain';
 import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
@@ -10,6 +9,9 @@ import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
 import { Item } from './types/itemInterface';
 import currencies from './utils/currencies';
 import { isValidERC20 } from './utils/isValidERC20';
+import { OpenSeaSDK, Network } from 'opensea-js'
+import { serializeOpenSeaOrder } from './utils/serializeOpenSeaOrder';
+
 
 class Nifty {
   wallet: Wallet;
@@ -38,7 +40,7 @@ class Nifty {
   * @returns returns item
   * @returns returns tnx hash value
   */
-  async buy(order: any) {
+  async buy(order: any, externalOrder: boolean) {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
@@ -46,6 +48,23 @@ class Nifty {
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
+
+    if (externalOrder) {
+      switch (order.source) {
+        case OPENSEA:
+          const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
+            networkName: Network.Rinkeby,
+          })
+          const serializeOrder = serializeOpenSeaOrder(order)
+          if (serializeOrder) {
+            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: "0x4bc2DD5252c0A65C7106230b65A9cC2c2bEb0CF3" })
+          }
+          return null;
+
+        default:
+          break;
+      }
+    }
 
     const transaction = new Transaction({
       wallet: this.wallet,
@@ -64,6 +83,7 @@ class Nifty {
   * @param item item recived from api
   * @param price price for the NFT 
   * @param expirationTime Expiration time in UTC seconds.
+  * @param ERC20Address to fullfill the order with 
   * @returns returns order from api
   */
   async sell(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<object> {
@@ -190,17 +210,19 @@ class Nifty {
     })
   }
 
-
-  getListing(orderId: number): object {
+  getListing(orderId: number, externalOrder: boolean): object {
     this.verifyMarkletplace();
+    if (externalOrder) {
+      return this.api.externalOrders.get(orderId);
+    }
     return this.api.orders.get(orderId);
   }
 
-  getAvailablePaymentMethods(chainId?: number): Array<object> {
+  getAvailablePaymentMethods(chainId?: number | string): Array<object> {
     this.verifyMarkletplace();
 
     if (chainId) {
-      return currencies.filter(x => x.chainId === chainId)
+      return currencies.filter(x => x.chainId === Number(chainId))
     }
     return currencies
   }
