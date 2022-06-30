@@ -145,6 +145,7 @@ class Nifty {
    */
   async getNFTs(options: object): Promise<object> {
     this.verifyMarkletplace();
+
     const res = await this.api.tokens.getAll({ ...options, key: this.key });
     return res.data
   }
@@ -158,6 +159,7 @@ class Nifty {
   */
   async getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<object> {
     this.verifyMarkletplace();
+
     const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
     return res.data
   }
@@ -172,7 +174,7 @@ class Nifty {
   async getNFTData(item: Item): Promise<object> {
     this.verifyMarkletplace();
 
-    const res =  await this.api.tokens.getGraph({
+    const res = await this.api.tokens.getGraph({
       contractAddress: item.contractAddress,
       tokenID: item.tokenID,
       tokenId: item.id,
@@ -217,11 +219,13 @@ class Nifty {
 
   async getListing(orderId: number, externalOrder: boolean): Promise<object> {
     this.verifyMarkletplace();
+
     if (externalOrder) {
-      const res =  await this.api.externalOrders.get(orderId);
+      const res = await this.api.externalOrders.get(orderId);
       return res.data
-      
+
     }
+
     const res = await this.api.orders.get(orderId)
     return res.data;
   }

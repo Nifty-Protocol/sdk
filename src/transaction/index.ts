@@ -59,7 +59,6 @@ export default class Transaction {
 
     const { tokenAddress } = await this.contracts.decodeERC20Data(item.takerAssetData)
 
-    console.log('tokenAddress, this.chainId', tokenAddress, this.chainId);
     if (!isValidERC20(tokenAddress, this.chainId)) {
       throw new Error("Invalid asset data");
     }
