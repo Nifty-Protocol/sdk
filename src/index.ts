@@ -115,7 +115,8 @@ class Nifty {
     }
 
     const sellOrder = await transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
-    return this.api.orders.create(sellOrder);
+    const res = await this.api.orders.create(sellOrder);
+    return res.data
   }
 
 
@@ -142,9 +143,10 @@ class Nifty {
    * @param filter.skip number of NFTs to skip
    * @returns returns NFTs from api
    */
-  getNFTs(options: object): Promise<object> {
+  async getNFTs(options: object): Promise<object> {
     this.verifyMarkletplace();
-    return this.api.tokens.getAll({ ...options, key: this.key });
+    const res = await this.api.tokens.getAll({ ...options, key: this.key });
+    return res.data
   }
 
 
@@ -154,9 +156,10 @@ class Nifty {
   * @param chainId chain id of the NFT
   * @returns returns NFT from api
   */
-  getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<object> {
+  async getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<object> {
     this.verifyMarkletplace();
-    return this.api.tokens.get(contractAddress, tokenID, { chainId });
+    const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
+    return res.data
   }
 
 
@@ -166,15 +169,17 @@ class Nifty {
   * @returns returns NFT transfers
   * @returns returns NFT offers
   */
-  getNFTData(item: Item): Promise<object> {
+  async getNFTData(item: Item): Promise<object> {
     this.verifyMarkletplace();
-    return this.api.tokens.getGraph({
+
+    const res =  await this.api.tokens.getGraph({
       contractAddress: item.contractAddress,
       tokenID: item.tokenID,
       tokenId: item.id,
       chainId: item.chainId,
       contractType: item.contractType,
     })
+    return res.data
   }
 
   /**
@@ -210,12 +215,15 @@ class Nifty {
     })
   }
 
-  getListing(orderId: number, externalOrder: boolean): object {
+  async getListing(orderId: number, externalOrder: boolean): Promise<object> {
     this.verifyMarkletplace();
     if (externalOrder) {
-      return this.api.externalOrders.get(orderId);
+      const res =  await this.api.externalOrders.get(orderId);
+      return res.data
+      
     }
-    return this.api.orders.get(orderId);
+    const res = await this.api.orders.get(orderId)
+    return res.data;
   }
 
   getAvailablePaymentMethods(chainId?: number | string): Array<object> {
