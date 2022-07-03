@@ -3,7 +3,7 @@ export interface Item {
   id: string;
   contractName: string;
   contractAddress: string;
-  tokenID: string;
+  tokenID: string | number;
   tokenURI: string;
   name: string;
   description: string;
