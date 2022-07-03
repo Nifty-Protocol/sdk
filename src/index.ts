@@ -37,6 +37,12 @@ class Nifty {
     this.listener = listener;
   }
 
+  verifyMarkletplace() {
+    if (!this.key) {
+      throw new Error('key id is missing');
+    }
+  }
+
 
   /**
   * @param order recived from api
@@ -120,13 +126,6 @@ class Nifty {
     const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
     const res = await this.api.orders.create(orderList);
     return res.data
-  }
-
-
-  verifyMarkletplace() {
-    if (!this.key) {
-      throw new Error('key id is missing');
-    }
   }
 
 
@@ -236,7 +235,6 @@ class Nifty {
     if (externalOrder) {
       const res = await this.api.externalOrders.get(orderId);
       return res.data
-
     }
 
     const res = await this.api.orders.get(orderId)
