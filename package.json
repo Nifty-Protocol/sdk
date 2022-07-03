@@ -21,6 +21,7 @@
   "dependencies": {
     "@solana/web3.js": "^1.44.1",
     "axios": "^0.27.2",
+    "opensea-js": "^4.0.3",
     "web3": "^1.7.3"
   }
 }
