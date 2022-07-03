@@ -11,6 +11,9 @@ import currencies from './utils/currencies';
 import { isValidERC20 } from './utils/isValidERC20';
 import { OpenSeaSDK, Network } from 'opensea-js'
 import { serializeOpenSeaOrder } from './utils/serializeOpenSeaOrder';
+import { ExternalOrder } from './types/ExternalOrderInterface';
+import { Order } from 'opensea-js/lib/types';
+import { Listings } from './types/ListingsInterface';
 
 
 class Nifty {
@@ -37,10 +40,11 @@ class Nifty {
 
   /**
   * @param order recived from api
+  * @param externalOrder boolean if order is external
   * @returns returns item
   * @returns returns tnx hash value
   */
-  async buy(order: any, externalOrder: boolean) {
+  async buy(order: Order | ExternalOrder, externalOrder: boolean) {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
@@ -50,12 +54,13 @@ class Nifty {
     const chainId = await this.wallet.chainId();
 
     if (externalOrder) {
-      switch (order.source) {
+      const ExternalOrder = order as ExternalOrder;
+      switch (ExternalOrder.source) {
         case OPENSEA:
           const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
             networkName: Network.Rinkeby,
           })
-          const serializeOrder = serializeOpenSeaOrder(order)
+          const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
           if (serializeOrder) {
             return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
           }
@@ -84,24 +89,22 @@ class Nifty {
   * @param price price for the NFT 
   * @param expirationTime Expiration time in UTC seconds.
   * @param ERC20Address to fullfill the order with 
-  * @returns returns order from api
+  * @returns returns complete order from api
   */
-  async sell(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<object> {
+  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<object> {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
     }
 
-    const { contractAddress, tokenID } = item;
-    const contractType = item.contractType;
-    const itemChainId = item.chainId;
+    const { contractAddress, tokenID, contractType, chainId: itemChainId } = item;
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
     const exchangeAddress = addresses[chainId].Exchange;
 
     if (!isValidERC20(ERC20Address, chainId)) {
-      throw new Error('Invalid asset data');
+      throw new Error('Invalid ERC20 address');
     }
 
     const transaction = new Transaction({
@@ -114,8 +117,8 @@ class Nifty {
       transaction.setStatusListener(this.listener);
     }
 
-    const sellOrder = await transaction.sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
-    const res = await this.api.orders.create(sellOrder);
+    const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
+    const res = await this.api.orders.create(orderList);
     return res.data
   }
 
@@ -174,23 +177,26 @@ class Nifty {
   async getNFTData(item: Item): Promise<object> {
     this.verifyMarkletplace();
 
+    const { contractAddress, tokenID, contractType, chainId, id: tokenId } = item;
+
     const res = await this.api.tokens.getGraph({
-      contractAddress: item.contractAddress,
-      tokenID: item.tokenID,
-      tokenId: item.id,
-      chainId: item.chainId,
-      contractType: item.contractType,
+      contractAddress,
+      tokenID,
+      chainId,
+      contractType,
+      tokenId,
     })
     return res.data
   }
 
+
   /**
   * @param item item recived from api
-  * @param listings array of listings from NFTData
+  * @param listings array of listings from getNFTData
   * @returns returns canBuy
   * @returns returns canSell
   */
-  async getUserAvailableMethods(listings: any, item: any): Promise<object> {
+  async getUserAvailableMethods(listings: Listings, item: Item): Promise<object> {
     this.verifyMarkletplace();
 
     if (!this.wallet) {
@@ -199,13 +205,14 @@ class Nifty {
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
+    const { contractAddress, tokenID, contractType, chainId: itemChainId } = item;
 
-    if (String(item.chainId) !== String(chainId)) {
-      throw new Error(`Please connect to ${item.chainId}`);
+    if (String(itemChainId) !== String(chainId)) {
+      throw new Error(`Please connect to ${itemChainId}`);
     }
 
     const transaction = new Transaction({ wallet: this.wallet, address, chainId });
-    const isOwner = await transaction.isOwner(item.contractAddress, item.tokenID, item.contract.type);
+    const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
 
     const activeListings = listings.filter((list) => list.state === 'ADDED');
     const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
@@ -217,6 +224,12 @@ class Nifty {
     })
   }
 
+
+  /**
+  * @param orderId order id from item 
+  * @param externalOrder boolean if the order is external
+  * @returns listing
+  */
   async getListing(orderId: number, externalOrder: boolean): Promise<object> {
     this.verifyMarkletplace();
 
@@ -230,6 +243,11 @@ class Nifty {
     return res.data;
   }
 
+
+  /**
+  * @param chainId optional chain id  
+  * @returns currencies
+  */
   getAvailablePaymentMethods(chainId?: number | string): Array<object> {
     this.verifyMarkletplace();
 
