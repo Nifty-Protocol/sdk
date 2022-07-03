@@ -102,7 +102,7 @@ export default class Transaction {
     return { ...item, txHash };
   }
 
-  async sell({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address }) {
+  async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
@@ -176,7 +176,7 @@ export default class Transaction {
     return { ...signedOrder, orderHash };
   }
 
-  async isOwner(contractAddress: string, tokenId: number, contractType: string) {
+  async isOwner(contractAddress: string, tokenId: string | number, contractType: string) {
 
     let connectedAddressBalance;
     let tokenOwner;
