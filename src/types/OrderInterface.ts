@@ -1,4 +1,4 @@
-import { Item } from "./itemInterface";
+import { Item } from "./ItemInterface";
 
 export interface Order {
   id: string;

@@ -6,7 +6,7 @@ import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses from './addresses';
 import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
-import { Item } from './types/itemInterface';
+import { Item } from './types/ItemInterface';
 import currencies from './utils/currencies';
 import { isValidERC20 } from './utils/isValidERC20';
 import { OpenSeaSDK, Network } from 'opensea-js'
@@ -14,13 +14,14 @@ import { serializeOpenSeaOrder } from './utils/serializeOpenSeaOrder';
 import { ExternalOrder } from './types/ExternalOrderInterface';
 import { Order } from 'opensea-js/lib/types';
 import { Listings } from './types/ListingsInterface';
+import { Api } from './types/ApiInterface';
 
 
 class Nifty {
   wallet: Wallet;
   key: string;
   env: string;
-  api: any;
+  api: Api;
   listener: Function;
 
   constructor(options) {
