@@ -12,10 +12,8 @@ function hasNullValue(obj, ignore) {
 }
 
 export const serializeOpenSeaOrder = ({ raw }) => {
-
-
   if (hasNullValue(raw, ['taker'])) {
-    return null;
+    throw new Error('Order is not valid');
   }
 
   return {
