@@ -15,6 +15,7 @@ import { ExternalOrder } from './types/ExternalOrderInterface';
 import { Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
 import { Order } from './types/OrderInterface';
+import { Options } from './types/OptionsInterface';
 
 
 class Nifty {
@@ -24,7 +25,7 @@ class Nifty {
   api: Api;
   listener: Function;
 
-  constructor(options) {
+  constructor(options: Options) {
     this.key = options.key;
     this.env = options.env;
     this.api = api(this.env);
@@ -51,7 +52,7 @@ class Nifty {
   * @returns returns item
   * @returns returns tnx hash value
   */
-  async buy(order: Order | ExternalOrder, externalOrder: boolean = false) {
+  async buy(order: Order | ExternalOrder, externalOrder: boolean = false): Promise<object | string> {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
@@ -90,7 +91,7 @@ class Nifty {
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
-    
+
     return transaction.buy(order as Order);
   }
 
@@ -102,7 +103,7 @@ class Nifty {
   * @param ERC20Address to fullfill the order with 
   * @returns returns complete order from api
   */
-  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<object> {
+  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
@@ -150,7 +151,7 @@ class Nifty {
       * @param filter.skip number of NFTs to skip
    * @returns returns NFTs from api
    */
-  async getNFTs(options: object): Promise<object> {
+  async getNFTs(options: object): Promise<Array<Item>> {
     this.verifyMarkletplace();
 
     const res = await this.api.tokens.getAll({ ...options, key: this.key });
@@ -164,7 +165,7 @@ class Nifty {
   * @param chainId chain id of the NFT
   * @returns returns NFT from api
   */
-  async getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<object> {
+  async getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<Item> {
     this.verifyMarkletplace();
 
     const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
@@ -179,7 +180,7 @@ class Nifty {
       * @returns returns NFT transfers
       * @returns returns NFT offers
   */
-  async getNFTData(item: Item): Promise<object> {
+  async getNFTData(item: Item): Promise<{ balances: Array<object>, transfers: Array<object>, listings: Array<object>, offers: Array<object> }> {
     this.verifyMarkletplace();
 
     const { contractAddress, tokenID, contractType, chainId, id: tokenId } = item;
@@ -201,7 +202,7 @@ class Nifty {
   * @returns returns canBuy
   * @returns returns canSell
   */
-  async getUserAvailableMethods(listings: Listings, item: Item): Promise<object> {
+  async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean }> {
     this.verifyMarkletplace();
 
     if (!this.wallet) {

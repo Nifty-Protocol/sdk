@@ -46,7 +46,6 @@ export default class Transaction {
   /*
      Royalties
    */
-
   getRoyalties(collectionAddress, tokenId, price) {
     const unit = new BigNumber(10).pow(18);
     const salePrice = unit.times(new BigNumber(price));
