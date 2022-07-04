@@ -15,7 +15,7 @@ export interface Order {
   makerFee: string;
   takerFee: string;
   makerAssetAmount: string;
-  takerAssetAmount: string;
+  takerAssetAmount: number;
   salt: string;
   signature: string;
   makerFeeAssetData: string;
@@ -25,8 +25,8 @@ export interface Order {
   state: string;
   type: string;
   price: number;
-  trades: Trade[];
-  tokens: Item[];
+  trades: Array<Trade>;
+  tokens: Array<Item>;
 }
 
 interface Trade {

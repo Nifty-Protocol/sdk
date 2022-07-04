@@ -15,6 +15,7 @@ import {
 import signature from '../signature';
 import addresses from '../addresses';
 import { isValidERC20 } from '../utils/isValidERC20';
+import { Order } from '../types/OrderInterface';
 
 export default class Transaction {
   listener: Function;
@@ -47,20 +48,20 @@ export default class Transaction {
   * BUY
   * @param item - the item to buy
   */
-  async buy(item) {
+  async buy(order: Order) {
     this.setStatus(CREATING);
 
-    if (String(item.chainId) !== String(this.chainId)) {
-      throw new Error(`Please connect to ${item.chainId}`);
+    if (String(order.chainId) !== String(this.chainId)) {
+      throw new Error(`Please connect to ${order.chainId}`);
     }
 
-    const signedOrder = destructOrder(item);
+    const signedOrder = destructOrder(order);
 
     this.setStatus(APPROVING);
 
-    const contractType = item.tokens[0].contract.type;
+    const contractType = order.tokens[0].contractType;
 
-    const { tokenAddress } = await this.contracts.decodeERC20Data(item.takerAssetData)
+    const { tokenAddress } = await this.contracts.decodeERC20Data(order.takerAssetData)
 
     if (!isValidERC20(tokenAddress, this.chainId)) {
       throw new Error("Invalid asset data");
@@ -73,7 +74,7 @@ export default class Transaction {
 
     const ERC20Balance = new BigNumber(nativeERC20Balance);
     const allowance = new BigNumber(proxyApprovedAllowance);
-    const itemPrice = new BigNumber(item.takerAssetAmount).plus(new BigNumber(item.takerFee));
+    const itemPrice = new BigNumber(order.takerAssetAmount).plus(new BigNumber(order.takerFee));
 
     // if wallet has more erc20 balance than the nft price
     if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
@@ -91,10 +92,10 @@ export default class Transaction {
     else if (contractType === EIP1155 && addresses[this.chainId].NativeERC20 === tokenAddress) {
       this.setStatus(CONVERT);
       await this.contracts.convertToNativeERC20(
-        item.takerAssetAmount - nativeERC20Balance,
+        order.takerAssetAmount - nativeERC20Balance,
       );
       this.setStatus(APPROVING);
-      if (Number(proxyApprovedAllowance) < Number(item.takerAssetAmount + item.takerFee)) {
+      if (Number(proxyApprovedAllowance) < Number(order.takerAssetAmount + order.takerFee)) {
         await this.contracts.ERC20Approve(tokenAddress);
       }
       txHash = await this.contracts.fillOrder(signedOrder);
@@ -102,7 +103,7 @@ export default class Transaction {
 
     this.setStatus(APPROVED);
 
-    return { ...item, txHash };
+    return { ...order, txHash };
   }
 
   async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address }) {

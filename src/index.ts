@@ -12,9 +12,9 @@ import { isValidERC20 } from './utils/isValidERC20';
 import { OpenSeaSDK, Network } from 'opensea-js'
 import { serializeOpenSeaOrder } from './utils/serializeOpenSeaOrder';
 import { ExternalOrder } from './types/ExternalOrderInterface';
-import { Order } from 'opensea-js/lib/types';
 import { Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
+import { Order } from './types/OrderInterface';
 
 
 class Nifty {
@@ -90,7 +90,8 @@ class Nifty {
     if (this.listener) {
       transaction.setStatusListener(this.listener);
     }
-    return transaction.buy(order);
+    
+    return transaction.buy(order as Order);
   }
 
 
