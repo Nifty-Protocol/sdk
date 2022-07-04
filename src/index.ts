@@ -130,9 +130,14 @@ class Nifty {
       transaction.setStatusListener(this.listener);
     }
 
-    const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
-    const res = await this.api.orders.create(orderList);
-    return res.data
+    try {
+      const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
+      const res = await this.api.orders.create(orderList);
+      return res.data
+
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
 
@@ -156,10 +161,14 @@ class Nifty {
 
     this.verifyMarkletplace();
 
-    const res = await this.api.tokens.getAll({ ...options, key: this.key });
-    return res.data
+    try {
+      const res = await this.api.tokens.getAll({ ...options, key: this.key });
+      return res.data
+    } catch (e) {
+      throw new Error(e)
+    }
   }
-  
+
 
   /**
   * @param contractAddress NFT contract address
@@ -171,8 +180,12 @@ class Nifty {
 
     this.verifyMarkletplace();
 
-    const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
-    return res.data
+    try {
+      const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
+      return res.data
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
 
@@ -189,14 +202,18 @@ class Nifty {
 
     const { contractAddress, tokenID, contractType, chainId, id: tokenId } = item;
 
-    const res = await this.api.tokens.getGraph({
-      contractAddress,
-      tokenID,
-      chainId,
-      contractType,
-      tokenId,
-    })
-    return res.data
+    try {
+      const res = await this.api.tokens.getGraph({
+        contractAddress,
+        tokenID,
+        chainId,
+        contractType,
+        tokenId,
+      })
+      return res.data
+    } catch (e) {
+      throw new Error(e)
+    }
   }
 
 
@@ -241,13 +258,18 @@ class Nifty {
   async getListing(orderId: number, externalOrder: boolean = false): Promise<object> {
     this.verifyMarkletplace();
 
-    if (externalOrder) {
-      const res = await this.api.externalOrders.get(orderId);
-      return res.data
-    }
+    try {
+      if (externalOrder) {
+        const res = await this.api.externalOrders.get(orderId);
+        return res.data
+      }
 
-    const res = await this.api.orders.get(orderId)
-    return res.data;
+      const res = await this.api.orders.get(orderId)
+      return res.data;
+    }
+    catch (e) {
+      throw new Error(e)
+    }
   }
 
 
