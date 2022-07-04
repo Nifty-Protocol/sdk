@@ -51,7 +51,7 @@ class Nifty {
   * @returns returns item
   * @returns returns tnx hash value
   */
-  async buy(order: Order | ExternalOrder, externalOrder: boolean) {
+  async buy(order: Order | ExternalOrder, externalOrder: boolean = false) {
 
     if (!this.wallet) {
       throw new Error('Please set wallet');
@@ -62,19 +62,21 @@ class Nifty {
 
     if (externalOrder) {
       const ExternalOrder = order as ExternalOrder;
-      switch (ExternalOrder.source) {
-        case OPENSEA:
-          const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
-            networkName: Network.Rinkeby,
-          })
-          const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
-          if (serializeOrder) {
-            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
-          }
-          return null;
+      try {
+        switch (ExternalOrder.source) {
+          case OPENSEA:
+            const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
+              networkName: Network.Rinkeby,
+            })
 
-        default:
-          break;
+            const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
+            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
+
+          default:
+            break;
+        }
+      } catch (e) {
+        throw new Error(e)
       }
     }
 
@@ -132,18 +134,18 @@ class Nifty {
 
   /**
    * @param filter options  
-   * @param filter.contracts array of contracts to filter by
-   * @param filter.search string to search by  
-   * @param filter.order has order attached
-   * @param filter.verified only show verified listings
-   * @param filter.priceRange array of price range [min,max] 
-   * @param filter.chains array of chains [] 
-   * @param filter.address user address to filter by 
-   * @param filter.connectedChainId chain id of the user address
-   * @param filter.traits array of traits to filter by
-   * @param filter.sort string to sort by
-   * @param filter.limit number on NFTs to return
-   * @param filter.skip number of NFTs to skip
+      * @param filter.contracts array of contracts to filter by
+      * @param filter.search string to search by  
+      * @param filter.order has order attached
+      * @param filter.verified only show verified listings
+      * @param filter.priceRange array of price range [min,max] 
+      * @param filter.chains array of chains [] 
+      * @param filter.address user address to filter by 
+      * @param filter.connectedChainId chain id of the user address
+      * @param filter.traits array of traits to filter by
+      * @param filter.sort string to sort by
+      * @param filter.limit number on NFTs to return
+      * @param filter.skip number of NFTs to skip
    * @returns returns NFTs from api
    */
   async getNFTs(options: object): Promise<object> {
@@ -170,9 +172,10 @@ class Nifty {
 
   /**
   * @param item item recived from api
-  * @returns returns NFT balances(1155)
-  * @returns returns NFT transfers
-  * @returns returns NFT offers
+  * @returns returns NFT data object
+      * @returns returns NFT balances(1155)
+      * @returns returns NFT transfers
+      * @returns returns NFT offers
   */
   async getNFTData(item: Item): Promise<object> {
     this.verifyMarkletplace();
@@ -209,7 +212,7 @@ class Nifty {
 
     if (String(itemChainId) !== String(chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
-    }
+    } 
 
     const transaction = new Transaction({ wallet: this.wallet, address, chainId });
     const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
@@ -230,7 +233,7 @@ class Nifty {
   * @param externalOrder boolean if the order is external
   * @returns listing
   */
-  async getListing(orderId: number, externalOrder: boolean): Promise<object> {
+  async getListing(orderId: number, externalOrder: boolean = false): Promise<object> {
     this.verifyMarkletplace();
 
     if (externalOrder) {
