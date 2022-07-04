@@ -301,4 +301,13 @@ export default class Contracts {
       from: this.address,
     });
   }
+
+  getRoyalties(collectionAddress, tokenId, salePrice) {
+    const royaltiesContract = new this.wallet.provider.eth.Contract(
+      RoyaltiesManagerABI, this.addresses.RoyaltiesManager,
+    );
+    return royaltiesContract.methods.getRoyalties(collectionAddress, tokenId, salePrice)
+      .call({ from: this.address });
+  }
 }
+

@@ -43,6 +43,15 @@ export default class Transaction {
     }
   }
 
+  /*
+     Royalties
+   */
+
+  getRoyalties(collectionAddress, tokenId, price) {
+    const unit = new BigNumber(10).pow(18);
+    const salePrice = unit.times(new BigNumber(price));
+    return this.contracts.getRoyalties(collectionAddress, tokenId, salePrice.toString());
+  }
 
   /**
   * BUY
@@ -142,11 +151,11 @@ export default class Transaction {
 
     let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
 
-    // try {
-    //   ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
-    // } catch (e) {
-    //   console.error(e);
-    // }
+    try {
+      ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
+    } catch (e) {
+      console.error(e);
+    }
 
     takerAssetAmount = takerAssetAmount.minus(royaltyAmount);
 
@@ -192,3 +201,4 @@ export default class Transaction {
     return isUserHasBalance || isUserOwner;
   }
 }
+
