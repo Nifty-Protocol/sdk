@@ -67,7 +67,7 @@ export default class Transaction {
 
     this.setStatus(APPROVING);
 
-    const contractType = order.tokens[0].contractType;
+    const contractType = order.tokens[0].contract.type;
 
     const { tokenAddress } = await this.contracts.decodeERC20Data(order.takerAssetData)
 
