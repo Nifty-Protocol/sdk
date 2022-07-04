@@ -45,6 +45,11 @@ class Nifty {
     }
   }
 
+  verifyWallet(){
+    if (!this.wallet) {
+      throw new Error('Please set wallet');
+    }
+  }
 
   /**
   * @param order recived from api
@@ -54,9 +59,7 @@ class Nifty {
   */
   async buy(order: Order | ExternalOrder, externalOrder: boolean = false): Promise<object | string> {
 
-    if (!this.wallet) {
-      throw new Error('Please set wallet');
-    }
+   this.verifyWallet();
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
@@ -105,9 +108,7 @@ class Nifty {
   */
   async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
 
-    if (!this.wallet) {
-      throw new Error('Please set wallet');
-    }
+    this.verifyWallet();
 
     const { contractAddress, tokenID, contractType, chainId: itemChainId } = item;
 
@@ -152,6 +153,7 @@ class Nifty {
    * @returns returns NFTs from api
    */
   async getNFTs(options: object): Promise<Array<Item>> {
+    
     this.verifyMarkletplace();
 
     const res = await this.api.tokens.getAll({ ...options, key: this.key });
@@ -166,6 +168,7 @@ class Nifty {
   * @returns returns NFT from api
   */
   async getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<Item> {
+    
     this.verifyMarkletplace();
 
     const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
@@ -181,6 +184,7 @@ class Nifty {
       * @returns returns NFT offers
   */
   async getNFTData(item: Item): Promise<{ balances: Array<object>, transfers: Array<object>, listings: Array<object>, offers: Array<object> }> {
+    
     this.verifyMarkletplace();
 
     const { contractAddress, tokenID, contractType, chainId, id: tokenId } = item;
@@ -203,11 +207,9 @@ class Nifty {
   * @returns returns canSell
   */
   async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean }> {
+    
     this.verifyMarkletplace();
-
-    if (!this.wallet) {
-      throw new Error('Please set wallet');
-    }
+    this.verifyWallet();
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
