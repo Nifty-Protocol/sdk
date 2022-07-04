@@ -45,7 +45,7 @@ class Nifty {
     }
   }
 
-  verifyWallet(){
+  verifyWallet() {
     if (!this.wallet) {
       throw new Error('Please set wallet');
     }
@@ -59,7 +59,7 @@ class Nifty {
   */
   async buy(order: Order | ExternalOrder, externalOrder: boolean = false): Promise<object | string> {
 
-   this.verifyWallet();
+    this.verifyWallet();
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
@@ -153,13 +153,13 @@ class Nifty {
    * @returns returns NFTs from api
    */
   async getNFTs(options: object): Promise<Array<Item>> {
-    
+
     this.verifyMarkletplace();
 
     const res = await this.api.tokens.getAll({ ...options, key: this.key });
     return res.data
   }
-
+  
 
   /**
   * @param contractAddress NFT contract address
@@ -168,7 +168,7 @@ class Nifty {
   * @returns returns NFT from api
   */
   async getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<Item> {
-    
+
     this.verifyMarkletplace();
 
     const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
@@ -184,7 +184,7 @@ class Nifty {
       * @returns returns NFT offers
   */
   async getNFTData(item: Item): Promise<{ balances: Array<object>, transfers: Array<object>, listings: Array<object>, offers: Array<object> }> {
-    
+
     this.verifyMarkletplace();
 
     const { contractAddress, tokenID, contractType, chainId, id: tokenId } = item;
@@ -207,7 +207,7 @@ class Nifty {
   * @returns returns canSell
   */
   async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean }> {
-    
+
     this.verifyMarkletplace();
     this.verifyWallet();
 
