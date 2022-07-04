@@ -9,6 +9,8 @@ import {
   CONVERT,
   SIGN,
   NULL_ADDRESS,
+  EIP1155,
+  EIP721,
 } from '../constants';
 import signature from '../signature';
 import addresses from '../addresses';
@@ -40,9 +42,10 @@ export default class Transaction {
     }
   }
 
+
   /**
   * BUY
-  * @param {array} items
+  * @param item - the item to buy
   */
   async buy(item) {
     this.setStatus(CREATING);
@@ -81,11 +84,11 @@ export default class Transaction {
       txHash = await this.contracts.fillOrder(signedOrder);
     }
 
-    else if (contractType === 'EIP721' && addresses[this.chainId].NativeERC20 == tokenAddress) {
+    else if (contractType === EIP721 && addresses[this.chainId].NativeERC20 === tokenAddress) {
       txHash = await this.contracts.marketBuyOrdersWithEth(signedOrder);
     }
 
-    else if (contractType === 'EIP1155' && addresses[this.chainId].NativeERC20 == tokenAddress) {
+    else if (contractType === EIP1155 && addresses[this.chainId].NativeERC20 === tokenAddress) {
       this.setStatus(CONVERT);
       await this.contracts.convertToNativeERC20(
         item.takerAssetAmount - nativeERC20Balance,
@@ -108,29 +111,23 @@ export default class Transaction {
       throw new Error(`Please connect to ${itemChainId}`);
     }
 
-    if (!isValidERC20(ERC20Address, this.chainId)) {
-      throw new Error("Invalid asset data");
-    }
-
     this.setStatus(APPROVING);
 
-    if (contractType === 'EIP721') {
+    if (contractType === EIP721) {
       await this.contracts.erc721ApproveForAll(contractAddress);
-    } else if (contractType === 'EIP1155') {
+    } else if (contractType === EIP1155) {
       await this.contracts.erc1155ApproveForAll(contractAddress);
     }
 
     this.setStatus(SIGN);
     let makerAssetData = '';
-    if (contractType === 'EIP721') {
+    if (contractType === EIP721) {
       makerAssetData = await this.contracts.encodeERC721AssetData(contractAddress, tokenID);
-    } else if (contractType === 'EIP1155') {
+    } else if (contractType === EIP1155) {
       makerAssetData = await this.contracts.encodeERC1155AssetData(contractAddress, tokenID, 1);
     }
 
     const takerAssetData = await this.contracts.encodeERC20Data(ERC20Address);
-    // const takerAssetData = await this.contracts.encodeERC20AssetData();
-
 
     // the amount the maker is selling of maker asset (1 ERC721 Token)
     const makerAssetAmount = new BigNumber(1);
