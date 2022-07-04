@@ -65,8 +65,9 @@ class Nifty {
       try {
         switch (ExternalOrder.source) {
           case OPENSEA:
+            const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
             const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
-              networkName: Network.Rinkeby,
+              networkName
             })
 
             const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
@@ -212,7 +213,7 @@ class Nifty {
 
     if (String(itemChainId) !== String(chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
-    } 
+    }
 
     const transaction = new Transaction({ wallet: this.wallet, address, chainId });
     const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
