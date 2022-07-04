@@ -1,28 +1,29 @@
+import { AxiosResponse } from "axios";
 
 interface ExternalOrder {
-  get: (id: string | number) => any;
+  get: (id: string | number) => Promise<AxiosResponse>;
 }
 
 interface Orders {
-  create: (data: object) => any;
-  get: (id: string | number) => any;
-  cancel: (id: string) => any;
+  create: (data: object) => Promise<AxiosResponse>;
+  get: (id: string | number) => Promise<AxiosResponse>;
+  cancel: (id: string) => Promise<AxiosResponse>;
 }
 
 interface Tokens {
-  get: (contractAddress: string, tokenID: number | number, params: object) => any;
-  refresh: (id: string, params: object) => any;
-  getOwner: (params: object) => any;
-  getGraph: (params: object) => any;
-  traits: (id: string, params: object) => any;
-  getAll: (params: object) => any;
-  report: (data: object) => any;
+  get: (contractAddress: string, tokenID: number | number, params: object) => Promise<AxiosResponse>;
+  refresh: (id: string, params: object) => Promise<AxiosResponse>;
+  getOwner: (params: object) => Promise<AxiosResponse>;
+  getGraph: (params: object) => Promise<AxiosResponse>;
+  traits: (id: string, params: object) => Promise<AxiosResponse>;
+  getAll: (params: object) => Promise<AxiosResponse>;
+  report: (data: object) => Promise<AxiosResponse>;
 }
 
 interface Trades {
-  getAll: () => any;
-  getStats: (params: object) => any;
-  getGraph: (params: object) => any;
+  getAll: () => Promise<AxiosResponse>;
+  getStats: (params: object) => Promise<AxiosResponse>;
+  getGraph: (params: object) => Promise<AxiosResponse>;
 }
 
 export interface Api {
