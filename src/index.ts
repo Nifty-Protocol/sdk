@@ -140,6 +140,24 @@ class Nifty {
     }
   }
 
+  async cancelOrder(order: Order) {
+    this.verifyWallet();
+
+    const address = await this.wallet.getUserAddress();
+    const chainId = await this.wallet.chainId();
+
+    const transaction = new Transaction({
+      wallet: this.wallet,
+      address,
+      chainId,
+    });
+
+    await transaction.cancelOrder(order);
+    const res = await this.api.orders.cancel(order.id)
+    
+    return res.data
+  }
+
 
   /**
    * @param filter options  
@@ -223,7 +241,7 @@ class Nifty {
   * @returns returns canBuy
   * @returns returns canSell
   */
-  async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean }> {
+  async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean, canCancel: boolean }> {
 
     this.verifyMarkletplace();
     this.verifyWallet();
@@ -243,9 +261,15 @@ class Nifty {
     const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
     const isUserListingToken = activeListings.some((list) => list.makerAddress === address);
 
+    let order;
+    if (item.orderId) {
+      order = listings.find((x) => x.id === item.orderId);
+    }
+
     return ({
       canBuy: (!isOwner || isListedByOtherThanUser) && !!item.price,
       canSell: isOwner && !isUserListingToken,
+      canCancel: !!order && order.makerAddress === address,
     })
   }
 

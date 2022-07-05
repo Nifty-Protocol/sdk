@@ -52,10 +52,7 @@ export default class Transaction {
     return this.contracts.getRoyalties(collectionAddress, tokenId, salePrice.toString());
   }
 
-  /**
-  * BUY
-  * @param item - the item to buy
-  */
+
   async buy(order: Order) {
     this.setStatus(CREATING);
 
@@ -181,6 +178,12 @@ export default class Transaction {
 
     return { ...signedOrder, orderHash };
   }
+
+  async cancelOrder(order:Order) {
+    const signedOrder = destructOrder(order);
+    await this.contracts.cancelOrder(signedOrder);
+  }
+
 
   async isOwner(contractAddress: string, tokenId: string | number, contractType: string) {
 
