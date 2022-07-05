@@ -1,4 +1,4 @@
-import { PROD, TESTNET, LOCAL, OPENSEA } from './constants';
+import { PROD, TESTNET, LOCAL, OPENSEA, BUY } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import { findChainById } from './utils/chain';
@@ -139,6 +139,41 @@ class Nifty {
       throw new Error(e)
     }
   }
+  async offer(item: Item, price: number, expirationTime: number) {
+    this.verifyWallet();
+
+    const address = await this.wallet.getUserAddress();
+    const chainId = await this.wallet.chainId();
+    const exchangeAddress = addresses[chainId].Exchange;
+
+    const transaction = new Transaction({
+      wallet: this.wallet,
+      address,
+      chainId,
+    });
+
+    if (this.listener) {
+      transaction.setStatusListener(this.listener);
+    }
+    const tokenWithType = JSON.parse(JSON.stringify(item));
+    tokenWithType.type = BUY;
+
+    const offerOrder = await transaction.offer({
+      item: tokenWithType,
+      price: price,
+      isFullConversion: false,
+      exchangeAddress,
+      expirationTime
+    })
+    const owner = await this.getNftOwner(item.contractAddress, item.tokenID, item.chainId, item.contractType)
+
+    if (owner.id) {
+      offerOrder.recipientAddress = owner.id;
+    }
+
+    offerOrder.type = 'OFFER'
+    return this.api.orders.create(offerOrder)
+  }
 
   async cancelOrder(order: Order) {
     this.verifyWallet();
@@ -154,7 +189,7 @@ class Nifty {
 
     await transaction.cancelOrder(order);
     const res = await this.api.orders.cancel(order.id)
-    
+
     return res.data
   }
 
@@ -241,7 +276,7 @@ class Nifty {
   * @returns returns canBuy
   * @returns returns canSell
   */
-  async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean, canCancel: boolean }> {
+  async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean, canCancel: boolean, canOffer: boolean }> {
 
     this.verifyMarkletplace();
     this.verifyWallet();
@@ -270,6 +305,7 @@ class Nifty {
       canBuy: (!isOwner || isListedByOtherThanUser) && !!item.price,
       canSell: isOwner && !isUserListingToken,
       canCancel: !!order && order.makerAddress === address,
+      canOffer: !isOwner
     })
   }
 
@@ -295,6 +331,17 @@ class Nifty {
       throw new Error(e)
     }
   }
+
+  async getNftOwner(contractAddress: string, tokenID: number | string, chainId: number, contractType: string, orderId?: string) {
+    const res = await this.api.tokens.getOwner({
+      contractAddress: contractAddress,
+      tokenID,
+      chainId,
+      orderId,
+      contractType: contractType,
+    })
+    return res.data
+  };
 
 
   /**

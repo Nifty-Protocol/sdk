@@ -11,6 +11,7 @@ import {
   NULL_ADDRESS,
   EIP1155,
   EIP721,
+  CHECKING_BALANCE,
 } from '../constants';
 import signature from '../signature';
 import addresses from '../addresses';
@@ -179,7 +180,107 @@ export default class Transaction {
     return { ...signedOrder, orderHash };
   }
 
-  async cancelOrder(order:Order) {
+  async offer({
+    item, price, isFullConversion, expirationTime, exchangeAddress
+  }) {
+    this.setStatus(CREATING);
+    const { contractAddress, tokenID, contractType } = item;
+
+    this.setStatus(CHECKING_BALANCE);
+
+    const userBalance = await this.wallet.getBalance(this.address);
+    const nativeERC20Balance = await this.contracts.balanceOfNativeERC20();
+    const priceInWei = this.wallet.blockchainFormatDigit(price);
+
+    let depositTxHash;
+    const minConversion = new BigNumber(priceInWei).minus(nativeERC20Balance);
+    const maxConversion = new BigNumber(priceInWei);
+    const balanceConversion = new BigNumber(userBalance);
+    let conversion = new BigNumber(0);
+
+
+    if (isFullConversion) {
+      conversion = maxConversion;
+      if (conversion.isGreaterThan(balanceConversion)) {
+        const gasPrice = await this.wallet.provider.eth.getGasPrice();
+        const gas = await this.contracts.deposit().estimateGas({ gasPrice });
+        conversion = balanceConversion.minus(gas * gasPrice * 5);
+      }
+    } else {
+      conversion = minConversion;
+    }
+
+    if (conversion > new BigNumber(0)) {
+      this.setStatus(CONVERT);
+      depositTxHash = await this.contracts.convertToNativeERC20(conversion);
+    }
+
+    const proxyApprovedAllowance = await this.contracts.NativeERC20Allowance();
+
+    if (Number(proxyApprovedAllowance) < Number(priceInWei)) {
+      this.setStatus(APPROVING);
+      const approveTxHash = await this.contracts.NativeERC20Approve();
+    }
+
+    this.setStatus(SIGN);
+
+    let takerAssetData = '';
+    if (contractType === EIP721) {
+      takerAssetData = await this.contracts.encodeERC721AssetData(contractAddress, tokenID);
+    } else if (contractType === EIP1155) {
+      takerAssetData = await this.contracts.encodeERC1155AssetData(contractAddress, tokenID, 1);
+    }
+
+    const makerAssetData = await this.contracts.encodeERC20AssetData();
+
+    // the amount the maker is selling of maker asset (1 ERC721 Token)
+    const takerAssetAmount = new BigNumber(1);
+    // the amount the maker wants of taker asset
+    const unit = new BigNumber(10).pow(18);
+    const baseUnitAmount = unit.times(new BigNumber(price));
+    let makerAssetAmount = baseUnitAmount;
+
+    let receiver = NULL_ADDRESS;
+    let royaltyAmount = 0;
+    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
+
+    try {
+      ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
+    } catch (e) {
+      console.error(e);
+    }
+
+    makerAssetAmount = makerAssetAmount.minus(royaltyAmount);
+    const order = createOrder({
+      chainId: this.chainId,
+      makerAddress: this.address,
+      makerFee: String(royaltyAmount),
+      feeRecipientAddress: receiver,
+      expirationTimeSeconds,
+      makerAssetAmount,
+      takerAssetAmount,
+      makerAssetData,
+      takerAssetData,
+    });
+
+    order.chainId = String(order.chainId);
+
+    // Generate the order hash and sign it
+    const signedOrder = await signature(
+      this.wallet.provider.currentProvider,
+      order,
+      this.address,
+      exchangeAddress
+    );
+
+    const { orderHash } = await this.contracts.getOrderInfo(signedOrder);
+
+    this.setStatus(APPROVED);
+
+    return { ...signedOrder, orderHash };
+  }
+
+  async cancelOrder(order: Order) {
     const signedOrder = destructOrder(order);
     await this.contracts.cancelOrder(signedOrder);
   }
