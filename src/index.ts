@@ -1,4 +1,4 @@
-import { PROD, TESTNET, LOCAL, OPENSEA, BUY } from './constants';
+import { PROD, TESTNET, LOCAL, OPENSEA, BUY, OFFER } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import { findChainById } from './utils/chain';
@@ -139,6 +139,8 @@ class Nifty {
       throw new Error(e)
     }
   }
+
+
   async offer(item: Item, price: number, expirationTime: number) {
     this.verifyWallet();
 
@@ -171,7 +173,7 @@ class Nifty {
       offerOrder.recipientAddress = owner.id;
     }
 
-    offerOrder.type = 'OFFER'
+    offerOrder.type = OFFER
     return this.api.orders.create(offerOrder)
   }
 
@@ -187,10 +189,7 @@ class Nifty {
       chainId,
     });
 
-    await transaction.cancelOrder(order);
-    const res = await this.api.orders.cancel(order.id)
-
-    return res.data
+   return transaction.cancelOrder(order);
   }
 
 
