@@ -16,6 +16,7 @@ export const APPROVING_FILL = 'approving_fill';
 export const CHECKING_BALANCE = 'checking_balance';
 export const CONVERT = 'convert';
 export const BUY = 'buy';
+export const SELL = 'sell';
 export const STAKING = 'staking';
 export const CLAIM = 'claim';
 export const WITHDRAW = 'withdraw';
@@ -36,3 +37,11 @@ export const RARIBLE = 'RARIBLE';
 
 export const EIP721 = 'EIP721';
 export const EIP1155 = 'EIP1155';
+
+export const orderStatuses = {
+  ADDED    : 'ADDED',
+  FILLED   : 'FILLED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED  : 'EXPIRED',
+  INVALID  : 'INVALID',
+};
