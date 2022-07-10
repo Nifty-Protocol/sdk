@@ -12,12 +12,14 @@ import {
   EIP1155,
   EIP721,
   CHECKING_BALANCE,
+  CANCELLING,
+  APPROVING_FILL,
 } from '../constants';
 import signature from '../signature';
 import addresses from '../addresses';
 import { isValidERC20 } from '../utils/isValidERC20';
 import { Order } from '../types/OrderInterface';
-import Emitter from '../../src/utils/emitter';
+import Emitter from '../utils/emitter';
 
 export default class Transaction {
   listener: Function;
@@ -128,8 +130,8 @@ export default class Transaction {
     }
 
     this.setStatus(SIGN);
-    Emitter.emit('signature')
-    
+    Emitter.emit('signature', () => { })
+
     let makerAssetData = '';
     if (contractType === EIP721) {
       makerAssetData = await this.contracts.encodeERC721AssetData(contractAddress, tokenID);
@@ -226,7 +228,7 @@ export default class Transaction {
     }
 
     this.setStatus(SIGN);
-    Emitter.emit('signature')
+    Emitter.emit('signature', () => { })
 
     let takerAssetData = '';
     if (contractType === EIP721) {
@@ -284,8 +286,45 @@ export default class Transaction {
     return { ...signedOrder, orderHash };
   }
 
+  async acceptOffer(order: Order) {
+    const nativeERC20Balance = await this.contracts.balanceOfNativeERC20(order.makerAddress);
+    if (new BigNumber(order.makerAssetAmount).isGreaterThan(nativeERC20Balance)) {
+      throw new Error('Not enough balance');
+    }
+
+    this.setStatus(CREATING);
+    const signedOrder = destructOrder(order);
+
+    const { tokens } = order;
+
+    this.setStatus(APPROVING);
+
+    await Promise.all(
+      tokens.map(
+        async (token) => {
+          const { contract } = token;
+          const { type, address } = contract;
+          if (type === EIP721) {
+            await this.contracts.erc721ApproveForAll(address);
+          } else if (type === EIP1155) {
+            await this.contracts.erc1155ApproveForAll(address);
+          }
+        },
+      ),
+    );
+
+    this.setStatus(APPROVING_FILL);
+
+    const txHash = await this.contracts.fillOrder(signedOrder);
+
+    this.setStatus(APPROVED);
+
+    return { ...order, txHash };
+  }
+
   async cancelOrder(order: Order) {
     const signedOrder = destructOrder(order);
+    this.setStatus(CANCELLING);
     await this.contracts.cancelOrder(signedOrder);
   }
 
@@ -295,10 +334,10 @@ export default class Transaction {
     let connectedAddressBalance;
     let tokenOwner;
 
-    if (contractType == 'EIP1155') {
+    if (contractType == EIP1155) {
       connectedAddressBalance = await this.contracts.balanceOfERC1155(contractAddress, tokenId);
     }
-    else if (contractType == 'EIP721') {
+    else if (contractType == EIP721) {
       tokenOwner = await this.contracts.getOwner(contractAddress, tokenId);
     }
 
