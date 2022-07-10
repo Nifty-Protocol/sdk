@@ -17,6 +17,7 @@ import signature from '../signature';
 import addresses from '../addresses';
 import { isValidERC20 } from '../utils/isValidERC20';
 import { Order } from '../types/OrderInterface';
+import Emitter from '../../src/utils/emitter';
 
 export default class Transaction {
   listener: Function;
@@ -127,6 +128,8 @@ export default class Transaction {
     }
 
     this.setStatus(SIGN);
+    Emitter.emit('signature')
+    
     let makerAssetData = '';
     if (contractType === EIP721) {
       makerAssetData = await this.contracts.encodeERC721AssetData(contractAddress, tokenID);
@@ -223,6 +226,7 @@ export default class Transaction {
     }
 
     this.setStatus(SIGN);
+    Emitter.emit('signature')
 
     let takerAssetData = '';
     if (contractType === EIP721) {

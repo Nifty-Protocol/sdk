@@ -16,7 +16,8 @@ import { Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
 import { Order } from './types/OrderInterface';
 import { Options } from './types/OptionsInterface';
-
+import Emitter from '../src/utils/emitter';
+import { EventType } from './types/EventType';
 
 class Nifty {
   wallet: Wallet;
@@ -38,6 +39,16 @@ class Nifty {
   setStatusListener(listener: Function) {
     this.listener = listener;
   }
+
+  addListener(listener: Function, event: EventType, once = false) {
+    if (once) {
+      Emitter.once(event, listener);
+    }
+    else {
+      Emitter.on(event, listener);
+    }
+  }
+
 
   verifyMarkletplace() {
     if (!this.key) {
@@ -64,26 +75,26 @@ class Nifty {
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
 
-    if (externalOrder) {
-      const ExternalOrder = order as ExternalOrder;
-      try {
-        switch (ExternalOrder.source) {
-          case OPENSEA:
-            const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
-            const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
-              networkName
-            })
+    // if (externalOrder) {
+    //   const ExternalOrder = order as ExternalOrder;
+    //   try {
+    //     switch (ExternalOrder.source) {
+    //       case OPENSEA:
+    //         const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
+    //         const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
+    //           networkName
+    //         })
 
-            const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
-            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
+    //         const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
+    //         return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
 
-          default:
-            break;
-        }
-      } catch (e) {
-        throw new Error(e)
-      }
-    }
+    //       default:
+    //         break;
+    //     }
+    //   } catch (e) {
+    //     throw new Error(e)
+    //   }
+    // }
 
     const transaction = new Transaction({
       wallet: this.wallet,
@@ -95,7 +106,8 @@ class Nifty {
       transaction.setStatusListener(this.listener);
     }
 
-    return transaction.buy(order as Order);
+    const res = await transaction.buy(order as Order);
+    return res;
   }
 
 
@@ -189,7 +201,7 @@ class Nifty {
       chainId,
     });
 
-   return transaction.cancelOrder(order);
+    return transaction.cancelOrder(order);
   }
 
 
@@ -355,6 +367,16 @@ class Nifty {
     }
     return currencies
   }
+
+  transactionConfirmation = (txnHash, INTERVAL = 1000) => new Promise((resolve, reject) => {
+    const transactionReceiptRetry = () => this.wallet.provider.eth.getTransactionReceipt(txnHash)
+      .then((receipt) => (receipt && receipt.blockNumber
+        ? resolve(receipt)
+        : setTimeout(() => {
+          transactionReceiptRetry();
+        }, INTERVAL)));
+    transactionReceiptRetry();
+  });
 
   static utils = {
     findChainById

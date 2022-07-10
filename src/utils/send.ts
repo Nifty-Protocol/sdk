@@ -1,3 +1,5 @@
+import Emitter from '../../src/utils/emitter';
+
 const send = (method, options) => new Promise(async (resolve, reject) => {
   const rejectIfUserRejected = (e) => {
     const userRejected = e.code === 4001;
@@ -16,23 +18,31 @@ const send = (method, options) => new Promise(async (resolve, reject) => {
   }
   console.log('normal transaction');
   method.send(_options)
-    .then((txHash) => resolve(txHash))
+    .on('transactionHash', (txHash) => { Emitter.emit('tnxHash', txHash) })
+    .then((txHash) => {
+      Emitter.emit('TransactionConfirmed')
+      resolve(txHash)
+    })
     .catch((e) => {
       if (!rejectIfUserRejected(e)) {
         console.log('0x2 transaction');
         method.send({
           ...options,
           type: '0x2',
-        }).then((txHash) => resolve(txHash))
+        })
+          .on('transactionHash', (txHash) => { Emitter.emit('tnxHash', txHash) })
+          .then((txHash) => resolve(txHash))
           .catch((e2) => {
             if (!rejectIfUserRejected(e2)) {
               console.log('0x0 transaction');
               method.send({
                 ...options,
-                type                : '0x0',
-                maxFeePerGas        : null,
+                type: '0x0',
+                maxFeePerGas: null,
                 maxPriorityFeePerGas: null,
-              }).then((txHash) => resolve(txHash))
+              })
+                .on('transactionHash', (txHash) => { Emitter.emit('tnxHash', txHash) })
+                .then((txHash) => resolve(txHash))
                 .catch((e3) => reject(e3));
             }
           });
