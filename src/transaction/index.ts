@@ -191,6 +191,11 @@ export default class Transaction {
     this.setStatus(CREATING);
     const { contractAddress, tokenID, contractType } = item;
 
+
+    if (String(item.chainId) !== String(item.chainId)) {
+      throw new Error(`Please connect to ${item.chainId}`);
+    }
+
     this.setStatus(CHECKING_BALANCE);
 
     const userBalance = await this.wallet.getBalance(this.address);
@@ -257,6 +262,7 @@ export default class Transaction {
     }
 
     makerAssetAmount = makerAssetAmount.minus(royaltyAmount);
+
     const order = createOrder({
       chainId: this.chainId,
       makerAddress: this.address,
@@ -288,6 +294,7 @@ export default class Transaction {
 
   async acceptOffer(order: Order) {
     const nativeERC20Balance = await this.contracts.balanceOfNativeERC20(order.makerAddress);
+
     if (new BigNumber(order.makerAssetAmount).isGreaterThan(nativeERC20Balance)) {
       throw new Error('Not enough balance');
     }

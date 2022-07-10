@@ -69,7 +69,7 @@ class Nifty {
   * @returns returns item
   * @returns returns tnx hash value
   */
-  async buy(order: Order | ExternalOrder, externalOrder: boolean = false): Promise<object | string> {
+  async buy(order: Order | ExternalOrder, isExternalOrder: boolean = false): Promise<object | string> {
 
     this.verifyWallet();
 
@@ -80,7 +80,7 @@ class Nifty {
       throw new Error('Order is not valid');
     }
 
-    if (externalOrder) {
+    if (isExternalOrder) {
       const ExternalOrder = order as ExternalOrder;
       try {
         switch (ExternalOrder.source) {
@@ -240,7 +240,11 @@ class Nifty {
 
     const res = await transaction.acceptOffer(order)
     return res
+  }
 
+  async rejectOffer(orderId: string | number) {
+    this.verifyWallet();
+    return this.api.orders.cancel(orderId)
   }
 
 
@@ -365,11 +369,11 @@ class Nifty {
   * @param externalOrder boolean if the order is external
   * @returns listing
   */
-  async getListing(orderId: number, externalOrder: boolean = false): Promise<object> {
+  async getListing(orderId: number, isExternalOrder: boolean = false): Promise<object> {
     this.verifyMarkletplace();
 
     try {
-      if (externalOrder) {
+      if (isExternalOrder) {
         const res = await this.api.externalOrders.get(orderId);
         return res.data
       }

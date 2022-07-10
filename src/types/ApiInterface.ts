@@ -7,7 +7,7 @@ interface ExternalOrder {
 interface Orders {
   create: (data: object) => Promise<AxiosResponse>;
   get: (id: string | number) => Promise<AxiosResponse>;
-  cancel: (id: string) => Promise<AxiosResponse>;
+  cancel: (id: string | number) => Promise<AxiosResponse>;
 }
 
 interface Tokens {
