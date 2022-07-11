@@ -274,9 +274,10 @@ export default class Transaction {
       makerAssetData,
       takerAssetData,
     });
-
+  
     order.chainId = String(order.chainId);
 
+  
     // Generate the order hash and sign it
     const signedOrder = await signature(
       this.wallet.provider.currentProvider,
