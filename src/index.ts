@@ -69,7 +69,7 @@ class Nifty {
   * @returns returns item
   * @returns returns tnx hash value
   */
-  async buy(order: Order | ExternalOrder, isExternalOrder: boolean = false): Promise<object | string> {
+  async buy(order: Order | ExternalOrder): Promise<object | string> {
 
     this.verifyWallet();
 
@@ -80,7 +80,11 @@ class Nifty {
       throw new Error('Order is not valid');
     }
 
-    if (isExternalOrder) {
+    const isExternalOrder = (order: any): order is ExternalOrder => {
+      return !!order.source;
+    }
+
+    if (isExternalOrder(order)) {
       const ExternalOrder = order as ExternalOrder;
       try {
         switch (ExternalOrder.source) {
@@ -294,7 +298,7 @@ class Nifty {
       throw new Error(e)
     }
   }
-
+  a
 
   /**
   * @param item item recived from api
