@@ -53,6 +53,30 @@ export default class Contracts {
   }
 
   /**
+   * @param String contractAddress
+   */
+   async isErc721ApprovedForAll(contractAddress: string) {
+    const erc721Token = new this.wallet.provider.eth.Contract(
+      ERC721ABI,
+      contractAddress
+    );
+    const approvedAddress = await erc721Token.methods
+      .isApprovedForAll(this.address, this.addresses.ERC721Proxy)
+      .call({ from: this.address });
+    return this.addresses.ERC721Proxy === approvedAddress;
+  }
+
+  /**
+   * @param String contractAddress
+   */
+   async isErc1155ApprovedForAll(contractAddress: string) {
+    const erc1155Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
+    return await erc1155Token.methods
+      .isApprovedForAll(this.address, this.addresses.ERC1155Proxy)
+      .call({ from: this.address });
+  }
+
+  /**
    *
    * @param String contractAddress
    */

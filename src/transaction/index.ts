@@ -116,18 +116,13 @@ export default class Transaction {
   }
 
   async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address }) {
-
+    
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
     }
 
     this.setStatus(APPROVING);
-
-    if (contractType === EIP721) {
-      await this.contracts.erc721ApproveForAll(contractAddress);
-    } else if (contractType === EIP1155) {
-      await this.contracts.erc1155ApproveForAll(contractAddress);
-    }
+    await this.approveForAll(contractAddress, contractType); // Approve proxy, does nothing if already approved
 
     this.setStatus(SIGN);
     Emitter.emit('signature', () => { })
@@ -354,5 +349,40 @@ export default class Transaction {
 
     return isUserHasBalance || isUserOwner;
   }
+
+  /**
+   * IS APPROVED FOR ALL?
+   */
+   async isApprovedForAll(item): Promise<boolean> {
+    const { contractAddress, contractType } = item;
+    if (contractType === "EIP721") {
+      return await this.contracts.isErc721ApprovedForAll(contractAddress);
+    } else if (contractType === "EIP1155") {
+      return await this.contracts.isErc1155ApprovedForAll(contractAddress);
+    } else {
+      throw Error(
+        `Unsupported contractType \"${contractType}\" for \"approve\"`
+      );
+    }
+  }
+
+  /**
+   * APPROVE FOR ALL
+   */
+   async approveForAll(
+    contractAddress: string,
+    contractType: string
+  ) {
+    if (contractType === "EIP721") {
+      await this.contracts.erc721ApproveForAll(contractAddress);
+    } else if (contractType === "EIP1155") {
+      await this.contracts.erc1155ApproveForAll(contractAddress);
+    } else {
+      throw Error(
+        `Unsupported contractType \"${contractType}\" for \"approve\"`
+      );
+    }
+  }
+
 }
 
