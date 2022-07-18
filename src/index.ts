@@ -4,7 +4,7 @@ import Transaction from './transaction';
 import { findChainById } from './utils/chain';
 import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
-import addresses from './addresses';
+import addresses, { addressesParameter } from './addresses';
 import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
 import { Item } from './types/ItemInterface';
 import currencies from './utils/currencies';
@@ -24,7 +24,7 @@ class Nifty {
   wallet: Wallet;
   key: string;
   env: string;
-  addresses: object;
+  addresses: addressesParameter;
   api: Api;
   listener: Function;
 
@@ -41,7 +41,7 @@ class Nifty {
     });
   }
 
-  setMakretplaceAddresses(addresses: object) {
+  setMakretplaceAddresses(addresses: addressesParameter) {
     this.addresses = addresses;
   }
 
