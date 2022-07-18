@@ -1,6 +1,6 @@
-import { PROD, TESTNET, LOCAL } from '../constants';
+import { PROD, TESTNET } from '../constants';
 
-type env = typeof PROD | typeof TESTNET | typeof LOCAL;
+type env = typeof PROD | typeof TESTNET ;
 
 export interface Options {
   key: string;

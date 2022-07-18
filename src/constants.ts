@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js';
 
 export const PROD = 'prod';
 export const TESTNET = 'testnet';
-export const LOCAL = 'local';
 
 export const SIGNATURE_DOMAIN = 'NFTrade';
 export const SIGNATURE_VERSION = '1.0.0';

@@ -1,4 +1,4 @@
-import { PROD, TESTNET, LOCAL, OPENSEA, BUY, OFFER, SELL, orderStatuses } from './constants';
+import { PROD, TESTNET, OPENSEA, BUY, OFFER, SELL, orderStatuses } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import { findChainById } from './utils/chain';
@@ -442,7 +442,6 @@ class Nifty {
   static envs = {
     PROD,
     TESTNET,
-    LOCAL,
   };
 
 }
