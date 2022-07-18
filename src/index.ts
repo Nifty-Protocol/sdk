@@ -37,11 +37,11 @@ class Nifty {
   initWallet(type: string, provider: any) {
     this.wallet = wallet(type, provider);
     this.wallet.chainId().then((chainId) => {
-      this.setMakretplaceAddresses(addresses[chainId]);
+      this.setMarketplaceAddresses(addresses[chainId]);
     });
   }
 
-  setMakretplaceAddresses(addresses: addressesParameter) {
+  setMarketplaceAddresses(addresses: addressesParameter) {
     this.addresses = addresses;
   }
 
