@@ -16,7 +16,7 @@ import {
   APPROVING_FILL,
 } from '../constants';
 import signature from '../signature';
-import addresses from '../addresses';
+import { addressesParameter } from '../addresses';
 import { isValidERC20 } from '../utils/isValidERC20';
 import { Order } from '../types/OrderInterface';
 import Emitter from '../utils/emitter';
@@ -28,11 +28,13 @@ export default class Transaction {
   address: string;
   chainId: string;
   contracts: Contracts;
+  addresses: addressesParameter;
 
   constructor(data) {
     this.wallet = data.wallet;
     this.address = data.address;
     this.chainId = data.chainId;
+    this.addresses = data.addresses;
     this.contracts = new Contracts(this.wallet, this.address, this.chainId);
   }
 
@@ -94,11 +96,11 @@ export default class Transaction {
       txHash = await this.contracts.fillOrder(signedOrder);
     }
 
-    else if (contractType === EIP721 && addresses[this.chainId].NativeERC20 === tokenAddress) {
+    else if (contractType === EIP721 && this.addresses[this.chainId].NativeERC20 === tokenAddress) {
       txHash = await this.contracts.marketBuyOrdersWithEth(signedOrder);
     }
 
-    else if (contractType === EIP1155 && addresses[this.chainId].NativeERC20 === tokenAddress) {
+    else if (contractType === EIP1155 && this.addresses[this.chainId].NativeERC20 === tokenAddress) {
       this.setStatus(CONVERT);
       await this.contracts.convertToNativeERC20(
         order.takerAssetAmount - nativeERC20Balance,

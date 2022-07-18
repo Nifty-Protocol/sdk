@@ -115,6 +115,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
+      addresses:this.addresses,
       address,
       chainId,
     });
@@ -151,6 +152,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
+      addresses:this.addresses,
       address,
       chainId,
     });
@@ -174,10 +176,11 @@ class Nifty {
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
-    const exchangeAddress = addresses[chainId].Exchange;
+    const exchangeAddress = this.addresses.Exchange;
 
     const transaction = new Transaction({
       wallet: this.wallet,
+      addresses:this.addresses,
       address,
       chainId,
     });
@@ -217,6 +220,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
+      addresses:this.addresses,
       address,
       chainId,
     });
@@ -242,6 +246,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
+      addresses:this.addresses,
       address,
       chainId,
     });
