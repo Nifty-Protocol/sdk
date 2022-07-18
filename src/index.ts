@@ -24,6 +24,7 @@ class Nifty {
   wallet: Wallet;
   key: string;
   env: string;
+  addresses: object;
   api: Api;
   listener: Function;
 
@@ -35,6 +36,13 @@ class Nifty {
 
   initWallet(type: string, provider: any) {
     this.wallet = wallet(type, provider);
+    this.wallet.chainId().then((chainId) => {
+      this.setMakretplaceAddresses(addresses[chainId]);
+    });
+  }
+
+  setMakretplaceAddresses(addresses: object) {
+    this.addresses = addresses;
   }
 
   setStatusListener(listener: Function) {
@@ -135,7 +143,7 @@ class Nifty {
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
-    const exchangeAddress = addresses[chainId].Exchange;
+    const exchangeAddress = this.addresses.Exchange;
 
     if (!isValidERC20(ERC20Address, chainId)) {
       throw new Error('Invalid ERC20 address');
