@@ -17,14 +17,15 @@ import { Api } from './types/ApiInterface';
 import { Order } from './types/OrderInterface';
 import { Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
-
 import { EventType } from './types/EventType';
+import { currencyInterface } from './types/currencyInterface';
 
 class Nifty {
   wallet: Wallet;
   key: string;
   env: string;
   addresses: addressesParameter;
+  currencies: Array<currencyInterface>;
   api: Api;
   listener: Function;
 
@@ -32,6 +33,7 @@ class Nifty {
     this.key = options.key;
     this.env = options.env;
     this.api = api(this.env);
+    this.currencies = currencies;
   }
 
   initWallet(type: string, provider: any) {
@@ -58,6 +60,13 @@ class Nifty {
     }
   }
 
+  addCurrencies(currency: currencyInterface) {
+    this.currencies.push(currency);
+  }
+
+  removeCurrencies(contractAddress: string, chainId: number) {
+    this.currencies = this.currencies.filter((currency: currencyInterface) => currency.address !== contractAddress && currency.chainId !== chainId);
+  }
 
   verifyMarkletplace() {
     if (!this.key) {
@@ -115,7 +124,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -140,19 +149,20 @@ class Nifty {
 
     this.verifyWallet();
 
+
     const { contractAddress, tokenID, contractType, chainId: itemChainId } = item;
 
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
     const exchangeAddress = this.addresses.Exchange;
 
-    if (!isValidERC20(ERC20Address, chainId)) {
+    if (!isValidERC20(ERC20Address, chainId, this.currencies)) {
       throw new Error('Invalid ERC20 address');
     }
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -180,7 +190,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -220,7 +230,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -246,7 +256,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -420,15 +430,16 @@ class Nifty {
   */
   getAvailablePaymentMethods(chainId?: number | string, defaultPaymentMethod: boolean = false): Array<object> {
     this.verifyMarkletplace();
+    this.verifyWallet();
 
     if (chainId) {
       if (defaultPaymentMethod) {
-        return currencies.filter(x => x.chainId === Number(chainId) && x.defaultPaymentMethod);
+        return this.currencies.filter(x => x.chainId === Number(chainId) && x.defaultPaymentMethod);
       }
 
-      return currencies.filter(x => x.chainId === Number(chainId))
+      return this.currencies.filter(x => x.chainId === Number(chainId))
     }
-    return currencies
+    return this.currencies
   }
 
   transactionConfirmation = (txnHash, INTERVAL = 1000) => new Promise((resolve, reject) => {

@@ -20,6 +20,7 @@ import { addressesParameter } from '../addresses';
 import { isValidERC20 } from '../utils/isValidERC20';
 import { Order } from '../types/OrderInterface';
 import Emitter from '../utils/emitter';
+import { currencyInterface } from '../types/currencyInterface';
 
 export default class Transaction {
   listener: Function;
@@ -29,13 +30,15 @@ export default class Transaction {
   chainId: string;
   contracts: Contracts;
   addresses: addressesParameter;
+  currencies: Array<currencyInterface>;
 
   constructor(data) {
     this.wallet = data.wallet;
     this.address = data.address;
     this.chainId = data.chainId;
+    this.currencies = data.currencies;
     this.addresses = data.addresses;
-    this.contracts = new Contracts(this.wallet, this.address, this.chainId);
+    this.contracts = new Contracts(this.wallet, this.address, data.addresses);
   }
 
 
@@ -74,7 +77,7 @@ export default class Transaction {
 
     const { tokenAddress } = await this.contracts.decodeERC20Data(order.takerAssetData)
 
-    if (!isValidERC20(tokenAddress, this.chainId)) {
+    if (!isValidERC20(tokenAddress, this.chainId, this.currencies)) {
       throw new Error("Invalid asset data");
     }
 
