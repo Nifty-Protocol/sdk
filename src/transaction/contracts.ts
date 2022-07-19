@@ -39,12 +39,10 @@ export default class Contracts {
    * @param String contractAddress
    */
   async erc721ApproveForAll(contractAddress) {
-    const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, contractAddress);
-    const isApprovedForAll = await erc721Token.methods
-      .isApprovedForAll(this.address, this.addresses.ERC721Proxy)
-      .call({ from: this.address });
+    const isApprovedForAll = await this.isErc721ApprovedForAll(contractAddress)
 
     if (!isApprovedForAll) {
+      const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, contractAddress);
       const ERC721Approval = await erc721Token.methods
         .setApprovalForAll(this.addresses.ERC721Proxy, true);
       const { transactionHash } = (await send(ERC721Approval, { from: this.address })) as any;
@@ -54,73 +52,30 @@ export default class Contracts {
   }
 
 
-    /**
-   * @param String contractAddress
-   */
-     async isErc721ApprovedForAll(contractAddress: string) {
-      const erc721Token = new this.wallet.provider.eth.Contract(
-        ERC721ABI,
-        contractAddress
-      );
-      const approvedAddress = await erc721Token.methods
-        .isApprovedForAll(this.address, this.addresses.ERC721Proxy)
-        .call({ from: this.address });
-      return this.addresses.ERC721Proxy === approvedAddress;
-    }
-  
-    /**
-     * @param String contractAddress
-     */
-    async isErc1155ApprovedForAll(contractAddress: string) {
-      const erc1155Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
-      return await erc1155Token.methods
-        .isApprovedForAll(this.address, this.addresses.ERC1155Proxy)
-        .call({ from: this.address });
-    }
-  
-    async isApprovedForAll(item:Item): Promise<boolean> {
-      const { contractAddress, contractType } = item;
-      if (contractType === "EIP721") {
-        return await this.isErc721ApprovedForAll(contractAddress);
-      } else if (contractType === "EIP1155") {
-        return await this.isErc1155ApprovedForAll(contractAddress);
-      } else {
-        throw Error(
-          `Unsupported contractType \"${contractType}\" for \"approve\"`
-        );
-      }
-    }
-
-    /**
-     * APPROVE FOR ALL
-     */
-    async approveForAll(
-      contractAddress: string,
-      contractType: string
-    ) {
-      if (contractType === "EIP721") {
-        await this.erc721ApproveForAll(contractAddress);
-      } else if (contractType === "EIP1155") {
-        await this.erc1155ApproveForAll(contractAddress);
-      } else {
-        throw Error(
-          `Unsupported contractType \"${contractType}\" for \"approve\"`
-        );
-      }
-    }
+  /**
+ * @param String contractAddress
+ */
+  async isErc721ApprovedForAll(contractAddress: string) {
+    const erc721Token = new this.wallet.provider.eth.Contract(
+      ERC721ABI,
+      contractAddress
+    );
+    const approvedAddress = await erc721Token.methods
+      .isApprovedForAll(this.address, this.addresses.ERC721Proxy)
+      .call({ from: this.address });
+    return this.addresses.ERC721Proxy === approvedAddress;
+  }
 
 
   /**
-   *
-   * @param String contractAddress
-   */
+ *
+ * @param String contractAddress
+ */
   async erc1155ApproveForAll(contractAddress) {
-    const erc1155Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
-    const isApprovedForAll = await erc1155Token.methods
-      .isApprovedForAll(this.address, this.addresses.ERC1155Proxy)
-      .call({ from: this.address });
+    const isApprovedForAll = await this.isErc1155ApprovedForAll(contractAddress)
 
     if (!isApprovedForAll) {
+      const erc1155Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
       const ERC1155Approval = await erc1155Token.methods
         .setApprovalForAll(this.addresses.ERC1155Proxy, true);
 
@@ -130,12 +85,54 @@ export default class Contracts {
     }
   }
 
+  /**
+   * @param String contractAddress
+   */
+  async isErc1155ApprovedForAll(contractAddress: string) {
+    const erc1155Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
+    return await erc1155Token.methods
+      .isApprovedForAll(this.address, this.addresses.ERC1155Proxy)
+      .call({ from: this.address });
+  }
+
+  async isApprovedForAll(item: Item): Promise<boolean> {
+    const { contractAddress, contractType } = item;
+    if (contractType === "EIP721") {
+      return await this.isErc721ApprovedForAll(contractAddress);
+    } else if (contractType === "EIP1155") {
+      return await this.isErc1155ApprovedForAll(contractAddress);
+    } else {
+      throw Error(
+        `Unsupported contractType \"${contractType}\" for \"approve\"`
+      );
+    }
+  }
+
+  /**
+   * APPROVE FOR ALL
+   */
+  async approveForAll(
+    contractAddress: string,
+    contractType: string
+  ) {
+    if (contractType === "EIP721") {
+      await this.erc721ApproveForAll(contractAddress);
+    } else if (contractType === "EIP1155") {
+      await this.erc1155ApproveForAll(contractAddress);
+    } else {
+      throw Error(
+        `Unsupported contractType \"${contractType}\" for \"approve\"`
+      );
+    }
+  }
+
+
   balanceOfNativeERC20(address = this.address) {
     const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     return NativeERC20Contract.methods.balanceOf(address).call({ from: this.address });
   }
 
-  balanceOfERC20(address = this.address, ERC20Address:string) {
+  balanceOfERC20(address = this.address, ERC20Address: string) {
     const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, ERC20Address);
     return NativeERC20Contract.methods.balanceOf(address).call({ from: this.address });
   }
@@ -158,7 +155,7 @@ export default class Contracts {
     });
   }
 
-  ERC20Allowance(ERC20Address:string) {
+  ERC20Allowance(ERC20Address: string) {
     const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, ERC20Address);
 
     return NativeERC20Contract.methods.allowance(
@@ -181,7 +178,7 @@ export default class Contracts {
       .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1).toString());
     return send(method, { from: this.address });
   }
-  ERC20Approve(erc20Address:string) {
+  ERC20Approve(erc20Address: string) {
     // fix the amount transfered to the proxy
     const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, erc20Address);
     const method = NativeERC20Contract.methods
@@ -212,13 +209,13 @@ export default class Contracts {
     return DevUtilsContract.methods.encodeERC20AssetData(this.addresses.NativeERC20)
       .call({ from: this.address });
   }
-  encodeERC20Data(erc20Address:string) {
+  encodeERC20Data(erc20Address: string) {
     const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.encodeERC20AssetData(erc20Address)
       .call({ from: this.address });
   }
 
-  decodeERC20Data (decodeERC20AssetData){
+  decodeERC20Data(decodeERC20AssetData) {
     const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.decodeERC20AssetData(
       decodeERC20AssetData,
