@@ -3,6 +3,7 @@ import tokens from './tokens';
 import trades from './trades';
 import externalOrders from './externalOrders';
 import config from '../config';
+import contracts from './contracts';
 
 export default function(env) {
   const base = config.api[env];
@@ -14,5 +15,6 @@ export default function(env) {
     orders: orders(base),
     tokens: tokens(base),
     trades: trades(base),
+    contracts: contracts(base),
   }
 };
