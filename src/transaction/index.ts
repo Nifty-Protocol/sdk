@@ -125,11 +125,7 @@ export default class Transaction {
 
     this.setStatus(APPROVING);
 
-    if (contractType === EIP721) {
-      await this.contracts.erc721ApproveForAll(contractAddress);
-    } else if (contractType === EIP1155) {
-      await this.contracts.erc1155ApproveForAll(contractAddress);
-    }
+    await this.contracts.approveForAll(contractAddress, contractType)
 
     this.setStatus(SIGN);
     Emitter.emit('signature', () => { })
@@ -276,10 +272,9 @@ export default class Transaction {
       makerAssetData,
       takerAssetData,
     });
-  
+
     order.chainId = String(order.chainId);
 
-  
     // Generate the order hash and sign it
     const signedOrder = await signature(
       this.wallet.provider.currentProvider,
@@ -314,11 +309,8 @@ export default class Transaction {
         async (token) => {
           const { contract } = token;
           const { type, address } = contract;
-          if (type === EIP721) {
-            await this.contracts.erc721ApproveForAll(address);
-          } else if (type === EIP1155) {
-            await this.contracts.erc1155ApproveForAll(address);
-          }
+
+          await this.contracts.approveForAll(address, type)
         },
       ),
     );
@@ -356,5 +348,17 @@ export default class Transaction {
 
     return isUserHasBalance || isUserOwner;
   }
-}
 
+  async isApprovedForAll(item): Promise<boolean> {
+    const { contractAddress, contractType } = item;
+    if (contractType === "EIP721") {
+      return await this.contracts.isErc721ApprovedForAll(contractAddress);
+    } else if (contractType === "EIP1155") {
+      return await this.contracts.isErc1155ApprovedForAll(contractAddress);
+    } else {
+      throw Error(
+        `Unsupported contractType \"${contractType}\" for \"approve\"`
+      );
+    }
+  }
+}
