@@ -442,6 +442,8 @@ class Nifty {
   });
 
   async isApproveForAll(item:Item) {
+    this.verifyWallet();
+
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
 
