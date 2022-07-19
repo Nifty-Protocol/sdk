@@ -12,6 +12,7 @@ import CollectionsABI from './abis/CollectionsABI';
 import RoyaltiesManagerABI from './abis/RoyaltiesManagerABI';
 import send from '../utils/send';
 import { Wallet } from '../wallet/Wallet';
+import { Item } from '../types/ItemInterface';
 
 export default class Contracts {
   address: string;
@@ -77,6 +78,19 @@ export default class Contracts {
         .call({ from: this.address });
     }
   
+    async isApprovedForAll(item:Item): Promise<boolean> {
+      const { contractAddress, contractType } = item;
+      if (contractType === "EIP721") {
+        return await this.isErc721ApprovedForAll(contractAddress);
+      } else if (contractType === "EIP1155") {
+        return await this.isErc1155ApprovedForAll(contractAddress);
+      } else {
+        throw Error(
+          `Unsupported contractType \"${contractType}\" for \"approve\"`
+        );
+      }
+    }
+
     /**
      * APPROVE FOR ALL
      */

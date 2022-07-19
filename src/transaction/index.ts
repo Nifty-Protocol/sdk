@@ -349,16 +349,5 @@ export default class Transaction {
     return isUserHasBalance || isUserOwner;
   }
 
-  async isApprovedForAll(item): Promise<boolean> {
-    const { contractAddress, contractType } = item;
-    if (contractType === "EIP721") {
-      return await this.contracts.isErc721ApprovedForAll(contractAddress);
-    } else if (contractType === "EIP1155") {
-      return await this.contracts.isErc1155ApprovedForAll(contractAddress);
-    } else {
-      throw Error(
-        `Unsupported contractType \"${contractType}\" for \"approve\"`
-      );
-    }
-  }
+ 
 }

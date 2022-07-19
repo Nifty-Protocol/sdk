@@ -311,7 +311,6 @@ class Nifty {
       throw new Error(e)
     }
   }
-  a
 
   /**
   * @param item item recived from api
@@ -441,6 +440,20 @@ class Nifty {
         }, INTERVAL)));
     transactionReceiptRetry();
   });
+
+  async isApproveForAll(item:Item) {
+    const address = await this.wallet.getUserAddress();
+    const chainId = await this.wallet.chainId();
+
+    const transaction = new Transaction({
+      wallet: this.wallet,
+      addresses:this.addresses,
+      address,
+      chainId,
+    });
+
+    return transaction.contracts.isApprovedForAll(item)
+  }
 
   static utils = {
     findChainById
