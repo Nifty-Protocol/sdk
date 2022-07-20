@@ -26,6 +26,7 @@ const pick = (obj, props) => {
 
 export const createOrder = ({
   chainId,
+  exchangeAddress,
   makerAddress,
   makerAssetAmount,
   takerAssetAmount,
@@ -38,7 +39,7 @@ export const createOrder = ({
   takerFee = ZERO,
 }) => ({
   chainId,
-  exchangeAddress: addresses[chainId].Exchange,
+  exchangeAddress,
   makerAddress,
   takerAddress,
   senderAddress: NULL_ADDRESS,
