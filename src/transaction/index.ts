@@ -20,6 +20,7 @@ import { addressesParameter } from '../addresses';
 import { isValidERC20 } from '../utils/isValidERC20';
 import { Order } from '../types/OrderInterface';
 import Emitter from '../utils/emitter';
+import { findChainNameById } from '../utils/chain';
 
 export default class Transaction {
   listener: Function;
@@ -63,7 +64,7 @@ export default class Transaction {
     this.setStatus(CREATING);
 
     if (String(order.chainId) !== String(this.chainId)) {
-      throw new Error(`Please connect to ${order.chainId}`);
+      throw new Error(`Please connect to ${findChainNameById(order.chainId)}`);
     }
 
     const signedOrder = destructOrder(order);
@@ -121,7 +122,7 @@ export default class Transaction {
   async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
-      throw new Error(`Please connect to ${itemChainId}`);
+      throw new Error(`Please connect to ${findChainNameById(itemChainId)}`);
     }
 
     this.setStatus(APPROVING);
@@ -192,7 +193,7 @@ export default class Transaction {
 
 
     if (String(item.chainId) !== String(this.chainId)) {
-      throw new Error(`Please connect to ${item.chainId}`);
+      throw new Error(`Please connect to ${findChainNameById(item.chainId)}`);
     }
 
     this.setStatus(CHECKING_BALANCE);

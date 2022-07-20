@@ -1,4 +1,4 @@
-import { PROD, TESTNET, OPENSEA, BUY, OFFER, SELL, orderStatuses } from './constants';
+import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import { findChainById } from './utils/chain';
@@ -58,7 +58,6 @@ class Nifty {
     }
   }
 
-
   verifyMarkletplace() {
     if (!this.key) {
       throw new Error('key id is missing');
@@ -115,7 +114,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -152,7 +151,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -180,7 +179,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -220,7 +219,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -246,7 +245,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
@@ -441,7 +440,7 @@ class Nifty {
     transactionReceiptRetry();
   });
 
-  async isApproveForAll(item:Item) {
+  async isApproveForAll(item: Item) {
     this.verifyWallet();
 
     const address = await this.wallet.getUserAddress();
@@ -449,7 +448,7 @@ class Nifty {
 
     const transaction = new Transaction({
       wallet: this.wallet,
-      addresses:this.addresses,
+      addresses: this.addresses,
       address,
       chainId,
     });
