@@ -190,7 +190,7 @@ export default class Transaction {
     const { contractAddress, tokenID, contractType } = item;
 
 
-    if (String(item.chainId) !== String(item.chainId)) {
+    if (String(item.chainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${item.chainId}`);
     }
 
