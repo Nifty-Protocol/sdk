@@ -87,6 +87,7 @@ export default class Transaction {
     const allowance = new BigNumber(proxyApprovedAllowance);
     const itemPrice = new BigNumber(order.takerAssetAmount).plus(new BigNumber(order.takerFee));
 
+  
     // if wallet has more erc20 balance than the nft price
     if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
       if (allowance.isLessThan(itemPrice)) {
@@ -95,12 +96,12 @@ export default class Transaction {
       }
       txHash = await this.contracts.fillOrder(signedOrder);
     }
-
-    else if (contractType === EIP721 && this.addresses[this.chainId].NativeERC20 === tokenAddress) {
+    
+    else if (contractType === EIP721 && this.addresses.NativeERC20 === tokenAddress) {
       txHash = await this.contracts.marketBuyOrdersWithEth(signedOrder);
     }
 
-    else if (contractType === EIP1155 && this.addresses[this.chainId].NativeERC20 === tokenAddress) {
+    else if (contractType === EIP1155 && this.addresses.NativeERC20 === tokenAddress) {
       this.setStatus(CONVERT);
       await this.contracts.convertToNativeERC20(
         order.takerAssetAmount - nativeERC20Balance,
