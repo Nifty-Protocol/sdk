@@ -7,10 +7,9 @@ export default function (base) {
   return {
     getAll: () => HttpRequest({ url: URL }),
     getStats: (params = {}) => HttpRequest({ url: `${URL}/stats`, params }),
-    getGraph: (params = {}) => HttpRequest({
-      url: `${URL}/graph`,
-      params,
-    }),
+    getGraph: (params = {}) => HttpRequest({ url: `${URL}/graph`, params }),
     getCollectionStats: (params = {}) => HttpRequest({ url: `${URL}/stats/contract`, params }),
+    getTokenStats: (params = {}) => HttpRequest({ url: `${URL}/stats/token`, params }),
   }
+
 };

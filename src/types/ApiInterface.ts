@@ -24,6 +24,7 @@ interface Trades {
   getAll: () => Promise<AxiosResponse>;
   getStats: (params: object) => Promise<AxiosResponse>;
   getGraph: (params: object) => Promise<AxiosResponse>;
+  getTokenStats: (params: object) => Promise<AxiosResponse>;
 }
 
 export interface Api {
