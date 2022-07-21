@@ -60,7 +60,7 @@ export default class Transaction {
   }
 
 
-  async buy(order: Order) {
+  async buy(order: Order): Promise<Order & { txHash: any }> {
     this.setStatus(CREATING);
 
     if (String(order.chainId) !== String(this.chainId)) {
@@ -292,7 +292,7 @@ export default class Transaction {
     return { ...signedOrder, orderHash };
   }
 
-  async acceptOffer(order: Order) {
+  async acceptOffer(order: Order): Promise<Order & { txHash: any }> {
     const nativeERC20Balance = await this.contracts.balanceOfNativeERC20(order.makerAddress);
 
     if (new BigNumber(order.makerAssetAmount).isGreaterThan(nativeERC20Balance)) {
