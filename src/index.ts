@@ -15,15 +15,14 @@ import { ExternalOrder } from './types/ExternalOrderInterface';
 import { Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
 import { Order } from './types/OrderInterface';
-import { Options } from './types/OptionsInterface';
+import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
-
 import { EventType } from './types/EventType';
 
 class Nifty {
   wallet: Wallet;
   key: string;
-  env: string;
+  env: env;
   addresses: addressesParameter;
   api: Api;
   listener: Function;

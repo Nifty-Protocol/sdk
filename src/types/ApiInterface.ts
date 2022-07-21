@@ -27,9 +27,21 @@ interface Trades {
   getTokenStats: (params: object) => Promise<AxiosResponse>;
 }
 
+interface Contracts {
+  getAll: (params: object) => Promise<AxiosResponse>;
+  get: (id: string | number) => Promise<AxiosResponse>;
+  count: (params: object) => Promise<AxiosResponse>;
+  byAddress: (chainId: string, address: string) => Promise<AxiosResponse>;
+  getTraits: (id: string | number, params: object) => Promise<AxiosResponse>;
+  getRoyalties: (contractId: string, params: object) => Promise<AxiosResponse>;
+  getStats: (id: string | number, params: object) => Promise<AxiosResponse>;
+  getTopCollections: (params: object) => Promise<AxiosResponse>;
+}
+
 export interface Api {
   externalOrders: ExternalOrder;
   orders: Orders;
   tokens: Tokens;
   trades: Trades;
+  contracts: Contracts;
 }
