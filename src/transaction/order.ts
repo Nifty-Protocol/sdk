@@ -1,20 +1,9 @@
 import BigNumber from 'bignumber.js';
 import addresses from '../addresses';
 import {
-  MAX_DIGITS_IN_UNSIGNED_256_INT,
-  tenYearsInSeconds,
   NULL_ADDRESS,
-  NULL_BYTES,
   ZERO,
 } from '../constants';
-import web3 from 'web3';
-
-export const generatePseudoRandom256BitNumber = () => {
-  const randomNumber = BigNumber.random(MAX_DIGITS_IN_UNSIGNED_256_INT);
-  const factor = new BigNumber(10).pow(MAX_DIGITS_IN_UNSIGNED_256_INT - 1);
-  const randomNumberScaledTo256Bits = randomNumber.times(factor).integerValue();
-  return randomNumberScaledTo256Bits;
-};
 
 const pick = (obj, props) => {
   const picked = {};
@@ -27,33 +16,32 @@ const pick = (obj, props) => {
 export const createOrder = ({
   chainId,
   makerAddress,
+  takerAddress = NULL_ADDRESS,
   makerAssetAmount,
   takerAssetAmount,
+  royaltiesAddress = NULL_ADDRESS,
+  expirationTimeSeconds,
   makerAssetData,
   takerAssetData,
-  takerAddress = NULL_ADDRESS,
-  feeRecipientAddress = NULL_ADDRESS,
-  expirationTimeSeconds,
-  makerFee = ZERO,
-  takerFee = ZERO,
+  royaltiesAmount = ZERO,
+
+  // makerFee = ZERO,
 }) => ({
   chainId,
   exchangeAddress: addresses[chainId].Exchange,
   makerAddress,
   takerAddress,
   senderAddress: NULL_ADDRESS,
-  feeRecipientAddress,
+  royaltiesAddress,
   expirationTimeSeconds,
-  salt: web3.utils.randomHex(32),
+  salt: Math.round((Date.now() / 1000)),
   makerAssetAmount: makerAssetAmount.toString(),
   takerAssetAmount: takerAssetAmount.toString(),
   makerAssetData,
   takerAssetData,
-  makerFeeAssetData: makerAssetData,
-  takerFeeAssetData: takerAssetData,
-  makerFee: makerFee.toString(),
-  takerFee: takerFee.toString(),
+  royaltiesAmount,
 });
+
 
 export const destructOrder = (item) => pick(item, [
   'chainId',
@@ -61,16 +49,13 @@ export const destructOrder = (item) => pick(item, [
   'makerAddress',
   'takerAddress',
   'senderAddress',
-  'feeRecipientAddress',
+  'royaltiesAddress',
   'expirationTimeSeconds',
   'salt',
   'makerAssetAmount',
   'takerAssetAmount',
   'makerAssetData',
   'takerAssetData',
-  'makerFeeAssetData',
-  'takerFeeAssetData',
-  'makerFee',
-  'takerFee',
+  'royaltiesAmount',
   'signature',
 ]);

@@ -71,55 +71,44 @@ export default class Transaction {
 
     this.setStatus(APPROVING);
 
-    const contractType = order.tokens[0].contract.type;
-
-    const { tokenAddress } = await this.contracts.decodeERC20Data(order.takerAssetData)
+    const { tokenAddress } = await this.contracts.decodeERC20AssetData(order.takerAssetData)
 
     if (!isValidERC20(tokenAddress, this.chainId)) {
       throw new Error("Invalid asset data");
     }
 
     let txHash = '';
-
-    const nativeERC20Balance = await this.contracts.balanceOfERC20(this.address, tokenAddress);
-    const proxyApprovedAllowance = await this.contracts.ERC20Allowance(tokenAddress);
-
-    const ERC20Balance = new BigNumber(nativeERC20Balance);
-    const allowance = new BigNumber(proxyApprovedAllowance);
-    const itemPrice = new BigNumber(order.takerAssetAmount).plus(new BigNumber(order.takerFee));
-
-  
-    // if wallet has more erc20 balance than the nft price
-    if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
-      if (allowance.isLessThan(itemPrice)) {
-        this.setStatus(APPROVING);
-        await this.contracts.ERC20Approve(tokenAddress);
-      }
-      txHash = await this.contracts.fillOrder(signedOrder);
-    }
+    let value = '';
     
-    else if (contractType === EIP721 && this.addresses.NativeERC20 === tokenAddress) {
-      txHash = await this.contracts.marketBuyOrdersWithEth(signedOrder);
+    // eth payment
+    if (tokenAddress === NULL_ADDRESS) {
+      value = new BigNumber(order.takerAssetAmount).toString();
+    } else { // erc20 payment
+      let ERC20Balance = await this.contracts.balanceOfERC20(this.address, tokenAddress);
+      const proxyApprovedAllowance = await this.contracts.ERC20Allowance(tokenAddress);
+
+      ERC20Balance = new BigNumber(ERC20Balance);
+      const allowance = new BigNumber(proxyApprovedAllowance);
+      const itemPrice = new BigNumber(order.takerAssetAmount);
+
+    
+      // if wallet has more erc20 balance than the nft price
+      if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
+        if (allowance.isLessThan(itemPrice)) {
+          this.setStatus(APPROVING);
+          await this.contracts.ERC20Approve(tokenAddress);
+        }
+      }
     }
 
-    else if (contractType === EIP1155 && this.addresses.NativeERC20 === tokenAddress) {
-      this.setStatus(CONVERT);
-      await this.contracts.convertToNativeERC20(
-        order.takerAssetAmount - nativeERC20Balance,
-      );
-      this.setStatus(APPROVING);
-      if (Number(proxyApprovedAllowance) < Number(order.takerAssetAmount + order.takerFee)) {
-        await this.contracts.ERC20Approve(tokenAddress);
-      }
-      txHash = await this.contracts.fillOrder(signedOrder);
-    }
+    txHash = await this.contracts.fillOrder(signedOrder, value);
 
     this.setStatus(APPROVED);
 
     return { ...order, txHash };
   }
 
-  async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address }) {
+  async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${findChainNameById(itemChainId)}`);
@@ -139,7 +128,7 @@ export default class Transaction {
       makerAssetData = await this.contracts.encodeERC1155AssetData(contractAddress, tokenID, 1);
     }
 
-    const takerAssetData = await this.contracts.encodeERC20Data(ERC20Address);
+    const takerAssetData = await this.contracts.encodeERC20AssetData(NULL_ADDRESS);
 
     // the amount the maker is selling of maker asset (1 ERC721 Token)
     const makerAssetAmount = new BigNumber(1);
@@ -164,14 +153,15 @@ export default class Transaction {
     const order = createOrder({
       chainId: this.chainId,
       makerAddress: this.address,
-      takerFee: String(royaltyAmount),
-      feeRecipientAddress: receiver,
+      royaltiesAmount: String(royaltyAmount),
+      royaltiesAddress: receiver,
       expirationTimeSeconds,
       makerAssetAmount,
       takerAssetAmount,
       makerAssetData,
       takerAssetData,
     });
+    
 
     const signedOrder = await signature(
       this.wallet.provider.currentProvider,
@@ -266,8 +256,8 @@ export default class Transaction {
     const order = createOrder({
       chainId: this.chainId,
       makerAddress: this.address,
-      makerFee: String(royaltyAmount),
-      feeRecipientAddress: receiver,
+      royaltiesAmount: String(royaltyAmount),
+      royaltiesAddress: receiver,
       expirationTimeSeconds,
       makerAssetAmount,
       takerAssetAmount,
@@ -337,16 +327,17 @@ export default class Transaction {
 
     let connectedAddressBalance;
     let tokenOwner;
+    let isUserOwner;
 
     if (contractType == EIP1155) {
       connectedAddressBalance = await this.contracts.balanceOfERC1155(contractAddress, tokenId);
     }
     else if (contractType == EIP721) {
       tokenOwner = await this.contracts.getOwner(contractAddress, tokenId);
+      isUserOwner = tokenOwner.toLowerCase() === this.address.toLowerCase();
     }
 
     const isUserHasBalance = connectedAddressBalance > 0;
-    const isUserOwner = tokenOwner.toLowerCase() === this.address.toLowerCase();
 
     return isUserHasBalance || isUserOwner;
   }

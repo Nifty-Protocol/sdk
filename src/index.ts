@@ -38,6 +38,9 @@ class Nifty {
     this.wallet = wallet(type, provider);
     this.wallet.chainId().then((chainId) => {
       this.setMarketplaceAddresses(addresses[chainId]);
+      if (chainId !== '4') {
+        throw new Error('only rinkeby is supported');
+      }
     });
   }
 
@@ -161,7 +164,7 @@ class Nifty {
     }
 
     try {
-      const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
+      const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime });
       const res = await this.api.orders.create(orderList);
       return res.data
     } catch (e) {
