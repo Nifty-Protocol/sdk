@@ -19,7 +19,7 @@ import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
 
-class Nifty {
+export class Nifty {
   wallet: Wallet;
   key: string;
   env: env;
@@ -471,5 +471,3 @@ class Nifty {
   };
 
 }
-
-export default Nifty;
