@@ -96,7 +96,7 @@ export class Nifty {
         switch (ExternalOrder.source) {
           case OPENSEA:
             const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
-            const openseaSDK = new OpenSeaSDK(this.wallet.provider.currentProvider, {
+            const openseaSDK = new OpenSeaSDK(this.wallet.provider.walletProvider.currentProvider, {
               networkName
             })
 

@@ -30,7 +30,7 @@ export default class Contracts {
    * @param String contractAddress
    */
   getOwner(contractAddress, tokenID) {
-    const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, contractAddress);
+    const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(ERC721ABI, contractAddress);
     return erc721Token.methods.ownerOf(tokenID).call();
   }
 
@@ -42,12 +42,12 @@ export default class Contracts {
     const isApprovedForAll = await this.isErc721ApprovedForAll(contractAddress)
 
     if (!isApprovedForAll) {
-      const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, contractAddress);
+      const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(ERC721ABI, contractAddress);
       const ERC721Approval = await erc721Token.methods
         .setApprovalForAll(this.addresses.ERC721Proxy, true);
       const { transactionHash } = (await send(ERC721Approval, { from: this.address })) as any;
 
-      await transactionConfirmation(this.wallet.provider, transactionHash);
+      await transactionConfirmation(this.wallet.provider.walletProvider, transactionHash);
     }
   }
 
@@ -56,7 +56,7 @@ export default class Contracts {
  * @param String contractAddress
  */
   async isErc721ApprovedForAll(contractAddress: string) {
-    const erc721Token = new this.wallet.provider.eth.Contract(
+    const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(
       ERC721ABI,
       contractAddress
     );
@@ -75,13 +75,13 @@ export default class Contracts {
     const isApprovedForAll = await this.isErc1155ApprovedForAll(contractAddress)
 
     if (!isApprovedForAll) {
-      const erc1155Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
+      const erc1155Token = new this.wallet.provider.walletProvider.eth.Contract(ERC1155ABI, contractAddress);
       const ERC1155Approval = await erc1155Token.methods
         .setApprovalForAll(this.addresses.ERC1155Proxy, true);
 
       const { transactionHash } = (await send(ERC1155Approval, { from: this.address })) as any;
 
-      await transactionConfirmation(this.wallet.provider, transactionHash);
+      await transactionConfirmation(this.wallet.provider.walletProvider, transactionHash);
     }
   }
 
@@ -89,7 +89,7 @@ export default class Contracts {
    * @param String contractAddress
    */
   async isErc1155ApprovedForAll(contractAddress: string) {
-    const erc1155Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
+    const erc1155Token = new this.wallet.provider.walletProvider.eth.Contract(ERC1155ABI, contractAddress);
     return await erc1155Token.methods
       .isApprovedForAll(this.address, this.addresses.ERC1155Proxy)
       .call({ from: this.address });
@@ -128,22 +128,22 @@ export default class Contracts {
 
 
   balanceOfNativeERC20(address = this.address) {
-    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
+    const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     return NativeERC20Contract.methods.balanceOf(address).call({ from: this.address });
   }
 
   balanceOfERC20(address = this.address, ERC20Address: string) {
-    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, ERC20Address);
+    const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, ERC20Address);
     return NativeERC20Contract.methods.balanceOf(address).call({ from: this.address });
   }
 
   balanceOfERC1155(contractAddress, tokenID) {
-    const ERC1155Contract = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
+    const ERC1155Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC1155ABI, contractAddress);
     return ERC1155Contract.methods.balanceOf(this.address, tokenID).call({ from: this.address });
   }
 
   deposit() {
-    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
+    const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     return NativeERC20Contract.methods.deposit();
   }
 
@@ -156,7 +156,7 @@ export default class Contracts {
   }
 
   ERC20Allowance(ERC20Address: string) {
-    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, ERC20Address);
+    const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, ERC20Address);
 
     return NativeERC20Contract.methods.allowance(
       this.address,
@@ -165,7 +165,7 @@ export default class Contracts {
   }
 
   NativeERC20Allowance() {
-    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
+    const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     return NativeERC20Contract.methods.allowance(
       this.address,
       this.addresses.ERC20Proxy,
@@ -173,21 +173,21 @@ export default class Contracts {
   }
 
   NativeERC20Approve() {
-    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
+    const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     const method = NativeERC20Contract.methods
       .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1).toString());
     return send(method, { from: this.address });
   }
   ERC20Approve(erc20Address: string) {
     // fix the amount transfered to the proxy
-    const NativeERC20Contract = new this.wallet.provider.eth.Contract(ERC20ABI, erc20Address);
+    const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, erc20Address);
     const method = NativeERC20Contract.methods
       .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1));
     return send(method, { from: this.address });
   }
 
   encodeERC721AssetData(contractAddress, tokenID) {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.encodeERC721AssetData(
       contractAddress,
       tokenID,
@@ -195,7 +195,7 @@ export default class Contracts {
   }
 
   encodeERC1155AssetData(contractAddress, tokenID, amount) {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.encodeERC1155AssetData(
       contractAddress,
       [tokenID],
@@ -205,24 +205,24 @@ export default class Contracts {
   }
 
   encodeERC20AssetData() {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.encodeERC20AssetData(this.addresses.NativeERC20)
       .call({ from: this.address });
   }
   encodeERC20Data(erc20Address: string) {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.encodeERC20AssetData(erc20Address)
       .call({ from: this.address });
   }
 
   decodeERC20Data(decodeERC20AssetData) {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.decodeERC20AssetData(
       decodeERC20AssetData,
     ).call({ from: this.address });
   }
   encodeMultiAssetData(makerAssetAmountArray, erc721AssetDataArray) {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.encodeMultiAssetData(
       makerAssetAmountArray,
       erc721AssetDataArray,
@@ -230,26 +230,26 @@ export default class Contracts {
   }
 
   decodeMultiAssetData(MultiAssetData) {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.decodeMultiAssetData(
       MultiAssetData,
     ).call({ from: this.address });
   }
 
   decodeERC721AssetData(ERC721AssetData) {
-    const DevUtilsContract = new this.wallet.provider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
+    const DevUtilsContract = new this.wallet.provider.walletProvider.eth.Contract(DevUtilsABI, this.addresses.DevUtils);
     return DevUtilsContract.methods.decodeERC721AssetData(
       ERC721AssetData,
     ).call({ from: this.address });
   }
 
   getOrderInfo(signedOrder) {
-    const exchangeContract = new this.wallet.provider.eth.Contract(ExchangeABI, this.addresses.Exchange);
+    const exchangeContract = new this.wallet.provider.walletProvider.eth.Contract(ExchangeABI, this.addresses.Exchange);
     return exchangeContract.methods.getOrderInfo(signedOrder).call();
   }
 
   async fillOrder(signedOrder, value = 0) {
-    const exchangeContract = new this.wallet.provider.eth.Contract(ExchangeABI, this.addresses.Exchange);
+    const exchangeContract = new this.wallet.provider.walletProvider.eth.Contract(ExchangeABI, this.addresses.Exchange);
     const buyOrder = await exchangeContract.methods.fillOrder(
       signedOrder, signedOrder.takerAssetAmount, signedOrder.signature,
     );
@@ -266,7 +266,7 @@ export default class Contracts {
 
     const takerAssetAmount = new BigNumber(signedOrder.takerAssetAmount);
     const takerFee = new BigNumber(signedOrder.takerFee);
-    const forwarderContract = new this.wallet.provider.eth.Contract(ForwarderABI, this.addresses.Forwarder);
+    const forwarderContract = new this.wallet.provider.walletProvider.eth.Contract(ForwarderABI, this.addresses.Forwarder);
     const buyOrder = await forwarderContract.methods.marketBuyOrdersWithEth(
       [signedOrder],
       signedOrder.makerAssetAmount,
@@ -282,7 +282,7 @@ export default class Contracts {
   }
 
   cancelOrder(signedOrder) {
-    const exchangeContract = new this.wallet.provider.eth.Contract(ExchangeABI, this.addresses.Exchange);
+    const exchangeContract = new this.wallet.provider.walletProvider.eth.Contract(ExchangeABI, this.addresses.Exchange);
     const method = exchangeContract.methods.cancelOrder(
       signedOrder,
     );
@@ -296,7 +296,7 @@ export default class Contracts {
    * @param String metadata
    */
   createToken(metadata, contractAddress) {
-    const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, contractAddress);
+    const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(ERC721ABI, contractAddress);
     const method = erc721Token.methods.mint(this.address, metadata);
     return send(method, {
       from: this.address,
@@ -304,17 +304,17 @@ export default class Contracts {
   }
 
   get721Nonce() {
-    const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, this.addresses.NFTrade721);
+    const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(ERC721ABI, this.addresses.NFTrade721);
     return erc721Token.methods.getNonce(this.address).call();
   }
 
   create721ABI(metadata) {
-    const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, this.addresses.NFTrade721);
+    const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(ERC721ABI, this.addresses.NFTrade721);
     return erc721Token.methods.awardItem(metadata).encodeABI();
   }
 
   async transferERC721NFT(contractAddress, reciver, tokenID) {
-    const erc721Token = new this.wallet.provider.eth.Contract(ERC721ABI, contractAddress);
+    const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(ERC721ABI, contractAddress);
     const method = erc721Token.methods.safeTransferFrom(this.address, reciver, tokenID);
     return send(method, {
       from: this.address,
@@ -322,7 +322,7 @@ export default class Contracts {
   }
 
   async transferERC1155NFT(contractAddress, reciver, tokenID) {
-    const erc721Token = new this.wallet.provider.eth.Contract(ERC1155ABI, contractAddress);
+    const erc721Token = new this.wallet.provider.walletProvider.eth.Contract(ERC1155ABI, contractAddress);
     const method = erc721Token.methods.safeTransferFrom(this.address, reciver, tokenID, 1, []);
     return send(method, {
       from: this.address,
@@ -331,17 +331,17 @@ export default class Contracts {
 
   /* async deploy721Contract(name, symbol) {
     const contract = require('../abis/721Token.json');
-    const MyContract = new this.wallet.provider.eth.Contract(contract.abi);
+    const MyContract = new this.wallet.provider.walletProvider.eth.Contract(contract.abi);
     const method = MyContract.deploy({
       data     : contract.bytecode,
       arguments: [name, symbol, this.addresses.Collections],
     });
 
-    const gas = await this.wallet.provider.eth.estimateGas({
+    const gas = await this.wallet.provider.walletProvider.eth.estimateGas({
       data: method.encodeABI(),
     });
 
-    const gasPrice = await this.wallet.provider.eth.getGasPrice();
+    const gasPrice = await this.wallet.provider.walletProvider.eth.getGasPrice();
 
     return send(method, {
       from: this.address,
@@ -349,7 +349,7 @@ export default class Contracts {
   } */
 
   async getCollections() {
-    const collectionsContract = new this.wallet.provider.eth.Contract(
+    const collectionsContract = new this.wallet.provider.walletProvider.eth.Contract(
       CollectionsABI, this.addresses.Collections,
     );
     return collectionsContract.methods.getCollections().call({
@@ -358,7 +358,7 @@ export default class Contracts {
   }
 
   getRoyalties(collectionAddress, tokenId, salePrice) {
-    const royaltiesContract = new this.wallet.provider.eth.Contract(
+    const royaltiesContract = new this.wallet.provider.walletProvider.eth.Contract(
       RoyaltiesManagerABI, this.addresses.RoyaltiesManager,
     );
     return royaltiesContract.methods.getRoyalties(collectionAddress, tokenId, salePrice)

@@ -88,7 +88,7 @@ export default class Transaction {
     const allowance = new BigNumber(proxyApprovedAllowance);
     const itemPrice = new BigNumber(order.takerAssetAmount).plus(new BigNumber(order.takerFee));
 
-  
+
     // if wallet has more erc20 balance than the nft price
     if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
       if (allowance.isLessThan(itemPrice)) {
@@ -97,7 +97,7 @@ export default class Transaction {
       }
       txHash = await this.contracts.fillOrder(signedOrder);
     }
-    
+
     else if (contractType === EIP721 && this.addresses.NativeERC20 === tokenAddress) {
       txHash = await this.contracts.marketBuyOrdersWithEth(signedOrder);
     }
@@ -174,7 +174,7 @@ export default class Transaction {
     });
 
     const signedOrder = await signature(
-      this.wallet.provider.currentProvider,
+      this.wallet.provider.walletProvider.currentProvider,
       order,
       this.address,
       exchangeAddress
@@ -212,7 +212,7 @@ export default class Transaction {
     if (isFullConversion) {
       conversion = maxConversion;
       if (conversion.isGreaterThan(balanceConversion)) {
-        const gasPrice = await this.wallet.provider.eth.getGasPrice();
+        const gasPrice = await this.wallet.provider.walletProvider.eth.getGasPrice();
         const gas = await this.contracts.deposit().estimateGas({ gasPrice });
         conversion = balanceConversion.minus(gas * gasPrice * 5);
       }
@@ -279,7 +279,7 @@ export default class Transaction {
 
     // Generate the order hash and sign it
     const signedOrder = await signature(
-      this.wallet.provider.currentProvider,
+      this.wallet.provider.walletProvider.currentProvider,
       order,
       this.address,
       exchangeAddress
@@ -351,5 +351,4 @@ export default class Transaction {
     return isUserHasBalance || isUserOwner;
   }
 
- 
 }
