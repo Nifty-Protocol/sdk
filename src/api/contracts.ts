@@ -18,17 +18,6 @@ export default function (base) {
     count: (params = {}) => HttpRequest({ url: `${URL}/get/count`, params }),
     byAddress: (chainId, address) => HttpRequest({ url: `${URL}/${chainId}/${address}` }),
     getTraits: (id, params = {}) => HttpRequest({ url: `${URL}/${id}/traits`, params }),
-    update: (token, id, data) => {
-      HttpRequest({
-        url: `${URL}/${id}`,
-        data: formatData(data),
-        headers: {
-          'x-access-token': token,
-          'Content-Type': 'multipart/form-data',
-        },
-        method: 'put',
-      })
-    },
     getRoyalties: (contractId, params = {}) => HttpRequest({
       url: `${URL}/${contractId}/royalties`, params,
     }),
