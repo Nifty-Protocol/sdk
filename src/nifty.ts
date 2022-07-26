@@ -227,8 +227,9 @@ export class Nifty {
       transaction.setStatusListener(this.listener);
     }
 
-    await transaction.cancelOrder(order)
-    return this.api.orders.cancel(order.id);
+    const transactionHash = await transaction.cancelOrder(order)
+    return transactionHash;
+
   }
 
 

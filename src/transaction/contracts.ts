@@ -281,14 +281,15 @@ export default class Contracts {
     return transactionHash;
   }
 
-  cancelOrder(signedOrder) {
+  async cancelOrder(signedOrder) {
     const exchangeContract = new this.wallet.provider.walletProvider.eth.Contract(ExchangeABI, this.addresses.Exchange);
     const method = exchangeContract.methods.cancelOrder(
       signedOrder,
     );
-    return send(method, {
+    const { transactionHash } = await send(method, {
       from: this.address,
-    });
+    }) as any;
+    return transactionHash;
   }
 
   /**
