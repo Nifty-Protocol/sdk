@@ -257,7 +257,7 @@ export class Nifty {
     return res
   }
 
-  async rejectOffer(orderId: string | number) {
+  async rejectOffer(orderId: string) {
     this.verifyWallet();
     return this.api.orders.cancel(orderId)
   }
@@ -383,7 +383,7 @@ export class Nifty {
   * @param externalOrder boolean if the order is external
   * @returns listing
   */
-  async getListing(orderId: number, isExternalOrder: boolean = false): Promise<object> {
+  async getListing(orderId: string, isExternalOrder: boolean = false): Promise<object> {
     this.verifyMarkletplace();
 
     try {
