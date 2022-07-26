@@ -29,7 +29,7 @@ export class Nifty {
   listener: Function;
 
   constructor(options: Options) {
-    this.key = options.key;
+    this.key = options.key || '0x6fbb00c559133cbeb2c88ed6728bb152df3d622f5faaf7077a9a9c6b54c16157';
     this.env = options.env;
     this.api = api(this.env);
   }
@@ -117,6 +117,7 @@ export class Nifty {
       addresses: this.addresses,
       address,
       chainId,
+      marketplaceId: this.key
     });
 
     if (this.listener) {

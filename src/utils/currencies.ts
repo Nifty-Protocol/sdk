@@ -1,5 +1,12 @@
 export default [
   {
+    chainId: 4,
+    address: '0x0000000000000000000000000000000000000000',
+    key: 'ETH',
+    value: 'Ether',
+    defaultPaymentMethod:true,
+  },
+  {
     chainId: 1,
     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     key: 'WETH',
@@ -48,7 +55,7 @@ export default [
     address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     key: 'WRIN',
     value: 'Wrraped RINKEBY',
-    defaultPaymentMethod:true,
+    defaultPaymentMethod:false,
   },
   {
     chainId: 43113,

@@ -28,7 +28,7 @@ export const signatureTypes = {
         type: 'address',
       },
       {
-        name: 'feeRecipientAddress',
+        name: 'royaltiesAddress',
         type: 'address',
       },
       {
@@ -44,11 +44,7 @@ export const signatureTypes = {
         type: 'uint256',
       },
       {
-        name: 'makerFee',
-        type: 'uint256',
-      },
-      {
-        name: 'takerFee',
+        name: 'royaltiesAmount',
         type: 'uint256',
       },
       {
@@ -65,14 +61,6 @@ export const signatureTypes = {
       },
       {
         name: 'takerAssetData',
-        type: 'bytes',
-      },
-      {
-        name: 'makerFeeAssetData',
-        type: 'bytes',
-      },
-      {
-        name: 'takerFeeAssetData',
         type: 'bytes',
       },
     ],
