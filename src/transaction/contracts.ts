@@ -60,10 +60,10 @@ export default class Contracts {
       ERC721ABI,
       contractAddress
     );
-    const approvedAddress = await erc721Token.methods
+
+    return await erc721Token.methods
       .isApprovedForAll(this.address, this.addresses.ERC721Proxy)
       .call({ from: this.address });
-    return this.addresses.ERC721Proxy === approvedAddress;
   }
 
 
