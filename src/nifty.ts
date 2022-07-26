@@ -9,8 +9,6 @@ import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
 import { Item } from './types/ItemInterface';
 import currencies from './utils/currencies';
 import { isValidERC20 } from './utils/isValidERC20';
-import { OpenSeaSDK, Network } from 'opensea-js'
-import { serializeOpenSeaOrder } from './utils/serializeOpenSeaOrder';
 import { ExternalOrder } from './types/ExternalOrderInterface';
 import { Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
@@ -19,6 +17,7 @@ import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
 import transactionConfirmation from './utils/transactionConfirmation';
+import { Seaport } from '@opensea/seaport-js';
 
 export class Nifty {
   wallet: Wallet;
@@ -96,13 +95,16 @@ export class Nifty {
       try {
         switch (ExternalOrder.source) {
           case OPENSEA:
-            const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
-            const openseaSDK = new OpenSeaSDK(this.wallet.provider.walletProvider.currentProvider, {
-              networkName
-            })
+            const seaport = new Seaport(this.wallet.provider.walletProvider.givenProvider);
 
-            const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
-            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
+            const { executeAllActions: executeAllFulfillActions } =
+              await seaport.fulfillOrder({
+                order: order.raw,
+                accountAddress: String(this.addresses),
+              });
+
+            const transaction = executeAllFulfillActions();
+            return transaction;
 
           default:
             break;
