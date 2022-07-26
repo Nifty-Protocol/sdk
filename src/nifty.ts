@@ -18,6 +18,7 @@ import { Order } from './types/OrderInterface';
 import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
+import transactionConfirmation from './utils/transactionConfirmation';
 
 export class Nifty {
   wallet: Wallet;
@@ -430,16 +431,6 @@ export class Nifty {
     return currencies
   }
 
-  transactionConfirmation = (txnHash, INTERVAL = 1000) => new Promise((resolve, reject) => {
-    const transactionReceiptRetry = () => this.wallet.provider.eth.getTransactionReceipt(txnHash)
-      .then((receipt) => (receipt && receipt.blockNumber
-        ? resolve(receipt)
-        : setTimeout(() => {
-          transactionReceiptRetry();
-        }, INTERVAL)));
-    transactionReceiptRetry();
-  });
-
   async isApproveForAll(item: Item) {
     this.verifyWallet();
 
@@ -457,7 +448,8 @@ export class Nifty {
   }
 
   static utils = {
-    findChainById
+    findChainById,
+    transactionConfirmation
   };
 
   static networkTypes = {
