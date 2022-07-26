@@ -109,7 +109,7 @@ export default class Transaction {
     return { ...order, txHash };
   }
 
-  async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime }) {
+  async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address = NULL_ADDRESS }) {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${findChainNameById(itemChainId)}`);
@@ -129,7 +129,7 @@ export default class Transaction {
       makerAssetData = await this.contracts.encodeERC1155AssetData(contractAddress, tokenID, 1);
     }
 
-    const takerAssetData = await this.contracts.encodeERC20AssetData(NULL_ADDRESS);
+    const takerAssetData = await this.contracts.encodeERC20AssetData(ERC20Address);
 
     // the amount the maker is selling of maker asset (1 ERC721 Token)
     const makerAssetAmount = new BigNumber(1);
