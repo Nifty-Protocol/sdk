@@ -19,7 +19,7 @@ import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
 
-class Nifty {
+export class Nifty {
   wallet: Wallet;
   key: string;
   env: env;
@@ -37,9 +37,6 @@ class Nifty {
     this.wallet = wallet(type, provider);
     this.wallet.chainId().then((chainId) => {
       this.setMarketplaceAddresses(addresses[chainId]);
-      if (chainId !== '4') {
-        throw new Error('only rinkeby is supported');
-      }
     });
   }
 
@@ -164,7 +161,7 @@ class Nifty {
     }
 
     try {
-      const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime });
+      const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
       const res = await this.api.orders.create(orderList);
       return res.data
     } catch (e) {
@@ -475,5 +472,3 @@ class Nifty {
   };
 
 }
-
-export default Nifty;
