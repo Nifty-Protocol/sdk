@@ -18,11 +18,13 @@ export default class Contracts {
   address: string;
   wallet: Wallet;
   addresses: addressesParameter;
+  marketId: string;
 
-  constructor(wallet, address, chainId) {
+  constructor(wallet, address, chainId, marketId) {
     this.wallet = wallet;
     this.address = address;
     this.addresses = addresses[chainId];
+    this.marketId = marketId;
   }
 
   /**
@@ -60,10 +62,9 @@ export default class Contracts {
       ERC721ABI,
       contractAddress
     );
-    const approvedAddress = await erc721Token.methods
+    return erc721Token.methods
       .isApprovedForAll(this.address, this.addresses.ERC721Proxy)
       .call({ from: this.address });
-    return this.addresses.ERC721Proxy === approvedAddress;
   }
 
 
@@ -246,32 +247,11 @@ export default class Contracts {
   async fillOrder(signedOrder, value = '') {
     const exchangeContract = new this.wallet.provider.eth.Contract(ExchangeABI, this.addresses.Exchange);
     const buyOrder = await exchangeContract.methods.fillOrder(
-      signedOrder, signedOrder.signature,
+      signedOrder, signedOrder.signature, this.marketId
     );
     const { transactionHash } = (await send(buyOrder, {
       from: this.address,
       value,
-    })) as any;
-    return transactionHash;
-  }
-
-  async marketBuyOrdersWithEth(signedOrder) {
-    const affiliateFeeRecipient = NULL_ADDRESS;
-    const affiliateFee = ZERO;
-
-    const takerAssetAmount = new BigNumber(signedOrder.takerAssetAmount);
-    const takerFee = new BigNumber(signedOrder.takerFee);
-    const forwarderContract = new this.wallet.provider.eth.Contract(ForwarderABI, this.addresses.Forwarder);
-    const buyOrder = await forwarderContract.methods.marketBuyOrdersWithEth(
-      [signedOrder],
-      signedOrder.makerAssetAmount,
-      [signedOrder.signature],
-      [String(affiliateFee)],
-      [affiliateFeeRecipient],
-    );
-    const { transactionHash } = (await send(buyOrder, {
-      from: this.address,
-      value: takerAssetAmount.plus(takerFee).plus(affiliateFee),
     })) as any;
     return transactionHash;
   }
