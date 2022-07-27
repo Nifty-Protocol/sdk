@@ -3,8 +3,8 @@ import BigNumber from 'bignumber.js';
 export const PROD = 'prod';
 export const TESTNET = 'testnet';
 
-export const SIGNATURE_DOMAIN = 'NFTrade';
-export const SIGNATURE_VERSION = '1.0.0';
+export const SIGNATURE_DOMAIN = 'Nifty Exchange';
+export const SIGNATURE_VERSION = '2.0';
 
 export const CREATING = 'creating';
 export const CREATING_GASLESS = 'creating_gasless';
@@ -37,10 +37,12 @@ export const RARIBLE = 'RARIBLE';
 export const EIP721 = 'EIP721';
 export const EIP1155 = 'EIP1155';
 
+export const defaultKey = '0x6fbb00c559133cbeb2c88ed6728bb152df3d622f5faaf7077a9a9c6b54c16157';
+
 export const orderStatuses = {
-  ADDED    : 'ADDED',
-  FILLED   : 'FILLED',
+  ADDED: 'ADDED',
+  FILLED: 'FILLED',
   CANCELLED: 'CANCELLED',
-  EXPIRED  : 'EXPIRED',
-  INVALID  : 'INVALID',
+  EXPIRED: 'EXPIRED',
+  INVALID: 'INVALID',
 };
