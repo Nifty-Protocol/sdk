@@ -1,4 +1,4 @@
-import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses, defaultKey } from './constants';
+import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses, defaultKey, CONVERT } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import { findChainById, findChainNameById } from './utils/chain';
@@ -9,8 +9,6 @@ import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
 import { Item } from './types/ItemInterface';
 import currencies from './utils/currencies';
 import { isValidERC20 } from './utils/isValidERC20';
-import { OpenSeaSDK, Network } from 'opensea-js'
-import { serializeOpenSeaOrder } from './utils/serializeOpenSeaOrder';
 import { ExternalOrder } from './types/ExternalOrderInterface';
 import { Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
@@ -19,7 +17,9 @@ import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
 import transactionConfirmation from './utils/transactionConfirmation';
+import { Seaport } from '@opensea/seaport-js';
 import { isExternalOrder } from './utils/isExternalOrder';
+import { ethers } from 'ethers';
 
 export class Nifty {
   wallet: Wallet;
@@ -144,18 +144,17 @@ export class Nifty {
       try {
         switch (ExternalOrder.source) {
           case OPENSEA:
-            // we only support eth for now
-            if ("1" !== String(chainId)) {
-              throw new Error(`Please connect to ${findChainNameById(1)}`);
-            }
+            const provider = new ethers.providers.Web3Provider(this.wallet.provider.walletProvider.currentProvider);
+            const seaport = new Seaport(provider);
+         
+            const { executeAllActions: executeAllFulfillActions } =
+              await seaport.fulfillOrder({
+                order: order.raw.protocol_data,
+                accountAddress: String(address),
+              });
 
-            const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
-            const openseaSDK = new OpenSeaSDK(this.wallet.provider.walletProvider.currentProvider, {
-              networkName
-            })
-
-            const serializeOrder = serializeOpenSeaOrder(ExternalOrder)
-            return await openseaSDK.fulfillOrder({ order: serializeOrder, accountAddress: address })
+            const transaction = await executeAllFulfillActions();
+            return transaction;
 
           default:
             break;
