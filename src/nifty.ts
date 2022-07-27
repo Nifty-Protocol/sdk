@@ -1,7 +1,7 @@
-import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses } from './constants';
+import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses, defaultKey } from './constants';
 import api from './api';
 import Transaction from './transaction';
-import { findChainById } from './utils/chain';
+import { findChainById, findChainNameById } from './utils/chain';
 import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses, { addressesParameter } from './addresses';
@@ -19,6 +19,7 @@ import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
 import transactionConfirmation from './utils/transactionConfirmation';
+import { isExternalOrder } from './utils/isExternalOrder';
 
 export class Nifty {
   wallet: Wallet;
@@ -29,7 +30,7 @@ export class Nifty {
   listener: Function;
 
   constructor(options: Options) {
-    this.key = options.key || '0x6fbb00c559133cbeb2c88ed6728bb152df3d622f5faaf7077a9a9c6b54c16157';
+    this.key = options.key || defaultKey;
     this.env = options.env;
     this.api = api(this.env);
   }
@@ -70,13 +71,46 @@ export class Nifty {
     }
   }
 
+
+  async buy(orderId: string, isExternalOrder: boolean = false): Promise<object | string> {
+    try {
+      const Order = await this.getListing(orderId, isExternalOrder) as Order | ExternalOrder;
+      return this.fillOrder(Order);
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+
+  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
+    try {
+      const listRes = await this.signOrder(item, price, expirationTime, ERC20Address);
+      const apiResres = await this.api.orders.create(listRes);
+      return apiResres.data;
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+
+  async offer(item: Item, price: number, expirationTime: number) {
+    try {
+      const offerRes = await this.signOffer(item, price, expirationTime);
+      const apiRes = await this.api.orders.create(offerRes);
+      return apiRes.data;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+
   /**
   * @param order recived from api
   * @param externalOrder boolean if order is external
   * @returns returns item
   * @returns returns tnx hash value
   */
-  async buy(order: Order | ExternalOrder): Promise<object | string> {
+  async fillOrder(order: Order | ExternalOrder): Promise<object | string> {
 
     this.verifyWallet();
 
@@ -87,15 +121,17 @@ export class Nifty {
       throw new Error('Order is not valid');
     }
 
-    const isExternalOrder = (order: any): order is ExternalOrder => {
-      return !!order.source;
-    }
 
     if (isExternalOrder(order)) {
       const ExternalOrder = order as ExternalOrder;
       try {
         switch (ExternalOrder.source) {
           case OPENSEA:
+            // we only support eth for now
+            if ("1" !== String(chainId)) {
+              throw new Error(`Please connect to ${findChainNameById(1)}`);
+            }
+            
             const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
             const openseaSDK = new OpenSeaSDK(this.wallet.provider.walletProvider.currentProvider, {
               networkName
@@ -136,7 +172,7 @@ export class Nifty {
   * @param ERC20Address to fullfill the order with 
   * @returns returns complete order from api
   */
-  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
+  async signOrder(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
 
     this.verifyWallet();
 
@@ -162,16 +198,25 @@ export class Nifty {
     }
 
     try {
-      const orderList = await transaction.list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address });
-      const res = await this.api.orders.create(orderList);
-      return res.data
+      const orderList = await transaction.list({
+        contractAddress,
+        tokenID,
+        contractType,
+        price,
+        exchangeAddress,
+        itemChainId,
+        expirationTime,
+        ERC20Address
+      });
+
+      return orderList;
     } catch (e) {
-      throw new Error(e)
+      throw new Error(e);
     }
   }
 
 
-  async offer(item: Item, price: number, expirationTime: number) {
+  async signOffer(item: Item, price: number, expirationTime: number) {
     this.verifyWallet();
 
     const address = await this.wallet.getUserAddress();
@@ -190,7 +235,7 @@ export class Nifty {
     }
 
     const tokenWithType = JSON.parse(JSON.stringify(item));
-    const owner = await this.getNftOwner(item.contractAddress, item.tokenID, item.chainId, item.contractType)
+    const owner = await this.getNftOwner(item.contractAddress, item.tokenID, item.chainId, item.contractType);
 
     const offerOrder = await transaction.offer({
       item: tokenWithType,
@@ -204,8 +249,8 @@ export class Nifty {
       offerOrder.recipientAddress = owner.id;
     }
 
-    offerOrder.type = OFFER
-    return this.api.orders.create(offerOrder)
+    offerOrder.type = OFFER;
+    return offerOrder;
   }
 
   async cancelOrder(order: Order) {
@@ -260,6 +305,7 @@ export class Nifty {
     return res
   }
 
+  
   async rejectOffer(orderId: string) {
     this.verifyWallet();
     return this.api.orders.cancel(orderId)
