@@ -1,7 +1,7 @@
-import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses } from './constants';
+import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses, defaultKey } from './constants';
 import api from './api';
 import Transaction from './transaction';
-import { findChainById } from './utils/chain';
+import { findChainById, findChainNameById } from './utils/chain';
 import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses, { addressesParameter } from './addresses';
@@ -30,7 +30,7 @@ export class Nifty {
   listener: Function;
 
   constructor(options: Options) {
-    this.key = options.key || '0x6fbb00c559133cbeb2c88ed6728bb152df3d622f5faaf7077a9a9c6b54c16157';
+    this.key = options.key || defaultKey;
     this.env = options.env;
     this.api = api(this.env);
   }
@@ -127,6 +127,11 @@ export class Nifty {
       try {
         switch (ExternalOrder.source) {
           case OPENSEA:
+            // we only support eth for now
+            if ("1" !== String(chainId)) {
+              throw new Error(`Please connect to ${findChainNameById(1)}`);
+            }
+            
             const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
             const openseaSDK = new OpenSeaSDK(this.wallet.provider.walletProvider.currentProvider, {
               networkName
@@ -300,6 +305,7 @@ export class Nifty {
     return res
   }
 
+  
   async rejectOffer(orderId: string) {
     this.verifyWallet();
     return this.api.orders.cancel(orderId)
