@@ -39,7 +39,6 @@ export const EIP1155 = 'EIP1155';
 
 export const defaultKey = '0x6fbb00c559133cbeb2c88ed6728bb152df3d622f5faaf7077a9a9c6b54c16157';
 
-
 export const orderStatuses = {
   ADDED: 'ADDED',
   FILLED: 'FILLED',
