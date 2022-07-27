@@ -74,8 +74,8 @@ export class Nifty {
 
   async buy(orderId: string, isExternalOrder: boolean = false): Promise<object | string> {
     try {
-      const Order = await this.getListing(orderId, isExternalOrder) as Order | ExternalOrder;
-      return this.fillOrder(Order);
+      const order = await this.getListing(orderId, isExternalOrder) as Order | ExternalOrder;
+      return this.fillOrder(order);
     } catch (e) {
       throw new Error(e)
     }
@@ -103,6 +103,23 @@ export class Nifty {
     }
   }
 
+  async acceptOffer(orderId: string) {
+    try {
+      const orderRes = await this.getListing(orderId) as Order;
+      return this.fillOffer(orderRes);
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  async cancelOrder(orderId: string) {
+    try {
+      const orderRes = await this.getListing(orderId) as Order;
+      return this.invalidOrder(orderRes);
+    } catch (error) {
+      
+    }
+  }
 
   /**
   * @param order recived from api
@@ -131,7 +148,7 @@ export class Nifty {
             if ("1" !== String(chainId)) {
               throw new Error(`Please connect to ${findChainNameById(1)}`);
             }
-            
+
             const networkName = this.env === PROD ? Network.Main : Network.Rinkeby;
             const openseaSDK = new OpenSeaSDK(this.wallet.provider.walletProvider.currentProvider, {
               networkName
@@ -191,6 +208,7 @@ export class Nifty {
       addresses: this.addresses,
       address,
       chainId,
+      marketplaceId: this.key
     });
 
     if (this.listener) {
@@ -228,6 +246,7 @@ export class Nifty {
       addresses: this.addresses,
       address,
       chainId,
+      marketplaceId: this.key
     });
 
     if (this.listener) {
@@ -253,7 +272,7 @@ export class Nifty {
     return offerOrder;
   }
 
-  async cancelOrder(order: Order) {
+  async invalidOrder(order: Order) {
     this.verifyWallet();
 
     if (order.state !== orderStatuses.ADDED) {
@@ -268,6 +287,7 @@ export class Nifty {
       addresses: this.addresses,
       address,
       chainId,
+      marketplaceId: this.key
     });
 
     if (this.listener) {
@@ -280,7 +300,7 @@ export class Nifty {
   }
 
 
-  async acceptOffer(order: Order) {
+  async fillOffer(order: Order) {
     this.verifyWallet();
 
     if (order.state !== orderStatuses.ADDED) {
@@ -295,6 +315,7 @@ export class Nifty {
       addresses: this.addresses,
       address,
       chainId,
+      marketplaceId: this.key
     });
 
     if (this.listener) {
@@ -305,9 +326,8 @@ export class Nifty {
     return res
   }
 
-  
+
   async rejectOffer(orderId: string) {
-    this.verifyWallet();
     return this.api.orders.cancel(orderId)
   }
 
@@ -406,9 +426,15 @@ export class Nifty {
       throw new Error(`Please connect to ${itemChainId}`);
     }
 
-    const transaction = new Transaction({ wallet: this.wallet, address, chainId });
-    const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
+    const transaction = new Transaction({
+      wallet: this.wallet,
+      addresses: this.addresses,
+      address,
+      chainId,
+      marketplaceId: this.key
+    });
 
+    const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
     const activeListings = listings.filter((list) => list.state === 'ADDED');
     const isListedByOtherThanUser = activeListings.some((list) => list.makerAddress !== address);
     const isUserListingToken = activeListings.some((list) => list.makerAddress === address);
@@ -489,6 +515,7 @@ export class Nifty {
       addresses: this.addresses,
       address,
       chainId,
+      marketplaceId: this.key
     });
 
     return transaction.contracts.isApprovedForAll(item)
