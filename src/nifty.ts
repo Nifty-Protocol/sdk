@@ -1,4 +1,4 @@
-import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses, defaultKey, CONVERT } from './constants';
+import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses, defaultKey, CONVERT, NULL_ADDRESS } from './constants';
 import api from './api';
 import Transaction from './transaction';
 import { findChainById, findChainNameById } from './utils/chain';
@@ -82,7 +82,7 @@ export class Nifty {
   }
 
 
-  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
+  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string = NULL_ADDRESS): Promise<Order> {
     try {
       const listRes = await this.signOrder(item, price, expirationTime, ERC20Address);
       const apiResres = await this.api.orders.create(listRes);
@@ -188,7 +188,7 @@ export class Nifty {
   * @param ERC20Address to fullfill the order with 
   * @returns returns complete order from api
   */
-  async signOrder(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
+  async signOrder(item: Item, price: number | string, expirationTime: number, ERC20Address: string ): Promise<Order> {
 
     this.verifyWallet();
 

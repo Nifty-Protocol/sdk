@@ -20,11 +20,12 @@ export default class Contracts {
   addresses: addressesParameter;
   marketId: string;
 
-  constructor(wallet, address, chainId, marketId) {
+  constructor(wallet, address, chainId, marketId, addresses) {
     this.wallet = wallet;
     this.address = address;
     this.addresses = addresses[chainId];
     this.marketId = marketId;
+    this.addresses = addresses;
   }
 
   /**
@@ -176,14 +177,14 @@ export default class Contracts {
   NativeERC20Approve() {
     const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
     const method = NativeERC20Contract.methods
-      .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1).toString());
+      .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1).toFixed());
     return send(method, { from: this.address });
   }
   ERC20Approve(erc20Address: string) {
     // fix the amount transfered to the proxy
     const NativeERC20Contract = new this.wallet.provider.walletProvider.eth.Contract(ERC20ABI, erc20Address);
     const method = NativeERC20Contract.methods
-      .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1));
+      .approve(this.addresses.ERC20Proxy, new BigNumber(2).pow(256).minus(1).toFixed());
     return send(method, { from: this.address });
   }
 

@@ -243,69 +243,6 @@ const LibAssetDataABI =  [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "staticCallTargetAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "staticCallData",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "expectedReturnDataHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "encodeStaticCallAssetData",
-    "outputs": [
-      {
-        "internalType": "bytes",
-        "name": "assetData",
-        "type": "bytes"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes",
-        "name": "assetData",
-        "type": "bytes"
-      }
-    ],
-    "name": "decodeStaticCallAssetData",
-    "outputs": [
-      {
-        "internalType": "bytes4",
-        "name": "assetProxyId",
-        "type": "bytes4"
-      },
-      {
-        "internalType": "address",
-        "name": "staticCallTargetAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "staticCallData",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "expectedReturnDataHash",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes",
         "name": "assetData",
         "type": "bytes"
@@ -316,6 +253,6 @@ const LibAssetDataABI =  [
     "stateMutability": "pure",
     "type": "function"
   }
-]
+];
 
 export default LibAssetDataABI

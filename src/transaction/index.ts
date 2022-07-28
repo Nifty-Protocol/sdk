@@ -37,7 +37,7 @@ export default class Transaction {
     this.chainId = data.chainId;
     this.addresses = data.addresses;
     this.marketplaceId = data.marketplaceId;
-    this.contracts = new Contracts(this.wallet, this.address, this.chainId, data.marketplaceId);
+    this.contracts = new Contracts(this.wallet, this.address, this.chainId, data.marketplaceId,data.addresses);
   }
 
 
@@ -251,8 +251,6 @@ export default class Transaction {
     } catch (e) {
       console.error(e);
     }
-
-    makerAssetAmount = makerAssetAmount.minus(royaltyAmount);
 
     const order = createOrder({
       chainId: this.chainId,

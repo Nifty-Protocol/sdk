@@ -1,4 +1,4 @@
-const ExchangeABI = [
+const ExchangeABI =  [
   {
     "inputs": [
       {
@@ -192,7 +192,7 @@ const ExchangeABI = [
         "type": "address"
       }
     ],
-    "name": "MarketAdd",
+    "name": "MarketplaceRegister",
     "type": "event"
   },
   {
@@ -217,7 +217,7 @@ const ExchangeABI = [
         "type": "address"
       }
     ],
-    "name": "MarketSetFees",
+    "name": "MarketplaceSetFees",
     "type": "event"
   },
   {
@@ -236,7 +236,7 @@ const ExchangeABI = [
         "type": "bool"
       }
     ],
-    "name": "MarketUpdateStatus",
+    "name": "MarketplaceUpdateStatus",
     "type": "event"
   },
   {
@@ -317,21 +317,7 @@ const ExchangeABI = [
   },
   {
     "inputs": [],
-    "name": "EIP1271_MAGIC_VALUE",
-    "outputs": [
-      {
-        "internalType": "bytes4",
-        "name": "",
-        "type": "bytes4"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [],
-    "name": "EIP712_EXCHANGE_DOMAIN_HASH",
+    "name": "DOMAIN_HASH",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -340,30 +326,6 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "identifier",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "feeMultiplier",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "feeCollector",
-        "type": "address"
-      }
-    ],
-    "name": "addMarket",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -383,8 +345,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -395,7 +356,7 @@ const ExchangeABI = [
   },
   {
     "inputs": [],
-    "name": "distributeMarketFees",
+    "name": "distributeMarketplaceFees",
     "outputs": [
       {
         "internalType": "bool",
@@ -404,8 +365,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -424,8 +384,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -444,8 +403,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -473,9 +431,8 @@ const ExchangeABI = [
         "type": "bool"
       }
     ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
     "inputs": [
@@ -556,18 +513,17 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "bool",
-        "name": "_distributeMarketFees",
+        "name": "_distributeMarketplaceFees",
         "type": "bool"
       }
     ],
-    "name": "marketDistribution",
+    "name": "marketplaceDistribution",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -589,8 +545,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -603,8 +558,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -617,8 +571,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -631,8 +584,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
@@ -645,8 +597,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -657,6 +608,29 @@ const ExchangeABI = [
       }
     ],
     "name": "registerAssetProxy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "identifier",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "feeMultiplier",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "feeCollector",
+        "type": "address"
+      }
+    ],
+    "name": "registerMarketplace",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -686,7 +660,7 @@ const ExchangeABI = [
         "type": "address"
       }
     ],
-    "name": "setMarketFees",
+    "name": "setMarketplaceFees",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -704,7 +678,7 @@ const ExchangeABI = [
         "type": "bool"
       }
     ],
-    "name": "setMarketStatus",
+    "name": "setMarketplaceStatus",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -763,8 +737,7 @@ const ExchangeABI = [
   },
   {
     "stateMutability": "payable",
-    "type": "receive",
-    "payable": true
+    "type": "receive"
   },
   {
     "inputs": [
@@ -837,7 +810,7 @@ const ExchangeABI = [
       },
       {
         "internalType": "bytes32",
-        "name": "marketIdentifier",
+        "name": "marketplaceIdentifier",
         "type": "bytes32"
       }
     ],
@@ -850,8 +823,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "payable",
-    "type": "function",
-    "payable": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -924,7 +896,7 @@ const ExchangeABI = [
       },
       {
         "internalType": "bytes32",
-        "name": "marketIdentifier",
+        "name": "marketplaceIdentifier",
         "type": "bytes32"
       },
       {
@@ -942,8 +914,7 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "payable",
-    "type": "function",
-    "payable": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -1013,8 +984,7 @@ const ExchangeABI = [
     "name": "cancelOrder",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function",
-    "payable": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -1027,8 +997,7 @@ const ExchangeABI = [
     "name": "cancelOrdersUpTo",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function",
-    "payable": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -1126,16 +1095,14 @@ const ExchangeABI = [
       }
     ],
     "stateMutability": "view",
-    "type": "function",
-    "constant": true
+    "type": "function"
   },
   {
     "inputs": [],
     "name": "returnAllETHToOwner",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function",
-    "payable": true
+    "type": "function"
   },
   {
     "inputs": [
@@ -1148,8 +1115,7 @@ const ExchangeABI = [
     "name": "returnERC20ToOwner",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function",
-    "payable": true
+    "type": "function"
   }
 ];
 
