@@ -73,52 +73,32 @@ export class Nifty {
 
 
   async buy(orderId: string, isExternalOrder: boolean = false): Promise<object | string> {
-    try {
-      const order = await this.getListing(orderId, isExternalOrder) as Order | ExternalOrder;
-      return this.fillOrder(order);
-    } catch (e) {
-      throw new Error(e)
-    }
+    const order = await this.getListing(orderId, isExternalOrder) as Order | ExternalOrder;
+    return this.fillOrder(order);
   }
 
 
   async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string = NULL_ADDRESS): Promise<Order> {
-    try {
-      const listRes = await this.signOrder(item, price, expirationTime, ERC20Address);
-      const apiResres = await this.api.orders.create(listRes);
-      return apiResres.data;
-    } catch (e) {
-      throw new Error(e)
-    }
+    const listRes = await this.signOrder(item, price, expirationTime, ERC20Address);
+    const apiResres = await this.api.orders.create(listRes);
+    return apiResres.data;
   }
 
 
   async offer(item: Item, price: number, expirationTime: number) {
-    try {
-      const offerRes = await this.signOffer(item, price, expirationTime);
-      const apiRes = await this.api.orders.create(offerRes);
-      return apiRes.data;
-    } catch (e) {
-      throw new Error(e);
-    }
+    const offerRes = await this.signOffer(item, price, expirationTime);
+    const apiRes = await this.api.orders.create(offerRes);
+    return apiRes.data;
   }
 
   async acceptOffer(orderId: string) {
-    try {
-      const orderRes = await this.getListing(orderId) as Order;
-      return this.fillOffer(orderRes);
-    } catch (e) {
-      throw new Error(e);
-    }
+    const orderRes = await this.getListing(orderId) as Order;
+    return this.fillOffer(orderRes);
   }
 
   async cancelOrder(orderId: string) {
-    try {
-      const orderRes = await this.getListing(orderId) as Order;
-      return this.invalidOrder(orderRes);
-    } catch (error) {
-      
-    }
+    const orderRes = await this.getListing(orderId) as Order;
+    return this.invalidOrder(orderRes);
   }
 
   /**
@@ -188,7 +168,7 @@ export class Nifty {
   * @param ERC20Address to fullfill the order with 
   * @returns returns complete order from api
   */
-  async signOrder(item: Item, price: number | string, expirationTime: number, ERC20Address: string ): Promise<Order> {
+  async signOrder(item: Item, price: number | string, expirationTime: number, ERC20Address: string): Promise<Order> {
 
     this.verifyWallet();
 
