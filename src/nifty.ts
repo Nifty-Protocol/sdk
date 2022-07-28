@@ -121,26 +121,22 @@ export class Nifty {
 
     if (isExternalOrder(order)) {
       const ExternalOrder = order as ExternalOrder;
-      try {
-        switch (ExternalOrder.source) {
-          case OPENSEA:
-            const provider = new ethers.providers.Web3Provider(this.wallet.provider.walletProvider.currentProvider);
-            const seaport = new Seaport(provider);
-         
-            const { executeAllActions: executeAllFulfillActions } =
-              await seaport.fulfillOrder({
-                order: order.raw.protocol_data,
-                accountAddress: String(address),
-              });
+      switch (ExternalOrder.source) {
+        case OPENSEA:
+          const provider = new ethers.providers.Web3Provider(this.wallet.provider.walletProvider.currentProvider);
+          const seaport = new Seaport(provider);
 
-            const transaction = await executeAllFulfillActions();
-            return transaction;
+          const { executeAllActions: executeAllFulfillActions } =
+            await seaport.fulfillOrder({
+              order: order.raw.protocol_data,
+              accountAddress: String(address),
+            });
 
-          default:
-            break;
-        }
-      } catch (e) {
-        throw new Error(e)
+          const transaction = await executeAllFulfillActions();
+          return transaction;
+
+        default:
+          break;
       }
     }
 
@@ -194,22 +190,18 @@ export class Nifty {
       transaction.setStatusListener(this.listener);
     }
 
-    try {
-      const orderList = await transaction.list({
-        contractAddress,
-        tokenID,
-        contractType,
-        price,
-        exchangeAddress,
-        itemChainId,
-        expirationTime,
-        ERC20Address
-      });
+    const orderList = await transaction.list({
+      contractAddress,
+      tokenID,
+      contractType,
+      price,
+      exchangeAddress,
+      itemChainId,
+      expirationTime,
+      ERC20Address
+    });
 
-      return orderList;
-    } catch (e) {
-      throw new Error(e);
-    }
+    return orderList;
   }
 
 
@@ -331,12 +323,8 @@ export class Nifty {
 
     this.verifyMarkletplace();
 
-    try {
-      const res = await this.api.tokens.getAll({ ...options, key: this.key });
-      return res.data
-    } catch (e) {
-      throw new Error(e)
-    }
+    const res = await this.api.tokens.getAll({ ...options, key: this.key });
+    return res.data
   }
 
 
@@ -350,12 +338,8 @@ export class Nifty {
 
     this.verifyMarkletplace();
 
-    try {
-      const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
-      return res.data
-    } catch (e) {
-      throw new Error(e)
-    }
+    const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
+    return res.data
   }
 
   /**
@@ -371,18 +355,14 @@ export class Nifty {
 
     const { contractAddress, tokenID, contractType, chainId, id: tokenId } = item;
 
-    try {
-      const res = await this.api.tokens.getGraph({
-        contractAddress,
-        tokenID,
-        chainId,
-        contractType,
-        tokenId,
-      })
-      return res.data
-    } catch (e) {
-      throw new Error(e)
-    }
+    const res = await this.api.tokens.getGraph({
+      contractAddress,
+      tokenID,
+      chainId,
+      contractType,
+      tokenId,
+    })
+    return res.data
   }
 
 
@@ -440,18 +420,13 @@ export class Nifty {
   async getListing(orderId: string, isExternalOrder: boolean = false): Promise<object> {
     this.verifyMarkletplace();
 
-    try {
-      if (isExternalOrder) {
-        const res = await this.api.externalOrders.get(orderId);
-        return res.data
-      }
+    if (isExternalOrder) {
+      const res = await this.api.externalOrders.get(orderId);
+      return res.data
+    }
 
-      const res = await this.api.orders.get(orderId)
-      return res.data;
-    }
-    catch (e) {
-      throw new Error(e)
-    }
+    const res = await this.api.orders.get(orderId)
+    return res.data;
   }
 
   async getNftOwner(contractAddress: string, tokenID: number | string, chainId: number, contractType: string, orderId?: string) {
