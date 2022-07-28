@@ -143,11 +143,7 @@ export default class Transaction {
 
     let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
 
-    try {
-      ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
-    } catch (e) {
-      console.error(e);
-    }
+    ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
 
     // takerAssetAmount = takerAssetAmount.minus(royaltyAmount);
 
@@ -246,11 +242,7 @@ export default class Transaction {
     let royaltyAmount = 0;
     let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
 
-    try {
-      ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
-    } catch (e) {
-      console.error(e);
-    }
+    ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
 
     const order = createOrder({
       chainId: this.chainId,
