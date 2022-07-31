@@ -138,6 +138,24 @@ export class Nifty {
     return this.invalidOrder(orderRes);
   }
   
+  async getAllNFTData(contractAddress: string, tokenID: number, chainId: number) {
+    const nft = await this.getNFT(contractAddress, tokenID, chainId);
+    const nftData = await this.getNFTData(nft);
+
+    if (this.wallet) {
+      const userAvailableMethods = await this.getUserAvailableMethods(nftData.listings as Listings, nft);
+      return {
+        nft,
+        nftData,
+        userAvailableMethods
+      }
+    }
+
+    return {
+      nft,
+      nftData
+    }
+  }
   
   /**
   * @param order recived from api
@@ -160,7 +178,7 @@ export class Nifty {
       const ExternalOrder = order as ExternalOrder;
       switch (ExternalOrder.source) {
         case OPENSEA:
-          const provider = new ethers.providers.Web3Provider(this.wallet.provider.walletProvider.currentProvider);
+          const provider = new ethers.providers.Web3Provider(this.wallet.web3.currentProvider);
           const seaport = new Seaport(provider);
 
           const { executeAllActions: executeAllFulfillActions } =
@@ -261,7 +279,7 @@ export class Nifty {
     this.verifyWallet();
     const transaction = await this.initTransaction();
     const res = await transaction.approveTrade(order);
-    return res; 
+    return res;
   }
 
 

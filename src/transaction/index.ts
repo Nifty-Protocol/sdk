@@ -80,7 +80,7 @@ export default class Transaction {
 
     let txHash = '';
     let value = '';
-    
+
     // eth payment
     if (tokenAddress === NULL_ADDRESS) {
       value = new BigNumber(order.takerAssetAmount).toString();
@@ -92,7 +92,7 @@ export default class Transaction {
       const allowance = new BigNumber(proxyApprovedAllowance);
       const itemPrice = new BigNumber(order.takerAssetAmount);
 
-    
+
       // if wallet has more erc20 balance than the nft price
       if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
         if (allowance.isLessThan(itemPrice)) {
@@ -158,10 +158,10 @@ export default class Transaction {
       makerAssetData,
       takerAssetData,
     });
-    
+
 
     const signedOrder = await signature(
-      this.wallet.provider.walletProvider.currentProvider,
+      this.wallet.web3.currentProvider,
       order,
       this.address,
       exchangeAddress
@@ -199,7 +199,7 @@ export default class Transaction {
     if (isFullConversion) {
       conversion = maxConversion;
       if (conversion.isGreaterThan(balanceConversion)) {
-        const gasPrice = await this.wallet.provider.walletProvider.eth.getGasPrice();
+        const gasPrice = await this.wallet.web3.eth.getGasPrice();
         const gas = await this.contracts.deposit().estimateGas({ gasPrice });
         conversion = balanceConversion.minus(gas * gasPrice * 5);
       }
@@ -260,7 +260,7 @@ export default class Transaction {
 
     // Generate the order hash and sign it
     const signedOrder = await signature(
-      this.wallet.provider.walletProvider.currentProvider,
+      this.wallet.web3.currentProvider,
       order,
       this.address,
       exchangeAddress
@@ -369,7 +369,7 @@ export default class Transaction {
 
     // Generate the order hash and sign it
     const signedOrder = await signature(
-      this.wallet.provider.walletProvider.currentProvider,
+      this.wallet.web3.currentProvider,
       order,
       this.address,
       exchangeAddress
@@ -391,7 +391,7 @@ export default class Transaction {
  * APPROVE TRADE
  * @param {object} order
  */
-   async approveTrade(order) {
+  async approveTrade(order) {
     this.setStatus(CREATING);
     const signedOrder = destructOrder(order);
 
