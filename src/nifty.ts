@@ -19,7 +19,7 @@ import { EventType } from './types/EventType';
 import transactionConfirmation from './utils/transactionConfirmation';
 import { Seaport } from '@opensea/seaport-js';
 import { isExternalOrder } from './utils/isExternalOrder';
-import { ethers } from 'ethers';
+import { ethers, providers } from 'ethers';
 
 export class Nifty {
   wallet: Wallet;
@@ -35,7 +35,7 @@ export class Nifty {
     this.api = api(this.env);
   }
 
-  initWallet(type: string, provider: any) {
+  initWallet(type: string, provider: providers.Provider) {
     this.wallet = wallet(type, provider);
     this.wallet.chainId().then((chainId) => {
       this.setMarketplaceAddresses(addresses[chainId]);
