@@ -37,7 +37,7 @@ export default class Transaction {
     this.chainId = data.chainId;
     this.addresses = data.addresses;
     this.marketplaceId = data.marketplaceId;
-    this.contracts = new Contracts(this.wallet, this.address, this.chainId, data.marketplaceId,data.addresses);
+    this.contracts = new Contracts(this.wallet, this.address, this.chainId, data.marketplaceId, data.addresses);
   }
 
 
@@ -306,6 +306,124 @@ export default class Transaction {
 
     return { ...order, txHash };
   }
+
+
+  /**
+   * TRADE
+   * @param {array} offeredItems
+   * @param {array} receivedItems
+   */
+  async trade({ offeredItems, receivedItems, expirationTimeSeconds, exchangeAddress }) {
+    this.setStatus(CREATING);
+    // encode the assets independantly
+
+    const makerMultiAssetData = await Promise.all(
+      offeredItems.map(
+        (item) => this.contracts.encodeERC721AssetData(item.contractAddress, item.tokenID),
+      ),
+    );
+    const makerMultiAssetAmounts = offeredItems.map((item) => 1);
+
+    // encode all items for the order
+
+    const makerAssetData = await this.contracts
+      .encodeMultiAssetData(makerMultiAssetAmounts, makerMultiAssetData);
+
+    // encode the assets independantly that we want to receive
+
+    const takerMultiAssetData = await Promise.all(
+      receivedItems.map(
+        (item) => this.contracts.encodeERC721AssetData(item.contractAddress, item.tokenID),
+      ),
+    );
+    const takerMultiAssetAmounts = receivedItems.map((item) => 1);
+
+    // then encode all items for the order
+
+    const takerAssetData = await this.contracts
+      .encodeMultiAssetData(takerMultiAssetAmounts, takerMultiAssetData);
+
+    this.setStatus(APPROVING);
+    // need to check if all the offers items have approved our proxy
+    await Promise.all(
+      offeredItems.map(
+        (offeredItem) => this.contracts.erc721ApproveForAll(offeredItem.contractAddress),
+      ),
+    );
+
+    const makerAssetAmount = new BigNumber(1);
+    const takerAssetAmount = new BigNumber(1);
+
+    // Create the order
+    const order = createOrder({
+      chainId: this.chainId,
+      makerAddress: this.address,
+      expirationTimeSeconds,
+      makerAssetAmount,
+      takerAssetAmount,
+      makerAssetData,
+      takerAssetData,
+    });
+
+    order.chainId = String(order.chainId);
+
+    // Generate the order hash and sign it
+    const signedOrder = await signature(
+      this.wallet.provider.walletProvider.currentProvider,
+      order,
+      this.address,
+      exchangeAddress
+    );
+
+    this.setStatus(SIGN);
+
+
+    const { orderHash } = await this.contracts.getOrderInfo(signedOrder);
+
+    this.setStatus(APPROVED);
+
+    return { ...signedOrder, orderHash };
+  }
+
+
+
+  /**
+ * APPROVE TRADE
+ * @param {object} order
+ */
+   async approveTrade(order) {
+    this.setStatus(CREATING);
+    const signedOrder = destructOrder(order);
+
+    const { nestedAssetData } = await this.contracts.decodeMultiAssetData(order.takerAssetData);
+
+    const takerAssets = await Promise.all(
+      nestedAssetData.map((offeredItem) => this.contracts.decodeERC721AssetData(offeredItem)),
+    );
+
+    this.setStatus(APPROVING);
+
+    await Promise.all(
+      takerAssets.map(
+        (offeredItem) => this.contracts.erc721ApproveForAll(offeredItem.tokenAddress),
+      ),
+    );
+
+    this.setStatus(APPROVING_FILL);
+
+
+
+    const paymentFee = await this.contracts.getProtocolFixedFee();
+
+    console.log(paymentFee);
+    // to do add fixedfee getter
+    const txHash = await this.contracts.fillOrder(signedOrder, paymentFee);
+
+    this.setStatus(APPROVED);
+
+    return { ...order, txHash };
+  }
+
 
   async cancelOrder(order: Order) {
     const signedOrder = destructOrder(order);

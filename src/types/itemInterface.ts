@@ -23,7 +23,7 @@ export interface Item {
   chainId: number;
   chainType: string;
   blacklist: boolean;
-  owner: string;
+  owner: Owner;
   contractVerified: boolean;
   contractType: string;
   status: string;
@@ -34,5 +34,12 @@ export interface Item {
   contractId: string;
   orderId: string;
   contract: object;
-  repotrs: Array<object>;
+  reports: Array<object>;
+}
+
+interface Owner {
+  id: string;
+  image: string;
+  username: string;
+
 }

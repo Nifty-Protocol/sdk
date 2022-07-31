@@ -115,6 +115,24 @@ export class Nifty {
     return this.fillOffer(orderRes);
   }
   
+  
+  async offerTrade(offeredItems: Array<Item>, receivedItems: Array<Item>, expirationTime: number) {
+    const offerRes = await this.signTrade(offeredItems, receivedItems, expirationTime);
+    
+    offerRes.type = 'TRADE';
+    offerRes.recipientAddress = receivedItems[0].owner.id;
+    offerRes.tokens = [...offeredItems, ...receivedItems];
+    
+    const apiRes = await this.api.orders.create(offerRes);
+    return apiRes.data;
+  }
+  
+  async acceptTrade(orderId: string) {
+    const orderRes = await this.getListing(orderId) as Order;
+    return this.fillTrade(orderRes);
+  }
+
+
   async cancelOrder(orderId: string) {
     const orderRes = await this.getListing(orderId) as Order;
     return this.invalidOrder(orderRes);
@@ -226,6 +244,24 @@ export class Nifty {
 
     offerOrder.type = OFFER;
     return offerOrder;
+  }
+
+
+  async signTrade(offeredItems: Array<Item>, receivedItems: Array<Item>, expirationTimeSeconds: number) {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+    const exchangeAddress = this.addresses.Exchange;
+
+    const res = await transaction.trade({ offeredItems, receivedItems, expirationTimeSeconds, exchangeAddress })
+    return res
+  }
+
+  async fillTrade(order: Order) {
+    this.verifyWallet();
+    const transaction = await this.initTransaction();
+    const res = await transaction.approveTrade(order);
+    return res; 
   }
 
 

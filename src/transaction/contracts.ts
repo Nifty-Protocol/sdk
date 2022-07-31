@@ -245,6 +245,11 @@ export default class Contracts {
     return exchangeContract.methods.getOrderInfo(signedOrder).call();
   }
 
+  getProtocolFixedFee() {
+    const exchangeContract = new this.wallet.provider.walletProvider.eth.Contract(ExchangeABI, this.addresses.Exchange);
+    return exchangeContract.methods.protocolFixedFee().call();
+  }
+
   async fillOrder(signedOrder, value = '') {
     const exchangeContract = new this.wallet.provider.walletProvider.eth.Contract(ExchangeABI, this.addresses.Exchange);
     const buyOrder = await exchangeContract.methods.fillOrder(
