@@ -71,6 +71,25 @@ export class Nifty {
     }
   }
 
+  async initTransaction() {
+    const address = await this.wallet.getUserAddress();
+    const chainId = await this.wallet.chainId();
+
+    const transaction = new Transaction({
+      wallet: this.wallet,
+      addresses: this.addresses,
+      address,
+      chainId,
+      marketplaceId: this.key
+    });
+
+    if (this.listener) {
+      transaction.setStatusListener(this.listener);
+    }
+
+    return transaction;
+  }
+
 
   async buy(orderId: string, isExternalOrder: boolean = false): Promise<object | string> {
     const order = await this.getListing(orderId, isExternalOrder) as Order | ExternalOrder;
@@ -95,12 +114,13 @@ export class Nifty {
     const orderRes = await this.getListing(orderId) as Order;
     return this.fillOffer(orderRes);
   }
-
+  
   async cancelOrder(orderId: string) {
     const orderRes = await this.getListing(orderId) as Order;
     return this.invalidOrder(orderRes);
   }
-
+  
+  
   /**
   * @param order recived from api
   * @param externalOrder boolean if order is external
@@ -112,7 +132,6 @@ export class Nifty {
     this.verifyWallet();
 
     const address = await this.wallet.getUserAddress();
-    const chainId = await this.wallet.chainId();
 
     if (order.state !== orderStatuses.ADDED) {
       throw new Error('Order is not valid');
@@ -132,25 +151,15 @@ export class Nifty {
               accountAddress: String(address),
             });
 
-          const transaction = await executeAllFulfillActions();
-          return transaction;
+          const openSeaTransaction = await executeAllFulfillActions();
+          return openSeaTransaction;
 
         default:
           break;
       }
     }
 
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
-
-    if (this.listener) {
-      transaction.setStatusListener(this.listener);
-    }
+    const transaction = await this.initTransaction();
 
     const res = await transaction.buy(order as Order);
     return res;
@@ -170,7 +179,6 @@ export class Nifty {
 
     const { contractAddress, tokenID, contractType, chainId: itemChainId } = item;
 
-    const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
     const exchangeAddress = this.addresses.Exchange;
 
@@ -178,18 +186,7 @@ export class Nifty {
       throw new Error('Invalid ERC20 address');
     }
 
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
-
-    if (this.listener) {
-      transaction.setStatusListener(this.listener);
-    }
-
+    const transaction = await this.initTransaction();
     const orderList = await transaction.list({
       contractAddress,
       tokenID,
@@ -208,21 +205,9 @@ export class Nifty {
   async signOffer(item: Item, price: number, expirationTime: number) {
     this.verifyWallet();
 
-    const address = await this.wallet.getUserAddress();
-    const chainId = await this.wallet.chainId();
     const exchangeAddress = this.addresses.Exchange;
 
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
-
-    if (this.listener) {
-      transaction.setStatusListener(this.listener);
-    }
+    const transaction = await this.initTransaction();
 
     const tokenWithType = JSON.parse(JSON.stringify(item));
     const owner = await this.getNftOwner(item.contractAddress, item.tokenID, item.chainId, item.contractType);
@@ -243,6 +228,7 @@ export class Nifty {
     return offerOrder;
   }
 
+
   async invalidOrder(order: Order) {
     this.verifyWallet();
 
@@ -250,20 +236,7 @@ export class Nifty {
       throw new Error('Order is not valid');
     }
 
-    const address = await this.wallet.getUserAddress();
-    const chainId = await this.wallet.chainId();
-
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
-
-    if (this.listener) {
-      transaction.setStatusListener(this.listener);
-    }
+    const transaction = await this.initTransaction();
 
     const transactionHash = await transaction.cancelOrder(order)
     return transactionHash;
@@ -278,20 +251,7 @@ export class Nifty {
       throw new Error('Order is not valid');
     }
 
-    const address = await this.wallet.getUserAddress();
-    const chainId = await this.wallet.chainId();
-
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
-
-    if (this.listener) {
-      transaction.setStatusListener(this.listener);
-    }
+    const transaction = await this.initTransaction();
 
     const res = await transaction.acceptOffer(order)
     return res
@@ -302,7 +262,7 @@ export class Nifty {
     return this.api.orders.cancel(orderId)
   }
 
-
+  
   /**
    * @param filter options  
       * @param filter.contracts array of contracts to filter by
