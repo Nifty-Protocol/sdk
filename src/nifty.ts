@@ -135,7 +135,7 @@ export class Nifty {
 
   async cancelOrder(orderId: string) {
     const orderRes = await this.getListing(orderId) as Order;
-    return this.invalidOrder(orderRes);
+    return this.invalidateOrder(orderRes);
   }
   
   async getAllNFTData(contractAddress: string, tokenID: number, chainId: number) {
@@ -283,18 +283,13 @@ export class Nifty {
   }
 
 
-  async invalidOrder(order: Order) {
+  async invalidateOrder(order: Order) {
     this.verifyWallet();
-
-    if (order.state !== orderStatuses.ADDED) {
-      throw new Error('Order is not valid');
-    }
 
     const transaction = await this.initTransaction();
 
     const transactionHash = await transaction.cancelOrder(order)
     return transactionHash;
-
   }
 
 
