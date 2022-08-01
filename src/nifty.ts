@@ -307,11 +307,6 @@ export class Nifty {
   }
 
 
-  async rejectOffer(orderId: string) {
-    return this.api.orders.cancel(orderId)
-  }
-
-  
   /**
    * @param filter options  
       * @param filter.contracts array of contracts to filter by
