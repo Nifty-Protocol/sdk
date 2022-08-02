@@ -1,12 +1,10 @@
 import BigNumber from 'bignumber.js';
-import addresses, { addressesParameter } from '../addresses';
+import { addressesParameter } from '../addresses';
 import transactionConfirmation from '../utils/transactionConfirmation';
-import { NULL_ADDRESS, ZERO } from '../constants';
 import ERC721ABI from './abis/ERC721ABI';
 import ERC1155ABI from './abis/ERC1155ABI';
 import ERC20ABI from './abis/ERC20ABI';
 import ExchangeABI from './abis/ExchangeABI';
-import ForwarderABI from './abis/ForwarderABI';
 import CollectionsABI from './abis/CollectionsABI';
 import RoyaltiesManagerABI from './abis/RoyaltiesManagerABI';
 import send from '../utils/send';

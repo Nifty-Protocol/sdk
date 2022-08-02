@@ -1,5 +1,3 @@
-import { Item } from "./ItemInterface";
-
 export interface Order {
   id: string;
   createdAt: Date;
@@ -137,4 +135,8 @@ interface Contract {
 interface Trade {
   price: number;
   createdAt: Date;
+}
+
+export interface OrderWithTxHash extends Order{
+  txHash: string;
 }

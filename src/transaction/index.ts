@@ -18,9 +18,10 @@ import {
 import signature from '../signature';
 import { addressesParameter } from '../addresses';
 import { isValidERC20 } from '../utils/isValidERC20';
-import { Order } from '../types/OrderInterface';
+import { Order, OrderWithTxHash } from '../types/OrderInterface';
 import Emitter from '../utils/emitter';
 import { findChainNameById } from '../utils/chain';
+import { SignedOrderWithOrderHash } from '../types/SignedOrder';
 
 export default class Transaction {
   listener: Function;
@@ -61,7 +62,7 @@ export default class Transaction {
   }
 
 
-  async buy(order: Order): Promise<Order & { txHash: any }> {
+  async buy(order: Order): Promise<OrderWithTxHash> {
     this.setStatus(CREATING);
 
     if (String(order.chainId) !== String(this.chainId)) {
@@ -109,7 +110,7 @@ export default class Transaction {
     return { ...order, txHash };
   }
 
-  async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address = NULL_ADDRESS }) {
+  async list({ contractAddress, tokenID, contractType, price, exchangeAddress, itemChainId, expirationTime, ERC20Address = NULL_ADDRESS }): Promise<SignedOrderWithOrderHash> {
 
     if (String(itemChainId) !== String(this.chainId)) {
       throw new Error(`Please connect to ${findChainNameById(itemChainId)}`);
@@ -167,14 +168,13 @@ export default class Transaction {
       exchangeAddress
     );
 
+    
     const { orderHash } = await this.contracts.getOrderInfo(signedOrder);
 
     return { ...signedOrder, orderHash };
   }
 
-  async offer({
-    item, price, isFullConversion, expirationTime, exchangeAddress
-  }) {
+  async offer({ item, price, isFullConversion, expirationTime, exchangeAddress }): Promise<SignedOrderWithOrderHash> {
     this.setStatus(CREATING);
     const { contractAddress, tokenID, contractType } = item;
 
@@ -273,7 +273,7 @@ export default class Transaction {
     return { ...signedOrder, orderHash };
   }
 
-  async acceptOffer(order: Order): Promise<Order & { txHash: any }> {
+  async acceptOffer(order: Order): Promise<OrderWithTxHash> {
     const nativeERC20Balance = await this.contracts.balanceOfNativeERC20(order.makerAddress);
 
     if (new BigNumber(order.makerAssetAmount).isGreaterThan(nativeERC20Balance)) {
@@ -313,7 +313,7 @@ export default class Transaction {
    * @param {array} offeredItems
    * @param {array} receivedItems
    */
-  async trade({ offeredItems, receivedItems, expirationTimeSeconds, exchangeAddress }) {
+  async trade({ offeredItems, receivedItems, expirationTimeSeconds, exchangeAddress }): Promise<SignedOrderWithOrderHash> {
     this.setStatus(CREATING);
     // encode the assets independantly
 
@@ -388,10 +388,10 @@ export default class Transaction {
 
 
   /**
- * APPROVE TRADE
+ * APPROVE TRADEs
  * @param {object} order
  */
-  async approveTrade(order) {
+  async approveTrade(order): Promise<OrderWithTxHash> {
     this.setStatus(CREATING);
     const signedOrder = destructOrder(order);
 
@@ -425,10 +425,11 @@ export default class Transaction {
   }
 
 
-  async cancelOrder(order: Order) {
+  async cancelOrder(order: Order): Promise<string> {
     const signedOrder = destructOrder(order);
     this.setStatus(CANCELLING);
-    await this.contracts.cancelOrder(signedOrder);
+    const res = await this.contracts.cancelOrder(signedOrder);
+    return res;
   }
 
 
