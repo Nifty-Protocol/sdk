@@ -415,7 +415,6 @@ export default class Transaction {
 
     const paymentFee = await this.contracts.getProtocolFixedFee();
 
-    console.log(paymentFee);
     // to do add fixedfee getter
     const txHash = await this.contracts.fillOrder(signedOrder, paymentFee);
 
