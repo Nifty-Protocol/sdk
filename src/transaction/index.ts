@@ -428,7 +428,8 @@ export default class Transaction {
   async cancelOrder(order: Order) {
     const signedOrder = destructOrder(order);
     this.setStatus(CANCELLING);
-    await this.contracts.cancelOrder(signedOrder);
+    const res = await this.contracts.cancelOrder(signedOrder);
+    return res;
   }
 
 
