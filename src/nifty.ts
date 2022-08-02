@@ -35,11 +35,10 @@ export class Nifty {
     this.api = api(this.env);
   }
 
-  initWallet(type: string, provider: providers.Provider) {
+  async initWallet(type: string, provider: providers.Provider) {
     this.wallet = wallet(type, provider);
-    this.wallet.chainId().then((chainId) => {
-      this.setMarketplaceAddresses(addresses[chainId]);
-    });
+    const chainId = await this.wallet.chainId();
+    this.setMarketplaceAddresses(addresses[chainId]);
   }
 
   setMarketplaceAddresses(addresses: addressesParameter) {
