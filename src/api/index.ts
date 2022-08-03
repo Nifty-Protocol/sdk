@@ -5,13 +5,12 @@ import externalOrders from './externalOrders';
 import config from '../config';
 import contracts from './contracts';
 
-export default function(env,endPoint) {
-  let base:string;
-  
-  if (endPoint){
+export default function (env, endPoint: string | null = null) {
+  let base: string;
+
+  if (endPoint) {
     base = endPoint
-  }
-  else {
+  } else {
     base = config.api[env];
   }
 

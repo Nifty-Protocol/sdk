@@ -48,8 +48,8 @@ export class Nifty {
   setStatusListener(listener: Function) {
     this.listener = listener;
   }
-  
-  setApiBaseURL(url: string){
+
+  setApiBaseURL(url: string) {
     this.api = api(this.env, url);
   }
 
