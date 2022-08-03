@@ -49,6 +49,10 @@ export class Nifty {
     this.listener = listener;
   }
 
+  setApiBaseURL(url: string) {
+    this.api = api(this.env, url);
+  }
+
   addListener(listener: Function, event: EventType, once = false) {
     if (once) {
       Emitter.once(event, listener);
