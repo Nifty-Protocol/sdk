@@ -386,6 +386,17 @@ export default class Transaction {
   }
 
 
+  async transfer({contractAddress, tokenID, contractType, addressToSend}) {
+    this.setStatus(APPROVING);
+    if (contractType === EIP721) {
+      await this.contracts.transferERC721NFT(contractAddress, addressToSend, tokenID);
+    } else if (contractType === EIP1155) {
+      await this.contracts.transferERC1155NFT(contractAddress, addressToSend, tokenID);
+    }
+
+    this.setStatus(APPROVED);
+  }
+
 
   /**
  * APPROVE TRADE

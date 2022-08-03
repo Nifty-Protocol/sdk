@@ -117,19 +117,20 @@ export class Nifty {
     const orderRes = await this.getListing(orderId) as Order;
     return this.fillOffer(orderRes);
   }
-  
-  
+
+
   async offerTrade(offeredItems: Array<Item>, receivedItems: Array<Item>, expirationTime: number) {
     const offerRes = await this.signTrade(offeredItems, receivedItems, expirationTime);
-    
+
     offerRes.type = 'TRADE';
     offerRes.recipientAddress = receivedItems[0].owner.id;
     offerRes.tokens = [...offeredItems, ...receivedItems];
-    
+
     const apiRes = await this.api.orders.create(offerRes);
     return apiRes.data;
   }
-  
+
+
   async acceptTrade(orderId: string) {
     const orderRes = await this.getListing(orderId) as Order;
     return this.fillTrade(orderRes);
@@ -140,7 +141,16 @@ export class Nifty {
     const orderRes = await this.getListing(orderId) as Order;
     return this.invalidateOrder(orderRes);
   }
-  
+
+  async transfer(item: Item, addressToSend: string) {
+    this.verifyWallet();
+    const { contractAddress, tokenID, contractType } = item;
+
+    const transaction = await this.initTransaction();
+    await transaction.transfer({ contractAddress, tokenID, contractType, addressToSend });
+
+  }
+
   async getAllNFTData(contractAddress: string, tokenID: number, chainId: number) {
     const nft = await this.getNFT(contractAddress, tokenID, chainId);
     const nftData = await this.getNFTData(nft);
@@ -159,7 +169,7 @@ export class Nifty {
       nftData
     }
   }
-  
+
   /**
   * @param order recived from api
   * @param externalOrder boolean if order is external
