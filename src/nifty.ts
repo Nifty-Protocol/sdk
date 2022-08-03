@@ -32,7 +32,7 @@ export class Nifty {
   constructor(options: Options) {
     this.key = options.key || defaultKey;
     this.env = options.env;
-    this.api = api(this.env, options.endPoint);
+    this.api = api(this.env);
   }
 
   async initWallet(type: string, provider: providers.Provider) {
@@ -47,6 +47,10 @@ export class Nifty {
 
   setStatusListener(listener: Function) {
     this.listener = listener;
+  }
+  
+  setApiBaseURL(url: string){
+    this.api = api(this.env, url);
   }
 
   addListener(listener: Function, event: EventType, once = false) {
