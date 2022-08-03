@@ -32,7 +32,7 @@ export class Nifty {
   constructor(options: Options) {
     this.key = options.key || defaultKey;
     this.env = options.env;
-    this.api = api(this.env);
+    this.api = api(this.env, options.endPoint);
   }
 
   async initWallet(type: string, provider: providers.Provider) {
