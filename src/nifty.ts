@@ -107,8 +107,8 @@ export class Nifty {
   }
 
 
-  async offer(item: Item, price: number, expirationTime: number) {
-    const offerRes = await this.signOffer(item, price, expirationTime);
+  async offer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
+    const offerRes = await this.signOffer(item, price, expirationTime, isFullConversion);
     const apiRes = await this.api.orders.create(offerRes);
     return apiRes.data;
   }
@@ -251,7 +251,7 @@ export class Nifty {
   }
 
 
-  async signOffer(item: Item, price: number, expirationTime: number) {
+  async signOffer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
     this.verifyWallet();
 
     const exchangeAddress = this.addresses.Exchange;
@@ -264,7 +264,7 @@ export class Nifty {
     const offerOrder = await transaction.offer({
       item: tokenWithType,
       price: price,
-      isFullConversion: false,
+      isFullConversion,
       exchangeAddress,
       expirationTime
     })
