@@ -13,6 +13,7 @@ import send from '../utils/send';
 import { Wallet } from '../wallet/Wallet';
 import { Item } from '../types/ItemInterface';
 import LibAssetDataABI from './abis/LibAssetDataABI';
+import ContractABI from './abis/ContractABI';
 
 export default class Contracts {
   address: string;
@@ -252,10 +253,10 @@ export default class Contracts {
 
   async fillOrder(signedOrder, value = '') {
     const exchangeContract = new this.wallet.web3.eth.Contract(ExchangeABI, this.addresses.Exchange);
-    const buyOrder = await exchangeContract.methods.fillOrder(
+    const order = await exchangeContract.methods.fillOrder(
       signedOrder, signedOrder.signature, this.marketId
     );
-    const { transactionHash } = (await send(buyOrder, {
+    const { transactionHash } = (await send(order, {
       from: this.address,
       value,
     })) as any;
@@ -311,24 +312,18 @@ export default class Contracts {
     });
   }
 
-  /* async deploy721Contract(name, symbol) {
-    const contract = require('../abis/721Token.json');
-    const MyContract = new this.wallet.web3.eth.Contract(contract.abi);
-    const method = MyContract.deploy({
-      data     : contract.bytecode,
+  async deploy721Contract(name, symbol) {
+    const contractABI = this.wallet.Contract(ContractABI.abi);
+
+    const method = contractABI.deploy({
+      data: ContractABI.bytecode,
       arguments: [name, symbol, this.addresses.Collections],
     });
-
-    const gas = await this.wallet.web3.eth.estimateGas({
-      data: method.encodeABI(),
-    });
-
-    const gasPrice = await this.wallet.web3.eth.getGasPrice();
 
     return send(method, {
       from: this.address,
     });
-  } */
+  }
 
   async getCollections() {
     const collectionsContract = new this.wallet.web3.eth.Contract(

@@ -151,6 +151,26 @@ export class Nifty {
 
   }
 
+
+  async crateNFTContract(name: string, symbol: string) {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+    const res = await transaction.createNFTContract(name, symbol)
+
+    return res
+  }
+
+
+  async createNFT(metadata: string, selectedCollectionAddress: string) {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+
+    const res = await transaction.createNFT(metadata, selectedCollectionAddress)
+    return res
+  }
+
   async getAllNFTData(contractAddress: string, tokenID: number, chainId: number) {
     const nft = await this.getNFT(contractAddress, tokenID, chainId);
     const nftData = await this.getNFTData(nft);
