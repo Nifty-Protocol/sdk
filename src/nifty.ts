@@ -49,6 +49,10 @@ export class Nifty {
     this.listener = listener;
   }
 
+  setApiBaseURL(url: string) {
+    this.api = api(this.env, url);
+  }
+
   addListener(listener: Function, event: EventType, once = false) {
     if (once) {
       Emitter.once(event, listener);
@@ -103,8 +107,8 @@ export class Nifty {
   }
 
 
-  async offer(item: Item, price: number, expirationTime: number) {
-    const offerRes = await this.signOffer(item, price, expirationTime);
+  async offer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
+    const offerRes = await this.signOffer(item, price, expirationTime, isFullConversion);
     const apiRes = await this.api.orders.create(offerRes);
     return apiRes.data;
   }
@@ -113,19 +117,20 @@ export class Nifty {
     const orderRes = await this.getListing(orderId) as Order;
     return this.fillOffer(orderRes);
   }
-  
-  
+
+
   async offerTrade(offeredItems: Array<Item>, receivedItems: Array<Item>, expirationTime: number) {
     const offerRes = await this.signTrade(offeredItems, receivedItems, expirationTime);
-    
+
     offerRes.type = 'TRADE';
     offerRes.recipientAddress = receivedItems[0].owner.id;
     offerRes.tokens = [...offeredItems, ...receivedItems];
-    
+
     const apiRes = await this.api.orders.create(offerRes);
     return apiRes.data;
   }
-  
+
+
   async acceptTrade(orderId: string) {
     const orderRes = await this.getListing(orderId) as Order;
     return this.fillTrade(orderRes);
@@ -136,7 +141,36 @@ export class Nifty {
     const orderRes = await this.getListing(orderId) as Order;
     return this.invalidateOrder(orderRes);
   }
-  
+
+  async transfer(item: Item, addressToSend: string) {
+    this.verifyWallet();
+    const { contractAddress, tokenID, contractType } = item;
+
+    const transaction = await this.initTransaction();
+    await transaction.transfer({ contractAddress, tokenID, contractType, addressToSend });
+
+  }
+
+
+  async crateNFTContract(name: string, symbol: string) {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+    const res = await transaction.createNFTContract(name, symbol)
+
+    return res
+  }
+
+
+  async createNFT(metadata: string, selectedCollectionAddress: string) {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+
+    const res = await transaction.createNFT(metadata, selectedCollectionAddress)
+    return res
+  }
+
   async getAllNFTData(contractAddress: string, tokenID: number, chainId: number) {
     const nft = await this.getNFT(contractAddress, tokenID, chainId);
     const nftData = await this.getNFTData(nft);
@@ -155,7 +189,7 @@ export class Nifty {
       nftData
     }
   }
-  
+
   /**
   * @param order recived from api
   * @param externalOrder boolean if order is external
@@ -237,7 +271,7 @@ export class Nifty {
   }
 
 
-  async signOffer(item: Item, price: number, expirationTime: number) {
+  async signOffer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
     this.verifyWallet();
 
     const exchangeAddress = this.addresses.Exchange;
@@ -250,7 +284,7 @@ export class Nifty {
     const offerOrder = await transaction.offer({
       item: tokenWithType,
       price: price,
-      isFullConversion: false,
+      isFullConversion,
       exchangeAddress,
       expirationTime
     })

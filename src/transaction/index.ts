@@ -386,6 +386,17 @@ export default class Transaction {
   }
 
 
+  async transfer({ contractAddress, tokenID, contractType, addressToSend }) {
+    this.setStatus(APPROVING);
+    if (contractType === EIP721) {
+      await this.contracts.transferERC721NFT(contractAddress, addressToSend, tokenID);
+    } else if (contractType === EIP1155) {
+      await this.contracts.transferERC1155NFT(contractAddress, addressToSend, tokenID);
+    }
+
+    this.setStatus(APPROVED);
+  }
+
 
   /**
  * APPROVE TRADE
@@ -451,4 +462,21 @@ export default class Transaction {
     return isUserHasBalance || isUserOwner;
   }
 
+  async createNFTContract(name: string, symbol: string) {
+    const tx = await this.contracts.deploy721Contract(name, symbol);
+    this.setStatus(APPROVED);
+
+    return tx;
+  }
+
+  async createNFT(metadata: string, selectedCollectionAddress: string) {
+    this.setStatus(CREATING);
+
+    const tx = await this.contracts.createToken(metadata, selectedCollectionAddress) as any;
+    const { tokenId } = tx.events.Transfer.returnValues;
+
+    this.setStatus(APPROVED);
+
+    return tokenId;
+  }
 }
