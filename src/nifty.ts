@@ -422,13 +422,7 @@ export class Nifty {
       throw new Error(`Please connect to ${itemChainId}`);
     }
 
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
+    const transaction = await this.initTransaction();
 
     const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
     const activeListings = listings.filter((list) => list.state === 'ADDED');
@@ -498,20 +492,23 @@ export class Nifty {
   async isApproveForAll(item: Item) {
     this.verifyWallet();
 
-    const address = await this.wallet.getUserAddress();
-    const chainId = await this.wallet.chainId();
-
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
+    const transaction = await this.initTransaction();
 
     return transaction.contracts.isApprovedForAll(item)
   }
 
+  async getAccountBalance(ERC20Address = null) {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+    const address = await this.wallet.getUserAddress();
+
+    if (!ERC20Address) {
+      return transaction.contracts.balanceOfNativeToken();
+    }
+    return transaction.contracts.balanceOfERC20(address, ERC20Address);
+  }
+  
   static utils = {
     findChainById,
     transactionConfirmation
