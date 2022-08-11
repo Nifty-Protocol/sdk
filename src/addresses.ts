@@ -1,15 +1,15 @@
 export interface addressesParameter {
-  NativeERC20: string,
-  ERC20Proxy: string,
-  ERC721Proxy: string,
-  ERC1155Proxy: string,
+  NativeERC20?: string | boolean,
+  ERC20Proxy?: string | boolean,
+  ERC721Proxy?: string | boolean,
+  ERC1155Proxy?: string | boolean,
   Forwarder?: string | boolean,
-  Exchange: string,
-  Collections: string,
-  RoyaltiesManager: string,
-  NFTrade721?: string,
-  GreenPay?:string,
-  LibAssetData?: string,
+  Exchange?: string | boolean,
+  Collections?: string | boolean,
+  RoyaltiesManager?: string | boolean,
+  NFTrade721?: string | boolean,
+  GreenPay?:string | boolean,
+  LibAssetData?: string | boolean,
 }
 
 const addresses: { [chainId: number]: addressesParameter } = {
@@ -89,7 +89,26 @@ const addresses: { [chainId: number]: addressesParameter } = {
     Collections: '0xac7F0A410B08D3f0B134C7f48F09863915770FB5',
     RoyaltiesManager: '0x10555128238Aaa4762F85B791645843fBFdBbF97',
   },
-  
+  1996: {
+NativeERC20: false,
+ERC20Proxy: false,
+ERC721Proxy: false,
+ERC1155Proxy: false,
+Forwarder: false,
+Exchange: false,
+Collections: false,
+RoyaltiesManager: false,
+  },
+  1997: {
+    NativeERC20: false,
+ERC20Proxy: false,
+ERC721Proxy: false,
+ERC1155Proxy: false,
+Forwarder: false,
+Exchange: false,
+Collections: false,
+RoyaltiesManager: false,
+  },
   // testnets
   4: {
     NativeERC20: '0xc778417E063141139Fce010982780140Aa0cD5Ab',

@@ -1,7 +1,6 @@
 import { PROD, TESTNET, OPENSEA, OFFER, orderStatuses, defaultKey, CONVERT, NULL_ADDRESS } from './constants';
 import api from './api';
-import Transaction from './transaction';
-import { findChainById, findChainNameById } from './utils/chain';
+import { findChainById, isChainEVM } from './utils/chain';
 import { Wallet } from './wallet/Wallet';
 import wallet from './wallet';
 import addresses, { addressesParameter } from './addresses';
@@ -20,6 +19,8 @@ import transactionConfirmation from './utils/transactionConfirmation';
 import { Seaport } from '@opensea/seaport-js';
 import { isExternalOrder } from './utils/isExternalOrder';
 import { ethers, providers } from 'ethers';
+import TransactionEVM from './transaction/TransactionEVM';
+import TransactionImmutableX from './transaction/TransactionImmutableX';
 
 export class Nifty {
   wallet: Wallet;
@@ -74,17 +75,28 @@ export class Nifty {
     }
   }
 
+  
+
   async initTransaction() {
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
 
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
+    const { chainType } = findChainById(chainId);
+    const transactionLayers = {
+      [EVM]       : new TransactionEVM({
+        wallet: this.wallet,
+        addresses: this.addresses,
+        address,
+        chainId,
+        marketplaceId: this.key
+      }),
+      [IMMUTABLEX]: new TransactionImmutableX({
+        wallet: this.wallet,
+         address,
+         chainId,
+      }),
+    };
+    const transaction = transactionLayers[chainType];
 
     if (this.listener) {
       transaction.setStatusListener(this.listener);
@@ -100,10 +112,14 @@ export class Nifty {
   }
 
 
-  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string = NULL_ADDRESS): Promise<Order> {
+  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string = NULL_ADDRESS , isExternalOrder = false): Promise<Order | null>  {
     const listRes = await this.signOrder(item, price, expirationTime, ERC20Address);
-    const apiResres = await this.api.orders.create(listRes);
-    return apiResres.data;
+    let res = null
+    if(!isExternalOrder) {
+      const apiResres = await this.api.orders.create(listRes);
+      res = apiResres.data
+    }
+    return res;
   }
 
 
@@ -137,9 +153,10 @@ export class Nifty {
   }
 
 
-  async cancelOrder(orderId: string) {
-    const orderRes = await this.getListing(orderId) as Order;
-    return this.invalidateOrder(orderRes);
+  async cancelOrder(orderId: string, isExternalOrder: boolean = false) { 
+    const orderRes = await this.getListing(orderId, isExternalOrder) as Order;
+    const x = this.invalidateOrder(orderRes);
+    return  x
   }
 
   async transfer(item: Item, addressToSend: string) {
@@ -251,7 +268,7 @@ export class Nifty {
     const chainId = await this.wallet.chainId();
     const exchangeAddress = this.addresses.Exchange;
 
-    if (!isValidERC20(ERC20Address, chainId)) {
+    if (isChainEVM(chainId) && !isValidERC20(ERC20Address, chainId)) {
       throw new Error('Invalid ERC20 address');
     }
 
@@ -421,14 +438,7 @@ export class Nifty {
     if (String(itemChainId) !== String(chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
     }
-
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
+    const transaction = await this.initTransaction();
 
     const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
     const activeListings = listings.filter((list) => list.state === 'ADDED');
@@ -501,13 +511,7 @@ export class Nifty {
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
 
-    const transaction = new Transaction({
-      wallet: this.wallet,
-      addresses: this.addresses,
-      address,
-      chainId,
-      marketplaceId: this.key
-    });
+    const transaction = await this.initTransaction();
 
     return transaction.contracts.isApprovedForAll(item)
   }
