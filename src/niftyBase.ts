@@ -1,6 +1,5 @@
 import api from './api';
 import { Wallet } from './wallet/Wallet';
-import { addressesParameter } from './addresses'
 import { Item } from './types/ItemInterface';
 import { Api } from './types/ApiInterface';
 import { env, Options } from './types/OptionsInterface';
@@ -10,7 +9,6 @@ export class NiftyBase {
   wallet: Wallet;
   key: string;
   env: env;
-  addresses: addressesParameter;
   api: Api;
   listener: Function;
 
