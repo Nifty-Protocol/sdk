@@ -10,6 +10,7 @@
     "build": "tsc"
   },
   "devDependencies": {
+    "@imtbl/imx-sdk": "^1.24.1",
     "bignumber.js": "^9.0.1",
     "clean-webpack-plugin": "^4.0.0",
     "ethereumjs-util": "^7.0.10",

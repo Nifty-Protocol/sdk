@@ -22,7 +22,7 @@ import { Order } from '../types/OrderInterface';
 import Emitter from '../utils/emitter';
 import { findChainNameById } from '../utils/chain';
 
-export default class Transaction {
+export default class TransactionEVM {
   listener: Function;
   marketplaceId: string;
   wallet: Wallet;
