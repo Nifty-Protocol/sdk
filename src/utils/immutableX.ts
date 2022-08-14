@@ -3,12 +3,12 @@ import {
 } from '@imtbl/imx-sdk';
 import { IMMUTABLEX } from './chains';
 
-// const ImmutableXLinkAddress = 'https://link.x.immutable.com';
-// const ImmutableXApiAddress = 'https://api.x.immutable.com/v1';
+export const ImmutableXLinkAddress = 'https://link.x.immutable.com';
+export const ImmutableXApiAddress = 'https://api.x.immutable.com/v1';
 
 // Ropsten Testnet
-export const ImmutableXLinkAddress = 'https://link.ropsten.x.immutable.com';
-export const ImmutableXApiAddress = 'https://api.ropsten.x.immutable.com/v1';
+// export const ImmutableXLinkAddress = 'https://link.ropsten.x.immutable.com';
+// export const ImmutableXApiAddress = 'https://api.ropsten.x.immutable.com/v1';
 
 // configure link , client and address
 export const buildLinkImmutableX = async () => {

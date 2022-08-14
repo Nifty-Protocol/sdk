@@ -75,7 +75,7 @@ export class Nifty {
     }
   }
 
-  
+
 
   async initTransaction() {
     const address = await this.wallet.getUserAddress();
@@ -83,7 +83,7 @@ export class Nifty {
 
     const { chainType } = findChainById(chainId);
     const transactionLayers = {
-      [EVM]       : new TransactionEVM({
+      [EVM]: new TransactionEVM({
         wallet: this.wallet,
         addresses: this.addresses,
         address,
@@ -92,8 +92,8 @@ export class Nifty {
       }),
       [IMMUTABLEX]: new TransactionImmutableX({
         wallet: this.wallet,
-         address,
-         chainId,
+        address,
+        chainId,
       }),
     };
     const transaction = transactionLayers[chainType];
@@ -112,10 +112,10 @@ export class Nifty {
   }
 
 
-  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string = NULL_ADDRESS , isExternalOrder = false): Promise<Order | null>  {
+  async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string = NULL_ADDRESS, isExternalOrder = false): Promise<Order | null> {
     const listRes = await this.signOrder(item, price, expirationTime, ERC20Address);
     let res = null
-    if(!isExternalOrder) {
+    if (!isExternalOrder) {
       const apiResres = await this.api.orders.create(listRes);
       res = apiResres.data
     }
@@ -153,10 +153,9 @@ export class Nifty {
   }
 
 
-  async cancelOrder(orderId: string, isExternalOrder: boolean = false) { 
+  async cancelOrder(orderId: string, isExternalOrder: boolean = false) {
     const orderRes = await this.getListing(orderId, isExternalOrder) as Order;
-    const x = this.invalidateOrder(orderRes);
-    return  x
+    return this.invalidateOrder(orderRes);
   }
 
   async transfer(item: Item, addressToSend: string) {
@@ -438,10 +437,6 @@ export class Nifty {
     if (String(itemChainId) !== String(chainId)) {
       throw new Error(`Please connect to ${itemChainId}`);
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> main
     const transaction = await this.initTransaction();
 
     const isOwner = await transaction.isOwner(contractAddress, tokenID, contractType);
@@ -517,18 +512,23 @@ export class Nifty {
     return transaction.contracts.isApprovedForAll(item)
   }
 
-  async getAccountBalance(ERC20Address = null) {
+  async getAccountBalance(ERC20Address: string = '', isExternalOrder: boolean = false) {
     this.verifyWallet();
 
     const transaction = await this.initTransaction();
     const address = await this.wallet.getUserAddress();
-
-    if (!ERC20Address) {
-      return transaction.contracts.balanceOfNativeToken();
+    let res = null
+    if (!isExternalOrder) {
+      if (!ERC20Address) {
+        res = await transaction.contracts.balanceOfNativeToken();
+      }
+      res = await transaction.contracts.balanceOfERC20(address, ERC20Address);
+    } else {
+      res = await transaction.getBalance(address)
     }
-    return transaction.contracts.balanceOfERC20(address, ERC20Address);
+    return res
   }
-  
+
   static utils = {
     findChainById,
     transactionConfirmation

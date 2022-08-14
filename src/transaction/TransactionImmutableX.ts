@@ -1,4 +1,4 @@
-import { Link } from '@imtbl/imx-sdk';
+import { Link ,ImmutableXClient} from '@imtbl/imx-sdk';
 import { Wallet } from '../wallet/Wallet';
 import BigNumber from 'bignumber.js';
 import Contracts from './contracts';
@@ -22,7 +22,9 @@ import { isValidERC20 } from '../utils/isValidERC20';
 import { Order } from '../types/OrderInterface';
 import Emitter from '../utils/emitter';
 import { findChainNameById } from '../utils/chain';
-import { ImmutableXLinkAddress } from '../utils/immutableX';
+import { ImmutableXApiAddress, ImmutableXLinkAddress } from '../utils/immutableX';
+import Web3 from 'web3';
+import { ethers } from 'ethers';
 
 export default class TransactionImmutableX {
   listener: Function;
@@ -90,3 +92,13 @@ export default class TransactionImmutableX {
     return res;
   }
 
+  async getBalance(address:string) {
+    const client = await ImmutableXClient.build({
+      publicApiUrl: ImmutableXApiAddress,
+    })
+      const balances = await client.getBalances({ user: address } as any)
+      const balanceFormatted = ethers.utils.formatEther(balances.imx);
+      const balance = Web3.utils.toWei(balanceFormatted);
+      return balance;
+  }
+}
