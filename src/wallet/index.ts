@@ -6,7 +6,7 @@ import Solana from './walletProvider/Solana';
 
 const web3Libs = {
   [EVM]: Evm,
-  // [IMMUTABLEX]: ImmutableX,
+  [IMMUTABLEX]: ImmutableX,
   // [SOLANA]: Solana,
 };
 
