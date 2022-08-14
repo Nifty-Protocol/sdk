@@ -12,6 +12,7 @@ import { EventType } from './types/EventType';
 import { providers } from 'ethers';
 import TransactionImmutableX from './transaction/TransactionImx';
 import { NiftyBase } from './niftyBase';
+import { IMMUTABLEX } from './utils/chains';
 
 export class NiftyImx extends NiftyBase{
   wallet: Wallet;
@@ -27,8 +28,8 @@ export class NiftyImx extends NiftyBase{
     this.api = api(this.env);
   }
 
-  async initWallet(type: string, provider: providers.Provider) {
-    this.wallet = wallet(type, provider);
+  async initWallet(provider: providers.Provider) {
+    this.wallet = wallet(IMMUTABLEX, provider);
   }
 
 

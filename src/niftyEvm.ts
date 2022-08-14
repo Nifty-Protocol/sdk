@@ -18,6 +18,7 @@ import { isExternalOrder } from './utils/isExternalOrder';
 import { ethers, providers } from 'ethers';
 import { NiftyBase } from './niftyBase';
 import TransactionEVM from './transaction/TransactionEvm';
+import { EVM } from './utils/chains';
 
 export class NiftyEvm extends NiftyBase {
   wallet: Wallet;
@@ -35,8 +36,8 @@ export class NiftyEvm extends NiftyBase {
   }
 
 
-  async initWallet(type: string, provider: providers.Provider) {
-    this.wallet = wallet(type, provider);
+  async initWallet(provider: providers.Provider) {
+    this.wallet = wallet(EVM, provider);
     const chainId = await this.wallet.chainId();
     this.setMarketplaceAddresses(addresses[chainId]);
   }
@@ -415,5 +416,5 @@ export class NiftyEvm extends NiftyBase {
     }
     return transaction.contracts.balanceOfERC20(address, ERC20Address);
   }
-  
+
 }
