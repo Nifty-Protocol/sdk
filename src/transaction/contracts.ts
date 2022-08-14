@@ -129,6 +129,9 @@ export default class Contracts {
     }
   }
 
+  balanceOfNativeToken(address = this.address) {
+    return this.wallet.web3.eth.getBalance(address);
+  }
 
   balanceOfNativeERC20(address = this.address) {
     const NativeERC20Contract = new this.wallet.web3.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
