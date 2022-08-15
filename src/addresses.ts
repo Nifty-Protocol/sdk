@@ -102,11 +102,14 @@ const addresses: { [chainId: number]: addressesParameter } = {
     LibAssetData: '0x2E7F871895e956B9a3f65745D8B02178f062D4E3',
   },
   5: {
-    LibAssetData: '0x10bC4c31a668c1EDa9d4B1302912e594015D519F',
+    RoyaltiesManager: '0xAA3d3290fA216369Cd89431109257bb9Ddf40dAe',
+    NativeERC20: '0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6',
+    Collections: '0x6418d019aec4409E4830bc5C063B180d976a609F',
     Exchange    : '0x0b69763f0CF2839c677bE168d5839Bf8f5DCb750',
     ERC20Proxy  : '0xc21705d755220Eb2D05653be9bC2b52d2A003fd4',
     ERC721Proxy : '0xA29b1e56Dc2062C2A8C950ac9EFfb8ca2f378A12',
     ERC1155Proxy: '0x95b2046525C1Ec4Dd77C4EFd9a8197f06670f22f',
+    LibAssetData: '0x10bC4c31a668c1EDa9d4B1302912e594015D519F',
   },
   43113: {
     NativeERC20: '0xd00ae08403b9bbb9124bb305c09058e32c39a48c',
