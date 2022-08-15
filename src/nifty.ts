@@ -14,7 +14,7 @@ import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
 import transactionConfirmation from './utils/transactionConfirmation';
 import {  providers } from 'ethers';
-import flowControllerInit from './utils/flowControllerInit';
+import blockChainControllerInit from './utils/blockChainControllerInit';
 
 export class Nifty {
   wallet: Wallet;
@@ -22,7 +22,7 @@ export class Nifty {
   env: env;
   addresses: addressesParameter;
   api: Api;
-  flowController: any;
+  blockChainController: any;
   listener: Function;
 
   constructor(options: Options) {
@@ -47,28 +47,28 @@ export class Nifty {
       getNftOwner: this.getNftOwner,
     };
 
-    this.flowController = flowControllerInit(type, options);
+    this.blockChainController = blockChainControllerInit(type, options);
   }
 
   setMarketplaceAddresses(addresses: addressesParameter) {
-    if (this.flowController) {
-      this.flowController.setMarketplaceAddresses(addresses);
+    if (this.blockChainController) {
+      this.blockChainController.setMarketplaceAddresses(addresses);
     }
 
     this.addresses = addresses;
   }
 
   setStatusListener(listener: Function) {
-    if (this.flowController) {
-      this.flowController.setStatusListener(listener);
+    if (this.blockChainController) {
+      this.blockChainController.setStatusListener(listener);
     }
 
     this.listener = listener;
   }
 
   setApiBaseURL(url: string) {
-    if (this.flowController) {
-      this.flowController.setApiBaseURL(url);
+    if (this.blockChainController) {
+      this.blockChainController.setApiBaseURL(url);
     }
 
     this.api = api(this.env, url);
@@ -91,64 +91,64 @@ export class Nifty {
 
 
   async buy(orderId: string, isExternalOrder: boolean = false) {
-    return this.flowController.buy(orderId, isExternalOrder);
+    return this.blockChainController.buy(orderId, isExternalOrder);
   }
 
 
   async list(item: Item, price: number | string, expirationTime: number, ERC20Address: string = NULL_ADDRESS): Promise<Order> {
-    return this.flowController.list(item, price, expirationTime, ERC20Address);
+    return this.blockChainController.list(item, price, expirationTime, ERC20Address);
   }
 
 
   async offer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
-    return this.flowController.offer(item, price, expirationTime, isFullConversion);
+    return this.blockChainController.offer(item, price, expirationTime, isFullConversion);
   }
 
   async acceptOffer(orderId: string) {
-    return this.flowController.acceptOffer(orderId);
+    return this.blockChainController.acceptOffer(orderId);
   }
 
 
   async offerTrade(offeredItems: Array<Item>, receivedItems: Array<Item>, expirationTime: number) {
-    return this.flowController.offerTrade(offeredItems, receivedItems, expirationTime);
+    return this.blockChainController.offerTrade(offeredItems, receivedItems, expirationTime);
   }
 
 
   async acceptTrade(orderId: string) {
-    return this.flowController.acceptTrade(orderId);
+    return this.blockChainController.acceptTrade(orderId);
   }
 
 
   async cancelOrder(orderId: string) {
-    return this.flowController.cancelOrder(orderId);
+    return this.blockChainController.cancelOrder(orderId);
   }
 
   async transfer(item: Item, addressToSend: string) {
-    return this.flowController.transfer(item, addressToSend);
+    return this.blockChainController.transfer(item, addressToSend);
   }
 
 
-  async crateNFTContract(name: string, symbol: string) {
-    return this.flowController.crateNFTContract(name, symbol);
+  async createNFTContract(name: string, symbol: string) {
+    return this.blockChainController.crateNFTContract(name, symbol);
   }
 
 
   async createNFT(metadata: string, selectedCollectionAddress: string) {
-    return this.flowController.createNFT(metadata, selectedCollectionAddress);
+    return this.blockChainController.createNFT(metadata, selectedCollectionAddress);
   }
 
 
   getAvailablePaymentMethods(chainId?: number | string, defaultPaymentMethod: boolean = false): Array<object> {
-    return this.flowController.getAvailablePaymentMethods(chainId, defaultPaymentMethod);
+    return this.blockChainController.getAvailablePaymentMethods(chainId, defaultPaymentMethod);
   }
 
   async isApproveForAll(item: Item) {
-    return this.flowController.isApproveForAll(item);
+    return this.blockChainController.isApproveForAll(item);
   }
 
   async getAccountBalance(ERC20Address = null) {
     const address = await this.wallet.getUserAddress();
-    return this.flowController.getAccountBalance(ERC20Address,address)
+    return this.blockChainController.getAccountBalance(ERC20Address,address)
   }
 
 
@@ -159,7 +159,7 @@ export class Nifty {
   * @returns returns canSell
   */
   async getUserAvailableMethods(listings: Listings, item: Item): Promise<{ canBuy: boolean, canSell: boolean, canCancel: boolean, canOffer: boolean }> {
-    return this.flowController.getUserAvailableMethods(listings, item);
+    return this.blockChainController.getUserAvailableMethods(listings, item);
   }
 
 
