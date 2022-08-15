@@ -13,11 +13,11 @@ class ImmutableX {
   }
 
   async getId() {
-    return 1996;
+    return 1997;
   }
 
   async chainId() {
-    return 1996;
+    return 1997;
   }
 
   async getBalance(address) {
