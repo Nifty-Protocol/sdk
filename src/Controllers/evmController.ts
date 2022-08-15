@@ -150,7 +150,7 @@ class EvmController {
   }
 
 
-  async crateNFTContract(name: string, symbol: string) {
+  async createNFTContract(name: string, symbol: string) {
     this.verifyWallet();
 
     const transaction = await this.initTransaction();
