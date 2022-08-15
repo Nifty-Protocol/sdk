@@ -47,7 +47,7 @@ export class Nifty {
       getNftOwner: this.getNftOwner,
     };
 
-    this.blockChainController = blockChainControllerInit(type, options);
+    this.blockChainController = await blockChainControllerInit(type, options);
   }
 
   setMarketplaceAddresses(addresses: addressesParameter) {
@@ -129,7 +129,7 @@ export class Nifty {
 
 
   async createNFTContract(name: string, symbol: string) {
-    return this.blockChainController.crateNFTContract(name, symbol);
+    return this.blockChainController.createNFTContract(name, symbol);
   }
 
 
