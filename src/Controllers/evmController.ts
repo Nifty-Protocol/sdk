@@ -1,4 +1,4 @@
-import { OPENSEA, OFFER, orderStatuses,  NULL_ADDRESS } from '../constants';
+import { OPENSEA, OFFER, orderStatuses, NULL_ADDRESS } from '../constants';
 import api from '../api';
 import { Wallet } from '../wallet/Wallet';
 import { addressesParameter } from '../addresses';

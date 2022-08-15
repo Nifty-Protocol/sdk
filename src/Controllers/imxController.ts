@@ -3,11 +3,14 @@ import TransactionImx from '../transaction/TransactionImx';
 
 class imxController {
   listener: Function;
+  api: any;
+  getListing: any;
 
   constructor(options) {
     this.listener = options.listener;
+    this.api = options.api;
+    this.getListing = options.getListing;
   }
-
 
   setStatusListener(listener: Function) {
     this.listener = listener;
@@ -31,41 +34,51 @@ class imxController {
   }
 
 
-  async buy(order: ExternalOrder) {
+  async buy(orderId) {
     const transaction = await this.initTransaction()
 
-    const buyRes = await transaction.buy(order) ;
+    const orderRes = await this.getListing(orderId, true) as any;
+
+    const { orderHash } = orderRes as any;
+    const buyRes = await transaction.buy(orderHash);
+
     return buyRes;
   }
 
-  async list( contractAddress, tokenID, price ) {
+  async list(item, price) {
     const transaction = await this.initTransaction()
 
-    const listRes = await transaction.list({ contractAddress, tokenID, price}) ;
+    const { contractAddress, tokenID } = item;
+    const listRes = await transaction.list({ contractAddress, tokenID, price });
+
     return listRes;
   }
 
-  async transfer(tokenID, addressToSend, contractAddress) {
+  async transfer(item, addressToSend) {
     const transaction = await this.initTransaction()
 
-    const transferRes = await transaction.transfer({tokenID, addressToSend, contractAddress}) ;
+    const { tokenID, contractAddress } = item;
+    const transferRes = await transaction.transfer({ tokenID, addressToSend, contractAddress });
+
     return transferRes;
   }
 
-  async cancelOrder(order: ExternalOrder) {
+  async cancelOrder(orderId) {
 
     const transaction = await this.initTransaction()
-    
-    const {orderHash} = order ;
-    const cancelRes = await transaction.cancelOrder(orderHash) ;
+
+    const orderRes = await this.getListing(orderId, true) as any;
+    const { orderHash } = orderRes;
+
+    const cancelRes = await transaction.cancelOrder(orderHash);
 
     return cancelRes;
   }
 
-  async getBalance(address: string) {
+  async getAccountBalance(ERC20Address: string, address: string) {
     const transaction = await this.initTransaction()
-    
-    const balanceRes = await transaction.getBalance(address) ;
+
+    const balanceRes = await transaction.getBalance(address);
     return balanceRes;
   }
 }

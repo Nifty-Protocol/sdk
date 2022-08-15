@@ -9,7 +9,6 @@ import Emitter from '../utils/emitter';
 import { ImmutableXApiAddress, ImmutableXLinkAddress } from '../utils/immutableX';
 import Web3 from 'web3';
 import { ethers } from 'ethers';
-import { ExternalOrder } from '../types';
 
 export default class TransactionImx {
   listener: Function;
@@ -31,17 +30,16 @@ export default class TransactionImx {
   }
 
 
-  async buy(order: ExternalOrder) {
+  async buy(orderHash) {
     this.setStatus(APPROVING);
 
-    const res = await this.link.buy({ orderIds: [Number(order.orderHash)] });
+    const res = await this.link.buy({ orderIds: [Number(orderHash)] });
     this.setStatus(APPROVED);
 
     return res;
   }
 
   async list({ contractAddress, tokenID, price }) {
-
     this.setStatus(SIGN);
     Emitter.emit('signature', () => { })
 
@@ -55,6 +53,7 @@ export default class TransactionImx {
 
   async transfer({ tokenID, addressToSend, contractAddress }) {
     this.setStatus(APPROVING);
+
     const res = await this.link.batchNftTransfer([
       {
         type: 'ERC721',
@@ -69,6 +68,7 @@ export default class TransactionImx {
 
   async cancelOrder(orderHash) {
     this.setStatus(CANCELLING);
+
     const res = await this.link.cancel({ orderId: orderHash });
     return res;
   }

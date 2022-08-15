@@ -147,7 +147,8 @@ export class Nifty {
   }
 
   async getAccountBalance(ERC20Address = null) {
-    return this.flowController.getAccountBalance(ERC20Address)
+    const address = await this.wallet.getUserAddress();
+    return this.flowController.getAccountBalance(ERC20Address,address)
   }
 
 
@@ -249,7 +250,7 @@ export class Nifty {
   * @returns listing
   */
   async getListing(orderId: string, isExternalOrder: boolean = false): Promise<object> {
-    this.verifyMarkletplace();
+    // this.verifyMarkletplace();
 
     if (isExternalOrder) {
       const res = await this.api.externalOrders.get(orderId);
