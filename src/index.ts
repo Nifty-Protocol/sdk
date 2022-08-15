@@ -1,4 +1,4 @@
-import { Nifty } from "./nifty";
+import {Nifty}  from "./nifty";
 export * as constants from "./constants";
 export * as types from "./types";
 export * as addresses from "./addresses";

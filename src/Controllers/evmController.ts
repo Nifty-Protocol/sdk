@@ -1,46 +1,43 @@
-import { OPENSEA, OFFER, orderStatuses, defaultKey, NULL_ADDRESS } from './constants';
-import api from './api';
-import { Wallet } from './wallet/Wallet';
-import wallet from './wallet';
-import addresses, { addressesParameter } from './addresses';
-import { Item } from './types/ItemInterface';
-import currencies from './utils/currencies';
-import { isValidERC20 } from './utils/isValidERC20';
-import { ExternalOrder } from './types/ExternalOrderInterface';
-import { Listings } from './types/ListingsInterface';
-import { Api } from './types/ApiInterface';
-import { Order } from './types/OrderInterface';
-import { env, Options } from './types/OptionsInterface';
-import Emitter from './utils/emitter';
-import { EventType } from './types/EventType';
+import { OPENSEA, OFFER, orderStatuses,  NULL_ADDRESS } from '../constants';
+import api from '../api';
+import { Wallet } from '../wallet/Wallet';
+import { addressesParameter } from '../addresses';
+import { Item } from '../types/ItemInterface';
+import currencies from '../utils/currencies';
+import { isValidERC20 } from '../utils/isValidERC20';
+import { ExternalOrder } from '../types/ExternalOrderInterface';
+import { Listings } from '../types/ListingsInterface';
+import { Api } from '../types/ApiInterface';
+import { Order } from '../types/OrderInterface';
+import { env } from '../types/OptionsInterface';
+import Emitter from '../utils/emitter';
+import { EventType } from '../types/EventType';
 import { Seaport } from '@opensea/seaport-js';
-import { isExternalOrder } from './utils/isExternalOrder';
-import { ethers, providers } from 'ethers';
-import { NiftyBase } from './niftyBase';
-import TransactionEVM from './transaction/TransactionEvm';
-import { EVM } from './utils/chains';
+import { isExternalOrder } from '../utils/isExternalOrder';
+import { ethers } from 'ethers';
+import TransactionEVM from '../transaction/TransactionEvm';
 
-export class NiftyEvm extends NiftyBase {
+class EvmController {
   wallet: Wallet;
   key: string;
   env: env;
   addresses: addressesParameter;
   api: Api;
+  getListing: any;
+  getNftOwner: any;
   listener: Function;
 
-  constructor(options: Options) {
-    super(options);
-    this.key = options.key || defaultKey;
+  constructor(options) {
+    this.wallet = options.wallet;
+    this.key = options.key;
     this.env = options.env;
-    this.api = api(this.env);
+    this.addresses = options.addresses;
+    this.api = options.api;
+    this.listener = options.listener;
+    this.getListing = options.getListing;
+    this.getNftOwner = options.getNftOwner;
   }
-
-
-  async initWallet(provider: providers.Provider) {
-    this.wallet = wallet(EVM, provider);
-    const chainId = await this.wallet.chainId();
-    this.setMarketplaceAddresses(addresses[chainId]);
-  }
+  // what happens if user changes any of the options 
 
   setMarketplaceAddresses(addresses: addressesParameter) {
     this.addresses = addresses;
@@ -63,15 +60,15 @@ export class NiftyEvm extends NiftyBase {
     }
   }
 
-  verifyMarkletplace() {
-    if (!this.key) {
-      throw new Error('key id is missing');
-    }
-  }
-
   verifyWallet() {
     if (!this.wallet) {
       throw new Error('Please set wallet');
+    }
+  }
+
+  verifyMarkletplace() {
+    if (!this.key) {
+      throw new Error('key id is missing');
     }
   }
 
@@ -172,24 +169,7 @@ export class NiftyEvm extends NiftyBase {
     return res
   }
 
-  async getAllNFTData(contractAddress: string, tokenID: number, chainId: number) {
-    const nft = await this.getNFT(contractAddress, tokenID, chainId);
-    const nftData = await this.getNFTData(nft);
 
-    if (this.wallet) {
-      const userAvailableMethods = await this.getUserAvailableMethods(nftData.listings as Listings, nft);
-      return {
-        nft,
-        nftData,
-        userAvailableMethods
-      }
-    }
-
-    return {
-      nft,
-      nftData
-    }
-  }
 
   /**
   * @param order recived from api
@@ -340,6 +320,9 @@ export class NiftyEvm extends NiftyBase {
     return res
   }
 
+
+
+
   /**
   * @param item item recived from api
   * @param listings array of listings from getNFTData
@@ -418,3 +401,5 @@ export class NiftyEvm extends NiftyBase {
   }
 
 }
+
+export default EvmController;

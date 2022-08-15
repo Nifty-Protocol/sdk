@@ -1,30 +1,21 @@
-import { Link ,ImmutableXClient} from '@imtbl/imx-sdk';
-import { Wallet } from '../wallet/Wallet';
+import { Link, ImmutableXClient } from '@imtbl/imx-sdk';
 import {
   APPROVING,
   APPROVED,
   SIGN,
-  NULL_ADDRESS,
   CANCELLING,
 } from '../constants';
 import Emitter from '../utils/emitter';
-import { findChainNameById } from '../utils/chain';
 import { ImmutableXApiAddress, ImmutableXLinkAddress } from '../utils/immutableX';
 import Web3 from 'web3';
 import { ethers } from 'ethers';
 import { ExternalOrder } from '../types';
 
-export default class TransactionImmutableX {
+export default class TransactionImx {
   listener: Function;
-  wallet: Wallet;
-  address: string;
-  chainId: string;
   link: any;
 
-  constructor(data) {
-    this.wallet = data.wallet;
-    this.address = data.address;
-    this.chainId = data.chainId;
+  constructor() {
     this.link = new Link(ImmutableXLinkAddress);
   }
 
@@ -40,20 +31,16 @@ export default class TransactionImmutableX {
   }
 
 
-  async buy(order: ExternalOrder){
+  async buy(order: ExternalOrder) {
     this.setStatus(APPROVING);
 
-   const res = await this.link.buy({ orderIds: [Number(order.orderHash)] });
+    const res = await this.link.buy({ orderIds: [Number(order.orderHash)] });
     this.setStatus(APPROVED);
 
     return res;
   }
 
-  async list({ contractAddress, tokenID,  price,  itemChainId}) {
-
-    if (String(itemChainId) !== String(this.chainId)) {
-      throw new Error(`Please connect to ${findChainNameById(itemChainId)}`);
-    }
+  async list({ contractAddress, tokenID, price }) {
 
     this.setStatus(SIGN);
     Emitter.emit('signature', () => { })
@@ -80,19 +67,19 @@ export default class TransactionImmutableX {
     return res
   }
 
-  async cancelOrder(order: ExternalOrder) {
+  async cancelOrder(orderHash) {
     this.setStatus(CANCELLING);
-    const res = await this.link.cancel({ orderId: order.orderHash });
+    const res = await this.link.cancel({ orderId: orderHash });
     return res;
   }
 
-  async getBalance(address:string) {
+  async getBalance(address: string) {
     const client = await ImmutableXClient.build({
       publicApiUrl: ImmutableXApiAddress,
     })
-      const balances = await client.getBalances({ user: address } as any)
-      const balanceFormatted = ethers.utils.formatEther(balances.imx);
-      const balance = Web3.utils.toWei(balanceFormatted);
-      return balance;
+    const balances = await client.getBalances({ user: address } as any)
+    const balanceFormatted = ethers.utils.formatEther(balances.imx);
+    const balance = Web3.utils.toWei(balanceFormatted);
+    return balance;
   }
 }
