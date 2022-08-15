@@ -1,4 +1,3 @@
-import { ExternalOrder } from '../types';
 import TransactionImx from '../transaction/TransactionImx';
 
 class imxController {
