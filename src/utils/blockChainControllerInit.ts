@@ -1,5 +1,5 @@
-import EvmController from '../Controllers/evmController';
-import imxController from '../Controllers/imxController';
+import EvmController from '../controllers/evmController';
+import imxController from '../controllers/imxController';
 import { EVM, IMMUTABLEX, SOLANA } from './chains';
 
 const flowControllers = {

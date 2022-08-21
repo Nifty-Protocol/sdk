@@ -4,9 +4,9 @@ import {
   APPROVED,
   SIGN,
   CANCELLING,
-} from '../constants';
-import Emitter from '../utils/emitter';
-import { ImmutableXApiAddress, ImmutableXLinkAddress } from '../utils/immutableX';
+} from '../../constants';
+import Emitter from '../../utils/emitter';
+import { ImmutableXApiAddress, ImmutableXLinkAddress } from '../../utils/immutableX';
 import Web3 from 'web3';
 import { ethers } from 'ethers';
 

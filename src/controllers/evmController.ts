@@ -15,7 +15,7 @@ import { EventType } from '../types/EventType';
 import { Seaport } from '@opensea/seaport-js';
 import { isExternalOrder } from '../utils/isExternalOrder';
 import { ethers } from 'ethers';
-import TransactionEVM from '../transaction/TransactionEvm';
+import evmTransaction from '../transaction/blockchainTransaction/evmTransaction';
 
 class EvmController {
   wallet: Wallet;
@@ -76,7 +76,7 @@ class EvmController {
     const address = await this.wallet.getUserAddress();
     const chainId = await this.wallet.chainId();
 
-    const transaction = new TransactionEVM({
+    const transaction = new evmTransaction({
       wallet: this.wallet,
       addresses: this.addresses,
       address,

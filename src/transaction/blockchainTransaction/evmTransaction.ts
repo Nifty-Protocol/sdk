@@ -1,7 +1,7 @@
-import { Wallet } from '../wallet/Wallet';
+import { Wallet } from '../../wallet/Wallet';
 import BigNumber from 'bignumber.js';
-import Contracts from './contracts';
-import { createOrder, destructOrder } from './order';
+import Contracts from '../contracts';
+import { createOrder, destructOrder } from '../order';
 import {
   CREATING,
   APPROVING,
@@ -14,13 +14,13 @@ import {
   CHECKING_BALANCE,
   CANCELLING,
   APPROVING_FILL,
-} from '../constants';
-import signature from '../signature';
-import { addressesParameter } from '../addresses';
-import { isValidERC20 } from '../utils/isValidERC20';
-import { Order } from '../types/OrderInterface';
-import Emitter from '../utils/emitter';
-import { findChainNameById } from '../utils/chain';
+} from '../../constants';
+import signature from '../../signature';
+import { addressesParameter } from '../../addresses';
+import { isValidERC20 } from '../../utils/isValidERC20';
+import { Order } from '../../types/OrderInterface';
+import Emitter from '../../utils/emitter';
+import { findChainNameById } from '../../utils/chain';
 
 export default class TransactionEVM {
   listener: Function;

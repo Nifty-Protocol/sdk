@@ -1,4 +1,4 @@
-import TransactionImx from '../transaction/TransactionImx';
+import imxTransaction from '../transaction/blockchainTransaction/imxTransaction';
 
 class imxController {
   listener: Function;
@@ -23,7 +23,7 @@ class imxController {
 
   async initTransaction() {
 
-    const transaction = new TransactionImx();
+    const transaction = new imxTransaction();
 
     if (this.listener) {
       transaction.setStatusListener(this.listener);
