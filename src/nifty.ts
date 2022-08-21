@@ -1,7 +1,7 @@
 import { PROD, TESTNET, defaultKey, NULL_ADDRESS } from './constants';
 import api from './api';
 import { findChainById } from './utils/chain';
-import { Wallet } from './wallet/Wallet';
+import { Wallet } from './types/Wallet';
 import wallet from './wallet';
 import addresses, { addressesParameter } from './addresses';
 import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';

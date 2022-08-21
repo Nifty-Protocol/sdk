@@ -1,4 +1,4 @@
-import { Wallet } from '../../wallet/Wallet';
+import { Wallet } from '../../types/Wallet';
 import BigNumber from 'bignumber.js';
 import Contracts from '../contracts';
 import { createOrder, destructOrder } from '../order';

@@ -10,7 +10,7 @@ import ForwarderABI from './abis/ForwarderABI';
 import CollectionsABI from './abis/CollectionsABI';
 import RoyaltiesManagerABI from './abis/RoyaltiesManagerABI';
 import send from '../utils/send';
-import { Wallet } from '../wallet/Wallet';
+import { Wallet } from '../types/Wallet';
 import { Item } from '../types/ItemInterface';
 import LibAssetDataABI from './abis/LibAssetDataABI';
 import ContractABI from './abis/ContractABI';
