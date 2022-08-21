@@ -1,5 +1,5 @@
 export enum EventType {
-  tnxHash,
+  txHash,
   signature,
   TransactionConfirmed,
 }

@@ -18,7 +18,7 @@ const send = (method, options) => new Promise(async (resolve, reject) => {
   }
   console.log('normal transaction');
   method.send(_options)
-    .on('transactionHash', (txHash) => { Emitter.emit('tnxHash', txHash) })
+    .on('transactionHash', (txHash) => { Emitter.emit('txhash', txHash) })
     .then((txHash) => {
       Emitter.emit('TransactionConfirmed', () => { })
       resolve(txHash)
@@ -30,7 +30,7 @@ const send = (method, options) => new Promise(async (resolve, reject) => {
           ...options,
           type: '0x2',
         })
-          .on('transactionHash', (txHash) => { Emitter.emit('tnxHash', txHash) })
+          .on('transactionHash', (txHash) => { Emitter.emit('txhash', txHash) })
           .then((txHash) => {
             Emitter.emit('TransactionConfirmed', () => { })
             resolve(txHash)
@@ -44,7 +44,7 @@ const send = (method, options) => new Promise(async (resolve, reject) => {
                 maxFeePerGas: null,
                 maxPriorityFeePerGas: null,
               })
-                .on('transactionHash', (txHash) => { Emitter.emit('tnxHash', txHash) })
+                .on('transactionHash', (txHash) => { Emitter.emit('txhash', txHash) })
                 .then((txHash) => {
                   Emitter.emit('TransactionConfirmed', () => { })
                   resolve(txHash)
