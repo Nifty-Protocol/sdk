@@ -1,5 +1,5 @@
 import axios from 'axios';
 
-const HttpRequest = (options = {}) => axios(options);
+const httpRequest = (options = {}) => axios(options);
 
-export default HttpRequest;
+export default httpRequest;

@@ -1,4 +1,4 @@
-import httpRequest from '../utils/HttpRequest';
+import httpRequest from '../utils/httpRequest';
 
 const ENDPOINT = 'trades';
 
