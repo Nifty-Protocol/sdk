@@ -22,6 +22,7 @@ export const WITHDRAW = 'withdraw';
 export const PURCHASE = 'purchase';
 export const CANCELLING = 'cancelling';
 export const OFFER = 'OFFER';
+export const TXHASH = 'txhash';
 
 export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 export const NULL_BYTES = '0x';

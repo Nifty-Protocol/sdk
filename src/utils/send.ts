@@ -1,3 +1,4 @@
+import { TXHASH } from '../constants';
 import Emitter from './emitter';
 
 const send = (method, options) => new Promise(async (resolve, reject) => {
@@ -18,7 +19,7 @@ const send = (method, options) => new Promise(async (resolve, reject) => {
   }
   console.log('normal transaction');
   method.send(_options)
-    .on('transactionHash', (txHash) => { Emitter.emit('txhash', txHash) })
+    .on('transactionHash', (txHash) => { Emitter.emit(TXHASH, txHash) })
     .then((txHash) => {
       Emitter.emit('TransactionConfirmed', () => { })
       resolve(txHash)
@@ -30,7 +31,7 @@ const send = (method, options) => new Promise(async (resolve, reject) => {
           ...options,
           type: '0x2',
         })
-          .on('transactionHash', (txHash) => { Emitter.emit('txhash', txHash) })
+          .on('transactionHash', (txHash) => { Emitter.emit(TXHASH, txHash) })
           .then((txHash) => {
             Emitter.emit('TransactionConfirmed', () => { })
             resolve(txHash)
@@ -44,7 +45,7 @@ const send = (method, options) => new Promise(async (resolve, reject) => {
                 maxFeePerGas: null,
                 maxPriorityFeePerGas: null,
               })
-                .on('transactionHash', (txHash) => { Emitter.emit('txhash', txHash) })
+                .on('transactionHash', (txHash) => { Emitter.emit(TXHASH, txHash) })
                 .then((txHash) => {
                   Emitter.emit('TransactionConfirmed', () => { })
                   resolve(txHash)

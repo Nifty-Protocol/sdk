@@ -12,9 +12,7 @@ import { Order } from '../types/OrderInterface';
 import { env } from '../types/OptionsInterface';
 import Emitter from '../utils/emitter';
 import { EventType } from '../types/EventType';
-import { Seaport } from '@opensea/seaport-js';
 import { isExternalOrder } from '../utils/isExternalOrder';
-import { ethers } from 'ethers';
 import evmTransaction from '../transaction/blockchainTransaction/evmTransaction';
 
 class EvmController {
@@ -181,37 +179,28 @@ class EvmController {
 
     this.verifyWallet();
 
-    const address = await this.wallet.getUserAddress();
-
     if (order.state !== orderStatuses.ADDED) {
       throw new Error('Order is not valid');
     }
 
+    const transaction = await this.initTransaction();
+    let res;
 
     if (isExternalOrder(order)) {
       const ExternalOrder = order as ExternalOrder;
+
       switch (ExternalOrder.source) {
         case OPENSEA:
-          const provider = new ethers.providers.Web3Provider(this.wallet.web3.currentProvider);
-          const seaport = new Seaport(provider);
-
-          const { executeAllActions: executeAllFulfillActions } =
-            await seaport.fulfillOrder({
-              order: order.raw.protocol_data,
-              accountAddress: String(address),
-            });
-
-          const openSeaTransaction = await executeAllFulfillActions();
-          return openSeaTransaction;
+          res = await transaction.buyFromOpenSea(ExternalOrder);
 
         default:
           break;
       }
+
+    } else {
+      res = await transaction.buy(order as Order);
     }
 
-    const transaction = await this.initTransaction();
-
-    const res = await transaction.buy(order as Order);
     return res;
   }
 

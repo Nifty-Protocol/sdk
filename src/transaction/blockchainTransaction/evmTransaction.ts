@@ -14,6 +14,7 @@ import {
   CHECKING_BALANCE,
   CANCELLING,
   APPROVING_FILL,
+  TXHASH,
 } from '../../constants';
 import signature from '../../signature';
 import { addressesParameter } from '../../addresses';
@@ -21,6 +22,9 @@ import { isValidERC20 } from '../../utils/isValidERC20';
 import { Order } from '../../types/OrderInterface';
 import Emitter from '../../utils/emitter';
 import { findChainNameById } from '../../utils/chain';
+import { ExternalOrder } from '../../types';
+import { ethers } from 'ethers';
+import { Seaport } from '@opensea/seaport-js';
 
 export default class TransactionEVM {
   listener: Function;
@@ -478,5 +482,22 @@ export default class TransactionEVM {
     this.setStatus(APPROVED);
 
     return tokenId;
+  }
+
+  async buyFromOpenSea(order: ExternalOrder) {
+    const provider = new ethers.providers.Web3Provider(this.wallet.web3.currentProvider);
+    const seaport = new Seaport(provider);
+
+    const { executeAllActions } = await seaport.fulfillOrder({
+      order: order.raw.protocol_data,
+      accountAddress: String(this.address),
+    });
+
+    const res = await executeAllActions() as any;
+    Emitter.emit(TXHASH, res.hash)
+    await res.wait();
+
+    this.listener(APPROVED);
+    return res;
   }
 }
