@@ -1,6 +1,6 @@
 {
   "name": "nifty-protocol",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "nifty-protocol",
   "author": "Nifty",
   "main": "dist/index.js",
@@ -11,7 +11,6 @@
   },
   "devDependencies": {
     "@imtbl/imx-sdk": "^1.24.1",
-    "bignumber.js": "^9.0.1",
     "clean-webpack-plugin": "^4.0.0",
     "ethereumjs-util": "^7.0.10",
     "ethers": "^5.0.26",

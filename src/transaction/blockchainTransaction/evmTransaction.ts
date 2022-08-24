@@ -61,7 +61,7 @@ export default class TransactionEVM {
   getRoyalties(collectionAddress, tokenId, price) {
     const unit = new BigNumber(10).pow(18);
     const salePrice = unit.times(new BigNumber(price));
-    return this.contracts.getRoyalties(collectionAddress, tokenId, salePrice.toString());
+    return this.contracts.getRoyalties(collectionAddress, tokenId, salePrice.toFixed());
   }
 
 
@@ -87,7 +87,7 @@ export default class TransactionEVM {
 
     // eth payment
     if (tokenAddress === NULL_ADDRESS) {
-      value = new BigNumber(order.takerAssetAmount).toString();
+      value = new BigNumber(order.takerAssetAmount).toFixed();
     } else { // erc20 payment
       let ERC20Balance = await this.contracts.balanceOfERC20(this.address, tokenAddress);
       const proxyApprovedAllowance = await this.contracts.ERC20Allowance(tokenAddress);
@@ -145,7 +145,7 @@ export default class TransactionEVM {
     let receiver = NULL_ADDRESS;
     let royaltyAmount = 0;
 
-    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
+    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toFixed();
 
     ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
 
@@ -244,7 +244,7 @@ export default class TransactionEVM {
 
     let receiver = NULL_ADDRESS;
     let royaltyAmount = 0;
-    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
+    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toFixed();
 
     ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
 

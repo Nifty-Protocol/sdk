@@ -28,7 +28,7 @@ class Solana {
 
   async getUserAddress() {
     const { connection, publicKey } = await connect();
-    const _publicKey = new web3.PublicKey(publicKey.toString());
+    const _publicKey = new web3.PublicKey(publicKey.toFixed());
     return _publicKey.toBase58();
   }
 
@@ -43,7 +43,7 @@ class Solana {
 
   async getBalance() {
     const { connection, publicKey } = await connect();
-    const _publicKey = new web3.PublicKey(publicKey.toString());
+    const _publicKey = new web3.PublicKey(publicKey.toFixed());
     const walletBalance = await connection.getBalance(_publicKey);
     return walletBalance;
   }
