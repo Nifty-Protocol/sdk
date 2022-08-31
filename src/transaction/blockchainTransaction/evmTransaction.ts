@@ -1,7 +1,7 @@
-import { Wallet } from '../wallet/Wallet';
+import { Wallet } from '../../types/Wallet';
 import BigNumber from 'bignumber.js';
-import Contracts from './contracts';
-import { createOrder, destructOrder } from './order';
+import Contracts from '../contracts';
+import { createOrder, destructOrder } from '../order';
 import {
   CREATING,
   APPROVING,
@@ -14,15 +14,19 @@ import {
   CHECKING_BALANCE,
   CANCELLING,
   APPROVING_FILL,
-} from '../constants';
-import signature from '../signature';
-import { addressesParameter } from '../addresses';
-import { isValidERC20 } from '../utils/isValidERC20';
-import { Order } from '../types/OrderInterface';
-import Emitter from '../utils/emitter';
-import { findChainNameById } from '../utils/chain';
+  TXHASH,
+} from '../../constants';
+import signature from '../../signature';
+import { addressesParameter } from '../../addresses';
+import { isValidERC20 } from '../../utils/isValidERC20';
+import { Order } from '../../types/OrderInterface';
+import Emitter from '../../utils/emitter';
+import { findChainNameById } from '../../utils/chain';
+import { ExternalOrder } from '../../types';
+import { ethers } from 'ethers';
+import { Seaport } from '@opensea/seaport-js';
 
-export default class Transaction {
+export default class TransactionEVM {
   listener: Function;
   marketplaceId: string;
   wallet: Wallet;
@@ -57,7 +61,7 @@ export default class Transaction {
   getRoyalties(collectionAddress, tokenId, price) {
     const unit = new BigNumber(10).pow(18);
     const salePrice = unit.times(new BigNumber(price));
-    return this.contracts.getRoyalties(collectionAddress, tokenId, salePrice.toString());
+    return this.contracts.getRoyalties(collectionAddress, tokenId, salePrice.toFixed());
   }
 
 
@@ -83,7 +87,7 @@ export default class Transaction {
 
     // eth payment
     if (tokenAddress === NULL_ADDRESS) {
-      value = new BigNumber(order.takerAssetAmount).toString();
+      value = new BigNumber(order.takerAssetAmount).toFixed();
     } else { // erc20 payment
       let ERC20Balance = await this.contracts.balanceOfERC20(this.address, tokenAddress);
       const proxyApprovedAllowance = await this.contracts.ERC20Allowance(tokenAddress);
@@ -141,7 +145,7 @@ export default class Transaction {
     let receiver = NULL_ADDRESS;
     let royaltyAmount = 0;
 
-    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
+    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toFixed();
 
     ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
 
@@ -240,7 +244,7 @@ export default class Transaction {
 
     let receiver = NULL_ADDRESS;
     let royaltyAmount = 0;
-    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toString();
+    let expirationTimeSeconds = new BigNumber(Math.round(Date.now() / 1000 + expirationTime)).toFixed();
 
     ({ receiver, royaltyAmount } = await this.getRoyalties(contractAddress, tokenID, price));
 
@@ -478,5 +482,22 @@ export default class Transaction {
     this.setStatus(APPROVED);
 
     return tokenId;
+  }
+
+  async buyFromOpenSea(order: ExternalOrder) {
+    const provider = new ethers.providers.Web3Provider(this.wallet.web3.currentProvider);
+    const seaport = new Seaport(provider);
+
+    const { executeAllActions } = await seaport.fulfillOrder({
+      order: order.raw.protocol_data,
+      accountAddress: String(this.address),
+    });
+
+    const res = await executeAllActions() as any;
+    Emitter.emit(TXHASH, res.hash)
+    await res.wait();
+
+    this.listener(APPROVED);
+    return res;
   }
 }

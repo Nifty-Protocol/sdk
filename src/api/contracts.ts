@@ -1,4 +1,4 @@
-import HttpRequest from '../utils/HttpRequest';
+import httpRequest from '../utils/httpRequest';
 
 const ENDPOINT = 'contracts';
 
@@ -13,16 +13,16 @@ export default function (base) {
   }
 
   return {
-    getAll: (params = {}) => HttpRequest({ url: `${URL}`, params }),
-    get: (id) => HttpRequest({ url: `${URL}/${id}` }),
-    count: (params = {}) => HttpRequest({ url: `${URL}/get/count`, params }),
-    byAddress: (chainId, address) => HttpRequest({ url: `${URL}/${chainId}/${address}` }),
-    getTraits: (id, params = {}) => HttpRequest({ url: `${URL}/${id}/traits`, params }),
-    getRoyalties: (contractId, params = {}) => HttpRequest({
+    getAll: (params = {}) => httpRequest({ url: `${URL}`, params }),
+    get: (id) => httpRequest({ url: `${URL}/${id}` }),
+    count: (params = {}) => httpRequest({ url: `${URL}/get/count`, params }),
+    byAddress: (chainId, address) => httpRequest({ url: `${URL}/${chainId}/${address}` }),
+    getTraits: (id, params = {}) => httpRequest({ url: `${URL}/${id}/traits`, params }),
+    getRoyalties: (contractId, params = {}) => httpRequest({
       url: `${URL}/${contractId}/royalties`, params,
     }),
-    getStats: (id, params = {}) => HttpRequest({ url: `${URL}/${id}/stats`, params }),
-    getTopCollections: (params = {}) => HttpRequest({ url: `${URL}/topCollections`, params }),
+    getStats: (id, params = {}) => httpRequest({ url: `${URL}/${id}/stats`, params }),
+    getTopCollections: (params = {}) => httpRequest({ url: `${URL}/topCollections`, params }),
   }
 }
 

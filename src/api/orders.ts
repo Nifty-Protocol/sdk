@@ -1,12 +1,12 @@
-import HttpRequest from '../utils/HttpRequest';
+import httpRequest from '../utils/httpRequest';
 
 const ENDPOINT = 'orders';
 
 export default function(base) {
   const URL = base + ENDPOINT;
   return {
-    create: (data) => HttpRequest({ url: URL, method: 'post', data }),
-    get: (id) => HttpRequest({ url: `${URL}/${id}` }),
-    cancel: (id) => HttpRequest({ url: `${URL}/${id}/cancel`, method: 'put' }),
+    create: (data) => httpRequest({ url: URL, method: 'post', data }),
+    get: (id) => httpRequest({ url: `${URL}/${id}` }),
+    cancel: (id) => httpRequest({ url: `${URL}/${id}/cancel`, method: 'put' }),
   }
 };

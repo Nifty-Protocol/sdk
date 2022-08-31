@@ -1,10 +1,10 @@
-import HttpRequest from '../utils/HttpRequest';
+import httpRequest from '../utils/httpRequest';
 
 const ENDPOINT = 'external_orders';
 
 export default function(base) {
   const URL = base + ENDPOINT;
   return {
-    get: (id) => HttpRequest({ url: `${URL}/${id}` }),
+    get: (id) => httpRequest({ url: `${URL}/${id}` }),
   }
 };

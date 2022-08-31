@@ -1,4 +1,4 @@
-import { Wallet } from "../Wallet";
+import { Wallet } from "../../types/Wallet";
 import Web3 from "web3";
 import { providers } from "ethers";
 
