@@ -22,7 +22,7 @@ class EvmController {
   addresses: addressesParameter;
   api: Api;
   getListing: any;
-  getNftOwner: any;
+  getNFTOwner: any;
   listener: Function;
 
   constructor(options) {
@@ -33,7 +33,7 @@ class EvmController {
     this.api = options.api;
     this.listener = options.listener;
     this.getListing = options.getListing;
-    this.getNftOwner = options.getNftOwner;
+    this.getNFTOwner = options.getNFTOwner;
   }
   // what happens if user changes any of the options 
 
@@ -249,7 +249,7 @@ class EvmController {
     const transaction = await this.initTransaction();
 
     const tokenWithType = JSON.parse(JSON.stringify(item));
-    const owner = await this.getNftOwner(item.contractAddress, item.tokenID, item.chainId, item.contractType);
+    const owner = await this.getNFTOwner(item.contractAddress, item.tokenID, item.chainId, item.contractType);
 
     const offerOrder = await transaction.offer({
       item: tokenWithType,

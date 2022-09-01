@@ -44,7 +44,7 @@ export class Nifty {
       wallet: this.wallet,
       listener: this.listener,
       getListing: this.getListing,
-      getNftOwner: this.getNftOwner,
+      getNFTOwner: this.getNFTOwner,
     };
 
     this.blockChainController = await blockChainControllerInit(type, options);
@@ -165,7 +165,7 @@ export class Nifty {
 
   async getAllNFTData(contractAddress: string, tokenID: number, chainId: number) {
     const nft = await this.getNFT(contractAddress, tokenID, chainId);
-    const nftData = await this.getNFTData(nft);
+    const nftData = await this.getNFTData(nft.contractAddress, nft.tokenID, nft.contractType, nft.chainType, nft.chainId, nft.id);
 
     if (this.wallet) {
       const userAvailableMethods = await this.getUserAvailableMethods(nftData.listings as Listings, nft);
@@ -226,14 +226,13 @@ export class Nifty {
       * @returns returns NFT transfers
       * @returns returns NFT offers
   */
-  async getNFTData(item: Item): Promise<{ balances: Array<object>, transfers: Array<object>, listings: Array<object>, offers: Array<object> }> {
+  async getNFTData(contractAddress: string, tokenID: number | string, contractType: string, chainType: string, chainId: number, tokenId: string): Promise<{ balances: Array<object>, transfers: Array<object>, listings: Array<object>, offers: Array<object> }> {
     this.verifyMarkletplace();
-
-    const { contractAddress, tokenID, contractType, chainId, id: tokenId } = item;
 
     const res = await this.api.tokens.getGraph({
       contractAddress,
       tokenID,
+      chainType,
       chainId,
       contractType,
       tokenId,
@@ -261,10 +260,11 @@ export class Nifty {
     return res.data;
   }
 
-  async getNftOwner(contractAddress: string, tokenID: number | string, chainId: number, contractType: string, orderId?: string) {
+  async getNFTOwner(contractAddress: string, tokenID: number | string, chainType: string, chainId: number, contractType: string, orderId?: string) {
     const res = await this.api.tokens.getOwner({
-      contractAddress: contractAddress,
+      contractAddress,
       tokenID,
+      chainType,
       chainId,
       orderId,
       contractType,

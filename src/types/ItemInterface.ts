@@ -22,7 +22,6 @@ export interface Item {
   assetData: object;
   chainId: number;
   chainType: string;
-  blacklist: boolean;
   owner: Owner;
   contractVerified: boolean;
   contractType: string;
