@@ -6,15 +6,17 @@ import wallet from './wallet';
 import addresses, { addressesParameter } from './addresses';
 import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
 import { Item } from './types/ItemInterface';
-import { Listings } from './types/ListingsInterface';
+import { Listing, Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
 import { Order } from './types/OrderInterface';
 import { env, Options } from './types/OptionsInterface';
 import Emitter from './utils/emitter';
 import { EventType } from './types/EventType';
 import transactionConfirmation from './utils/transactionConfirmation';
-import {  providers } from 'ethers';
+import { providers } from 'ethers';
 import blockChainControllerInit from './utils/blockChainControllerInit';
+import { NetworkType } from './types/NetworkType';
+import { Balances, Transfers } from './types/NftDataResponse';
 
 export class Nifty {
   wallet: Wallet;
@@ -31,8 +33,8 @@ export class Nifty {
     this.api = api(this.env);
   }
 
-  async initWallet(type: string, provider: providers.Provider) {
-    this.wallet = wallet(type, provider);
+  async initWallet(NetworkType: NetworkType, provider: providers.Provider) {
+    this.wallet = wallet(NetworkType, provider);
     const chainId = await this.wallet.chainId();
     this.setMarketplaceAddresses(addresses[chainId]);
 
@@ -47,7 +49,7 @@ export class Nifty {
       getNFTOwner: this.getNFTOwner,
     };
 
-    this.blockChainController = await blockChainControllerInit(type, options);
+    this.blockChainController = await blockChainControllerInit(NetworkType, options);
   }
 
   setMarketplaceAddresses(addresses: addressesParameter) {
@@ -148,7 +150,7 @@ export class Nifty {
 
   async getAccountBalance(ERC20Address = null) {
     const address = await this.wallet.getUserAddress();
-    return this.blockChainController.getAccountBalance(ERC20Address,address)
+    return this.blockChainController.getAccountBalance(ERC20Address, address)
   }
 
 
@@ -226,7 +228,7 @@ export class Nifty {
       * @returns returns NFT transfers
       * @returns returns NFT offers
   */
-  async getNFTData(contractAddress: string, tokenID: number | string, contractType: string, chainType: string, chainId: number, tokenId: string): Promise<{ balances: Array<object>, transfers: Array<object>, listings: Array<object>, offers: Array<object> }> {
+  async getNFTData(contractAddress: string, tokenID: number | string, contractType: string, chainType: string, chainId: number, tokenId: string): Promise<{ balances: Array<Balances>, transfers: Array<Transfers>, listings: Array<Listing>, offers: Array<any> }> {
     this.verifyMarkletplace();
 
     const res = await this.api.tokens.getGraph({

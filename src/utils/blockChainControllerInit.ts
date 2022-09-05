@@ -1,5 +1,6 @@
 import EvmController from '../controllers/evmController';
 import imxController from '../controllers/imxController';
+import { NetworkType } from '../types/NetworkType';
 import { EVM, IMMUTABLEX, SOLANA } from './chains';
 
 const blockChainControllers = {
@@ -8,8 +9,8 @@ const blockChainControllers = {
   // [SOLANA]: Solana,
 };
 
-export default function (type: string, options: any) {
-  let blockChainController = blockChainControllers[type];
+export default function (NetworkType: NetworkType, options: any) {
+  let blockChainController = blockChainControllers[NetworkType];
 
   // default is evm
   if (!blockChainController) {

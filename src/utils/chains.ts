@@ -4,10 +4,6 @@ export const EVM = 'evm';
 export const IMMUTABLEX = 'immutablex';
 export const SOLANA = 'solana';
 
-export const offerTransactionSupportedChainTypes = [EVM, SOLANA];
-export const tradeTransactionSupportedChainTypes = [EVM, SOLANA];
-export const transferTransactionSupportedChainTypes = [EVM, SOLANA];
-
 export type chainType = Array <{
   name            : string;
   chainId         : number;

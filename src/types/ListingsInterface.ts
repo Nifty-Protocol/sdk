@@ -1,4 +1,4 @@
-interface Listing {
+export interface Listing {
   price: number,
   id: string,
   type: string,
@@ -11,7 +11,10 @@ interface Listing {
   takerAssetAmount: string,
   makerFee: string,
   takerFee: string,
-  activities: Array<object>,
-}
+  activities: Array<{
+    createdAt: string,
+    type: string
+  }>}
+
 
 export type Listings = Array<Listing>;
