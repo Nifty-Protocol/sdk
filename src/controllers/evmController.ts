@@ -186,7 +186,7 @@ class EvmController {
     const transaction = await this.initTransaction();
     let res;
     
-    switch (ExternalOrder.source) {
+    switch (order.source) {
       case OPENSEA:
         res = await transaction.buyFromOpenSea(order as ExternalOrder);
       case NFTRADE:
