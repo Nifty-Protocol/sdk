@@ -22,7 +22,7 @@ export default function (base) {
       url: `${URL}/${contractId}/royalties`, params,
     }),
     getStats: (id, params = {}) => httpRequest({ url: `${URL}/${id}/stats`, params }),
-    getTopCollections: (params = {}) => httpRequest({ url: `${URL}/topCollections`, params }),
+    getTopCollections: (params = {}) => httpRequest({ url: `${URL}/top-collections`, params }),
   }
 }
 
