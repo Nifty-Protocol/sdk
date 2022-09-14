@@ -78,7 +78,7 @@ export default class TransactionEVM {
 
     const { tokenAddress } = await this.contracts.decodeERC20AssetData(order.takerAssetData)
 
-    if (!isValidERC20(tokenAddress, this.chainId)) {
+    if (tokenAddress !== NULL_ADDRESS && !isValidERC20(tokenAddress, this.chainId)) {
       throw new Error("Invalid asset data");
     }
 

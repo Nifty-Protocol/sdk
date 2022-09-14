@@ -1,6 +1,6 @@
 {
   "name": "nifty-protocol",
-  "version": "1.0.36",
+  "version": "1.0.38",
   "description": "nifty-protocol",
   "author": "Nifty",
   "main": "dist/index.js",
