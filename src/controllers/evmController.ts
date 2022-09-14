@@ -184,19 +184,19 @@ class EvmController {
     }
 
     const transaction = await this.initTransaction();
-    let res;
     
+    let res;
     switch (order.source) {
       case OPENSEA:
         res = await transaction.buyFromOpenSea(order as ExternalOrder);
+        return res;
       case NFTRADE:
         res = await transaction.buy(order as Order);
+        return res;
       default:
         throw new Error('unknown source');
         break;
     }
-
-    return res;
   }
 
 
