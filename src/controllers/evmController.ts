@@ -14,6 +14,7 @@ import Emitter from '../utils/emitter';
 import { EventType } from '../types/EventType';
 import { isExternalOrder } from '../utils/isExternalOrder';
 import evmTransaction from '../transaction/blockchainTransaction/evmTransaction';
+import { EVM } from '../utils/chains';
 
 class EvmController {
   wallet: Wallet;
@@ -184,7 +185,7 @@ class EvmController {
     }
 
     const transaction = await this.initTransaction();
-    
+
     let res;
     switch (order.source) {
       case OPENSEA:
@@ -244,7 +245,7 @@ class EvmController {
     const transaction = await this.initTransaction();
 
     const tokenWithType = JSON.parse(JSON.stringify(item));
-    const owner = await this.getNFTOwner(item.contractAddress, item.tokenID, item.chainId, item.contractType);
+    const owner = await this.getNFTOwner(item.contractAddress, item.tokenID, EVM, item.chainId, item.contractType);
 
     const offerOrder = await transaction.offer({
       item: tokenWithType,
