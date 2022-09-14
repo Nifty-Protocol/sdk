@@ -1,4 +1,4 @@
-import { OPENSEA, OFFER, orderStatuses, NULL_ADDRESS } from '../constants';
+import { OPENSEA, NFTRADE, OFFER, orderStatuses, NULL_ADDRESS } from '../constants';
 import api from '../api';
 import { Wallet } from '../types/Wallet';
 import { addressesParameter } from '../addresses';
@@ -185,20 +185,15 @@ class EvmController {
 
     const transaction = await this.initTransaction();
     let res;
-
-    if (isExternalOrder(order)) {
-      const ExternalOrder = order as ExternalOrder;
-
-      switch (ExternalOrder.source) {
-        case OPENSEA:
-          res = await transaction.buyFromOpenSea(ExternalOrder);
-
-        default:
-          break;
-      }
-
-    } else {
-      res = await transaction.buy(order as Order);
+    
+    switch (order.source) {
+      case OPENSEA:
+        res = await transaction.buyFromOpenSea(order as ExternalOrder);
+      case NFTRADE:
+        res = await transaction.buy(order as Order);
+      default:
+        throw new Error('unknown source');
+        break;
     }
 
     return res;

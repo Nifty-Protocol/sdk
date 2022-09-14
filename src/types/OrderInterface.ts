@@ -26,6 +26,7 @@ export interface Order {
   price: number;
   trades: Array<Trade>;
   tokens: Array<OrderItem>;
+  source: string;
 }
 
 interface OrderItem {

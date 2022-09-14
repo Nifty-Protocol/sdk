@@ -34,14 +34,8 @@ class imxController {
 
 
   async buy(orderId) {
-    const transaction = await this.initTransaction()
-
     const orderRes = await this.getListing(orderId, true) as any;
-
-    const { orderHash } = orderRes as any;
-    const buyRes = await transaction.buy(orderHash);
-
-    return buyRes;
+    return this.fillOrder(orderRes)
   }
 
   async list(item, price) {
@@ -79,6 +73,14 @@ class imxController {
 
     const balanceRes = await transaction.getBalance(address);
     return balanceRes;
+  }
+
+  async fillOrder (order){
+    const transaction = await this.initTransaction()
+    const { orderHash } = order as any;
+    const buyRes = await transaction.buy(orderHash);
+
+    return buyRes;
   }
 }
 

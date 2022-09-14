@@ -34,6 +34,7 @@ export const MAX_DIGITS_IN_UNSIGNED_256_INT = 78;
 export const OPENSEA = 'OPENSEA';
 export const LOOKSRARE = 'LOOKSRARE';
 export const RARIBLE = 'RARIBLE';
+export const NFTRADE = 'NFTRADE';
 
 export const EIP721 = 'EIP721';
 export const EIP1155 = 'EIP1155';
