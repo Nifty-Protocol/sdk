@@ -216,7 +216,7 @@ class EvmController {
     const chainId = await this.wallet.chainId();
     const exchangeAddress = this.addresses.Exchange;
 
-    if (!isValidERC20(ERC20Address, chainId)) {
+    if (ERC20Address !== NULL_ADDRESS && !isValidERC20(ERC20Address, chainId)) {
       throw new Error('Invalid ERC20 address');
     }
 
