@@ -1,4 +1,4 @@
-import { OPENSEA, NFTRADE, OFFER, orderStatuses, NULL_ADDRESS } from '../constants';
+import { OPENSEA, NFTRADE, OFFER, orderStatuses, NULL_ADDRESS, NIFTY } from '../constants';
 import api from '../api';
 import { Wallet } from '../types/Wallet';
 import { addressesParameter } from '../addresses';
@@ -191,8 +191,11 @@ class EvmController {
       case OPENSEA:
         res = await transaction.buyFromOpenSea(order as ExternalOrder);
         return res;
-      case NFTRADE:
+      case NIFTY:
         res = await transaction.buy(order as Order);
+        return res;
+      case NFTRADE:
+        res = await transaction.buyOld(order as Order);
         return res;
       default:
         throw new Error('unknown source');

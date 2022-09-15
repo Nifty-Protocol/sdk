@@ -58,3 +58,23 @@ export const destructOrder = (item) => pick(item, [
   'royaltiesAmount',
   'signature',
 ]);
+
+export const destructOrderOld = (item) => pick(item, [
+  'chainId',
+  'exchangeAddress',
+  'makerAddress',
+  'takerAddress',
+  'senderAddress',
+  'feeRecipientAddress',
+  'expirationTimeSeconds',
+  'salt',
+  'makerAssetAmount',
+  'takerAssetAmount',
+  'makerAssetData',
+  'takerAssetData',
+  'makerFeeAssetData',
+  'takerFeeAssetData',
+  'makerFee',
+  'takerFee',
+  'signature',
+]);
