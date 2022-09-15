@@ -1,3 +1,4 @@
+import { destructOrderOld } from './../order';
 import { Wallet } from '../../types/Wallet';
 import BigNumber from 'bignumber.js';
 import Contracts from '../contracts';
@@ -499,5 +500,40 @@ export default class TransactionEVM {
 
     this.listener(APPROVED);
     return res;
+  }
+
+  async buyOld(order: Order): Promise<Order & { txHash: any }> {
+    this.setStatus(CREATING);
+
+    if (String(order.chainId) !== String(this.chainId)) {
+      throw new Error(`Please connect to ${findChainNameById(order.chainId)}`);
+    }
+
+    const signedOrder = destructOrderOld(order);
+
+    this.setStatus(APPROVING);
+
+    let txHash = '';
+
+    const nativeERC20Balance = await this.contracts.balanceOfNativeERC20();
+    const proxyApprovedAllowance = await this.contracts.NativeERC20AllowanceOld();
+
+    const ERC20Balance = new BigNumber(nativeERC20Balance);
+    const allowance = new BigNumber(proxyApprovedAllowance);
+    const itemPrice = new BigNumber(order.takerAssetAmount).plus(new BigNumber(order.takerFee));
+
+    if (ERC20Balance.isGreaterThanOrEqualTo(itemPrice)) {
+      if (allowance.isLessThan(itemPrice)) {
+        this.setStatus(APPROVING);
+        await this.contracts.NativeERC20ApproveOld();
+      }
+      txHash = await this.contracts.fillOrderOld(signedOrder);
+    } else {
+      txHash = await this.contracts.marketBuyOrdersWithEthOld(signedOrder);
+    }
+
+    this.setStatus(APPROVED);
+
+    return { ...order, txHash };
   }
 }

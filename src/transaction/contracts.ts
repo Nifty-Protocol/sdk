@@ -6,7 +6,6 @@ import ERC721ABI from './abis/ERC721ABI';
 import ERC1155ABI from './abis/ERC1155ABI';
 import ERC20ABI from './abis/ERC20ABI';
 import ExchangeABI from './abis/ExchangeABI';
-import ForwarderABI from './abis/ForwarderABI';
 import CollectionsABI from './abis/CollectionsABI';
 import RoyaltiesManagerABI from './abis/RoyaltiesManagerABI';
 import send from '../utils/send';
@@ -14,6 +13,8 @@ import { Wallet } from '../types/Wallet';
 import { Item } from '../types/ItemInterface';
 import LibAssetDataABI from './abis/LibAssetDataABI';
 import ContractABI from './abis/ContractABI';
+import ExchangeABIOld from './abis/ExchangeABIOld';
+import ForwarderABIOld from './abis/ForwarderABIOld';
 
 export default class Contracts {
   address: string;
@@ -344,5 +345,55 @@ export default class Contracts {
     return royaltiesContract.methods.getRoyalties(collectionAddress, tokenId, salePrice)
       .call({ from: this.address });
   }
+
+  NativeERC20AllowanceOld() {
+    const NativeERC20Contract = new this.wallet.web3.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
+    return NativeERC20Contract.methods.allowance(
+      this.address,
+      this.addresses.old.ERC20Proxy,
+    ).call({ from: this.address });
+  }
+
+  NativeERC20ApproveOld() {
+    const NativeERC20Contract = new this.wallet.web3.eth.Contract(ERC20ABI, this.addresses.NativeERC20);
+    const method = NativeERC20Contract.methods
+      .approve(this.addresses.old.ERC20Proxy, new BigNumber(2).pow(256).minus(1).toFixed());
+    return send(method, { from: this.address });
+  }
+
+  async fillOrderOld(signedOrder) {
+    const exchangeContract = new this.wallet.web3.eth.Contract(ExchangeABIOld, this.addresses.old.Exchange);
+    const buyOrder = await exchangeContract.methods.fillOrder(
+      signedOrder, signedOrder.takerAssetAmount, signedOrder.signature,
+    );
+    const { transactionHash } = (await send(buyOrder, {
+      from: this.address,
+    })) as any;
+
+    return transactionHash;
+  }
+
+  async marketBuyOrdersWithEthOld(signedOrder) {
+    const affiliateFeeRecipient = NULL_ADDRESS;
+    const affiliateFee = ZERO;
+
+    const takerAssetAmount = new BigNumber(signedOrder.takerAssetAmount);
+    const takerFee = new BigNumber(signedOrder.takerFee);
+    const forwarderContract = new this.wallet.web3.eth.Contract(ForwarderABIOld, this.addresses.old.Forwarder);
+    const buyOrder = await forwarderContract.methods.marketBuyOrdersWithEth(
+      [signedOrder],
+      signedOrder.makerAssetAmount,
+      [signedOrder.signature],
+      [String(affiliateFee)],
+      [affiliateFeeRecipient],
+    );
+    const { transactionHash } = (await send(buyOrder, {
+      from : this.address,
+      value: takerAssetAmount.plus(takerFee),
+    })) as any;
+
+    return transactionHash;
+  }
+
 }
 
