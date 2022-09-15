@@ -6,7 +6,6 @@ import ERC721ABI from './abis/ERC721ABI';
 import ERC1155ABI from './abis/ERC1155ABI';
 import ERC20ABI from './abis/ERC20ABI';
 import ExchangeABI from './abis/ExchangeABI';
-import ForwarderABI from './abis/ForwarderABI';
 import CollectionsABI from './abis/CollectionsABI';
 import RoyaltiesManagerABI from './abis/RoyaltiesManagerABI';
 import send from '../utils/send';
@@ -15,6 +14,7 @@ import { Item } from '../types/ItemInterface';
 import LibAssetDataABI from './abis/LibAssetDataABI';
 import ContractABI from './abis/ContractABI';
 import ExchangeABIOld from './abis/ExchangeABIOld';
+import ForwarderABIOld from './abis/ForwarderABIOld';
 
 export default class Contracts {
   address: string;
@@ -379,7 +379,7 @@ export default class Contracts {
 
     const takerAssetAmount = new BigNumber(signedOrder.takerAssetAmount);
     const takerFee = new BigNumber(signedOrder.takerFee);
-    const forwarderContract = new this.wallet.web3.eth.Contract(ForwarderABI, this.addresses.Forwarder);
+    const forwarderContract = new this.wallet.web3.eth.Contract(ForwarderABIOld, this.addresses.old.Forwarder);
     const buyOrder = await forwarderContract.methods.marketBuyOrdersWithEth(
       [signedOrder],
       signedOrder.makerAssetAmount,
