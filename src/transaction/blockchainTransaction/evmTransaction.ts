@@ -447,6 +447,13 @@ export default class TransactionEVM {
     return res;
   }
 
+  async cancelOrderOld(order: Order) {
+    const signedOrder = destructOrderOld(order);
+    this.setStatus(CANCELLING);
+    const res = await this.contracts.cancelOrderOld(signedOrder);
+    return res;
+  }
+
 
   async isOwner(contractAddress: string, tokenId: string | number, contractType: string) {
 

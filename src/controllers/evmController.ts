@@ -290,8 +290,15 @@ class EvmController {
 
     const transaction = await this.initTransaction();
 
-    const transactionHash = await transaction.cancelOrder(order)
-    return transactionHash;
+    switch (order.source) {
+      case NIFTY:
+        return transaction.cancelOrder(order)
+      case NFTRADE:
+        return transaction.cancelOrderOld(order)
+      default:
+        throw new Error('unknown source');
+        break;
+    }
   }
 
 
