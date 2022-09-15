@@ -268,7 +268,7 @@ export default class Contracts {
   }
 
   async cancelOrder(signedOrder) {
-    const exchangeContract = new this.wallet.web3.eth.Contract(ExchangeABI, this.addresses.Exchange);
+    const exchangeContract = new this.wallet.web3.eth.Contract(ExchangeABI, signedOrder.exchangeAddress);
     const method = exchangeContract.methods.cancelOrder(
       signedOrder,
     );
