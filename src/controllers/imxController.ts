@@ -1,14 +1,19 @@
 import imxTransaction from '../transaction/blockchainTransaction/imxTransaction';
+import { IMMUTABLEX } from '../utils/chains';
+
+const sleep = (time) => new Promise((resolve) => setTimeout(() => resolve(time), time))
 
 class imxController {
   listener: Function;
   api: any;
   getListing: any;
+  chainId: string;
 
   constructor(options) {
     this.listener = options.listener;
     this.api = options.api;
     this.getListing = options.getListing;
+    this.chainId = options.wallet.walletProvider.chainId;
   }
 
   setStatusListener(listener: Function) {
@@ -38,11 +43,17 @@ class imxController {
     return this.fillOrder(orderRes)
   }
 
+  async buyMultiple(orders) {
+    return this.fillOrders(orders.map(x => Number(x.order_id)));
+  }
+
   async list(item, price) {
     const transaction = await this.initTransaction()
 
     const { contractAddress, tokenID } = item;
     const listRes = await transaction.list({ contractAddress, tokenID, price });
+    await sleep(2000);
+    const apiResres = await this.api.externalOrders.update({id: listRes, chainId: this.chainId, source: IMMUTABLEX});
 
     return listRes;
   }
@@ -64,6 +75,8 @@ class imxController {
     const { orderHash } = orderRes;
 
     const cancelRes = await transaction.cancelOrder(orderHash);
+    await sleep(2000);
+    const apiResres = await this.api.externalOrders.update({id: orderHash, chainId: this.chainId, source: IMMUTABLEX});
 
     return cancelRes;
   }
@@ -75,10 +88,17 @@ class imxController {
     return balanceRes;
   }
 
-  async fillOrder (order){
+  async fillOrder(order) {
     const transaction = await this.initTransaction()
     const { orderHash } = order as any;
     const buyRes = await transaction.buy(orderHash);
+
+    return buyRes;
+  }
+
+  async fillOrders(orders: Number[]) {
+    const transaction = await this.initTransaction()
+    const buyRes = await transaction.buyMultiple(orders);
 
     return buyRes;
   }

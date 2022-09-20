@@ -31,9 +31,13 @@ export default class TransactionImx {
 
 
   async buy(orderHash) {
+    return this.buyMultiple([Number(orderHash)]);
+  }
+
+  async buyMultiple(orderIds: Number[]) {
     this.setStatus(APPROVING);
 
-    const res = await this.link.buy({ orderIds: [Number(orderHash)] });
+    const res = await this.link.buy({ orderIds });
     this.setStatus(APPROVED);
 
     return res;

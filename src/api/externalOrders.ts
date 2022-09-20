@@ -6,5 +6,6 @@ export default function(base) {
   const URL = base + ENDPOINT;
   return {
     get: (id) => httpRequest({ url: `${URL}/${id}` }),
+    update: (data) => httpRequest({ url: URL, method: 'post', data }),
   }
 };
