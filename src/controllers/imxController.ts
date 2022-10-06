@@ -8,6 +8,7 @@ class imxController {
   api: any;
   getListing: any;
   chainId: string;
+  env: string;
 
   constructor(options) {
     this.listener = options.listener;
@@ -28,7 +29,7 @@ class imxController {
 
   async initTransaction() {
 
-    const transaction = new imxTransaction();
+    const transaction = new imxTransaction(this.env);
 
     if (this.listener) {
       transaction.setStatusListener(this.listener);

@@ -4,18 +4,35 @@ import {
   APPROVED,
   SIGN,
   CANCELLING,
+  PROD,
+  TESTNET,
 } from '../../constants';
 import Emitter from '../../utils/emitter';
-import { ImmutableXApiAddress, ImmutableXLinkAddress } from '../../utils/immutableX';
 import Web3 from 'web3';
 import { ethers } from 'ethers';
+
+export const endpoints = {
+  [PROD]: {
+    link: 'https://link.x.immutable.com',
+    api: 'https://api.x.immutable.com/v1',
+  },
+  [TESTNET]: {
+    link: 'https://link.sandbox.x.immutable.com',
+    api: 'https://api.sandbox.x.immutable.com/v1',
+  }
+};
+
+
+const feeRecipientAddress = '0x1249cae9fabbdc18f5368355ac1febd06b426374';
 
 export default class TransactionImx {
   listener: Function;
   link: any;
+  endpoints: any;
 
-  constructor() {
-    this.link = new Link(ImmutableXLinkAddress);
+  constructor(env) {
+    this.endpoints = endpoints[env];
+    this.link = new Link(this.endpoints.link);
   }
 
 
@@ -37,7 +54,10 @@ export default class TransactionImx {
   async buyMultiple(orderIds: Number[]) {
     this.setStatus(APPROVING);
 
-    const res = await this.link.buy({ orderIds });
+    const res = await this.link.buy({ orderIds, fees: [{
+      recipient: feeRecipientAddress,
+      percentage: 1,
+    }]});
     this.setStatus(APPROVED);
 
     return res;
@@ -51,6 +71,10 @@ export default class TransactionImx {
       amount: price,
       tokenId: tokenID,
       tokenAddress: contractAddress,
+      fees: [{
+        recipient: feeRecipientAddress,
+        percentage: 1,
+      }]
     };
     return this.link.sell(sellParams);
   }
@@ -79,7 +103,7 @@ export default class TransactionImx {
 
   async getBalance(address: string) {
     const client = await ImmutableXClient.build({
-      publicApiUrl: ImmutableXApiAddress,
+      publicApiUrl: this.endpoints.api,
     })
     const balances = await client.getBalances({ user: address } as any)
     const balanceFormatted = ethers.utils.formatEther(balances.imx);
