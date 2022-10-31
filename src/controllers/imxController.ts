@@ -15,6 +15,7 @@ class imxController {
     this.api = options.api;
     this.getListing = options.getListing;
     this.chainId = options.wallet.walletProvider.chainId;
+    this.env = options.env;
   }
 
   setStatusListener(listener: Function) {

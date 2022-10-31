@@ -11,7 +11,7 @@ import Emitter from '../../utils/emitter';
 import Web3 from 'web3';
 import { ethers } from 'ethers';
 
-export const endpoints = {
+const endpoints = {
   [PROD]: {
     link: 'https://link.x.immutable.com',
     api: 'https://api.x.immutable.com/v1',
