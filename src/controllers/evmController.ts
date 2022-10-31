@@ -395,6 +395,14 @@ class EvmController {
     return transaction.contracts.balanceOfERC20(address, ERC20Address);
   }
 
+  async decodeERC20AssetData(assetData: string) {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+
+    return transaction.contracts.decodeERC20AssetData(assetData);
+  }
+
 }
 
 export default EvmController;
