@@ -79,4 +79,11 @@ export default [
     value: 'Wrapped FUJI',
     defaultPaymentMethod:true,
   },
+  {
+    chainId: 344106930,
+    address: '0x08f98Af60eb83C18184231591A8F89577E46A4B9',
+    key: 'WETH',
+    value: 'Wrapped ETH',
+    defaultPaymentMethod:true,
+  },
 ]

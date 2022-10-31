@@ -99,6 +99,17 @@ const addresses: { [chainId: number]: addressesParameter } = {
     Collections: '0x6418d019aec4409E4830bc5C063B180d976a609F',
     LibAssetData: '0x4FB6f91904D2318274CDB5812480835f6859dFEa',
     old: addressesOld[5]
+  },
+  344106930: {
+    RoyaltiesManager: '0x8Dee419134Fd5ea392849860785B4dC770b46925',
+    NativeERC20: '0x08f98Af60eb83C18184231591A8F89577E46A4B9',
+    ERC20Proxy: '0xa2f950ccb80909FF80eB6dCd7cD915D85A1f6c25',
+    ERC721Proxy: '0xf23a1357694A4823FC4C51654692d5f635bb9233',
+    ERC1155Proxy: '0x4B75bA193755A52F5b6398466CB3e9458610CBaf',
+    Exchange: '0xaff8a3e3B69E4e88e83B589ED080560C4359BBa8',
+    Collections: '0x3FB1d0a5be1f60C44775b6fEF5C8a5Dc41253a2b',
+    LibAssetData: '0x72F864fce4594E98e3378F06FA69D7824a223E44',
+    old: addressesOld[5]
   }
 };
 
