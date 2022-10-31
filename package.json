@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "@imtbl/imx-sdk": "^1.24.1",
-    "ethers": "^5.0.26",
-    "ethereumjs-util": "^7.0.10",
-    "@opensea/seaport-js": "^1.0.4",
+    "@opensea/seaport-js": "^1.0.8",
     "@solana/web3.js": "^1.35.1",
     "axios": "^0.21.1",
+    "ethereumjs-util": "^7.0.10",
+    "ethers": "^5.0.26",
     "eventemitter3": "^4.0.7",
     "web3": "^1.7.1"
   }

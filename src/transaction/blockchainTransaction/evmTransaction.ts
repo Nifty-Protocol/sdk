@@ -505,7 +505,7 @@ export default class TransactionEVM {
     Emitter.emit(TXHASH, res.hash)
     await res.wait();
 
-    this.listener(APPROVED);
+    this.setStatus(APPROVED);
     return res;
   }
 

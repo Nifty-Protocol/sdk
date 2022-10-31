@@ -34,6 +34,9 @@ export interface Item {
   orderId: string;
   contract: object;
   reports: Array<object>;
+  externalOrderId: string;
+  externalOrderPrice: number;
+  externalOrderListedAt: string;
 }
 
 interface Owner {
