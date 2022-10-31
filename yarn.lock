@@ -618,10 +618,10 @@
   resolved "https://registry.yarnpkg.com/@noble/secp256k1/-/secp256k1-1.6.3.tgz#7eed12d9f4404b416999d0c87686836c4c5c9b94"
   integrity sha512-T04e4iTurVy7I8Sw4+c5OSN9/RkPlo1uKxAomtxQNLq8j1uPAqnsqG1bqvY3Jv7c13gyr6dui0zmh/I3+f/JaQ==
 
-"@opensea/seaport-js@^1.0.4":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@opensea/seaport-js/-/seaport-js-1.0.5.tgz#f48ebf5e3bc6ff5627502616598b401c6eaf352a"
-  integrity sha512-WgK3Grdqf5PEQWMlSFiSFaL/j8vlJ3feSjn+frFEO0QH2MuqwlFBRUGwqK4l09o5ZtZDRRTMafgrYC6BOgBY4A==
+"@opensea/seaport-js@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@opensea/seaport-js/-/seaport-js-1.0.8.tgz#7609e24b6e8b30ebea4dba149379273aa0a271f1"
+  integrity sha512-xug0bTfHbu/Oz78hg0cXOPk12yW8EhvXzlqXBrrFkQCzk/6xU245+3oTVg/kHt2oToym0OYUTgREdxU998zRxA==
   dependencies:
     "@0xsequence/multicall" "^0.39.0"
     ethers "^5.6.7"
