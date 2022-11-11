@@ -389,7 +389,7 @@ class EvmController {
     const transaction = await this.initTransaction();
     const address = await this.wallet.getUserAddress();
 
-    if (!ERC20Address) {
+    if (!ERC20Address || ERC20Address === NULL_ADDRESS) {
       return transaction.contracts.balanceOfNativeToken();
     }
     return transaction.contracts.balanceOfERC20(address, ERC20Address);

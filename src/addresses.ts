@@ -76,6 +76,17 @@ const addresses: { [chainId: number]: addressesParameter } = {
     LibAssetData: '0x4FB6f91904D2318274CDB5812480835f6859dFEa',
     old: addressesOld[1284]
   },
+  1564830818: {
+    RoyaltiesManager: '0x474363A12b5966F7D8221c0a4B0fD31337F7BD83',
+    NativeERC20: '',
+    ERC20Proxy: '0xa2f950ccb80909FF80eB6dCd7cD915D85A1f6c25',
+    ERC721Proxy: '0xf23a1357694A4823FC4C51654692d5f635bb9233',
+    ERC1155Proxy: '0x4B75bA193755A52F5b6398466CB3e9458610CBaf',
+    Exchange: '0xaff8a3e3B69E4e88e83B589ED080560C4359BBa8',
+    Collections: '0x4FB6f91904D2318274CDB5812480835f6859dFEa',
+    LibAssetData: '0x72F864fce4594E98e3378F06FA69D7824a223E44',
+    old: addressesOld[1564830818]
+  }
 
   // testnets
   4: {
@@ -109,7 +120,7 @@ const addresses: { [chainId: number]: addressesParameter } = {
     Exchange: '0xaff8a3e3B69E4e88e83B589ED080560C4359BBa8',
     Collections: '0x3FB1d0a5be1f60C44775b6fEF5C8a5Dc41253a2b',
     LibAssetData: '0x72F864fce4594E98e3378F06FA69D7824a223E44',
-    old: addressesOld[5]
+    old: addressesOld[344106930]
   }
 };
 
