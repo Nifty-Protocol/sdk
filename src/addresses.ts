@@ -86,7 +86,7 @@ const addresses: { [chainId: number]: addressesParameter } = {
     Collections: '0x4FB6f91904D2318274CDB5812480835f6859dFEa',
     LibAssetData: '0x72F864fce4594E98e3378F06FA69D7824a223E44',
     old: addressesOld[1564830818]
-  }
+  },
 
   // testnets
   4: {
