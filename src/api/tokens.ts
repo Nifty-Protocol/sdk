@@ -11,6 +11,7 @@ export default function(base) {
     getGraph: (params = {}) => httpRequest({ url: `${URL}/graph`, params }),
     traits: (id, params = {}) => httpRequest({ url: `${URL}/${id}/traits`, params }),
     getAll: (params = {}) => httpRequest({ url: `${URL}`, params }),
+    validateOrders: (params = {}) => httpRequest({ url: `${URL}/validate-orders`, params }),
     report: (data) => httpRequest({
       url   : `${URL}/reports`,
       data,
