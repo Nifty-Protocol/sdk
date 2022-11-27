@@ -86,4 +86,11 @@ export default [
     value: 'Wrapped ETH',
     defaultPaymentMethod:true,
   },
+  {
+    chainId: 1564830818,
+    address: '0x59ab97Ee239e02112652587F9Ef86CB6F762983b',
+    key: 'WETH',
+    value: 'Wrapped ETH',
+    defaultPaymentMethod:true,
+  },
 ]
