@@ -1,4 +1,4 @@
-import { Link, ImmutableXClient } from '@imtbl/imx-sdk';
+import { Link, ImmutableXClient, ERC721TokenType } from '@imtbl/imx-sdk';
 import {
   APPROVING,
   APPROVED,
@@ -27,7 +27,7 @@ const feeRecipientAddress = '0x1249cae9fabbdc18f5368355ac1febd06b426374';
 
 export default class TransactionImx {
   listener: Function;
-  link: any;
+  link: Link;
   endpoints: any;
 
   constructor(env) {
@@ -48,10 +48,10 @@ export default class TransactionImx {
 
 
   async buy(orderHash) {
-    return this.buyMultiple([Number(orderHash)]);
+    return this.buyMultiple([orderHash]);
   }
 
-  async buyMultiple(orderIds: Number[]) {
+  async buyMultiple(orderIds: string[]) {
     this.setStatus(APPROVING);
 
     const res = await this.link.buy({ orderIds, fees: [{
@@ -84,7 +84,7 @@ export default class TransactionImx {
 
     const res = await this.link.batchNftTransfer([
       {
-        type: 'ERC721',
+        type: ERC721TokenType.ERC721,
         tokenId: tokenID,
         tokenAddress: contractAddress,
         toAddress: addressToSend,
@@ -98,6 +98,34 @@ export default class TransactionImx {
     this.setStatus(CANCELLING);
 
     const res = await this.link.cancel({ orderId: orderHash });
+    return res;
+  }
+
+  async offer({ contractAddress, tokenID, price, expirationTime }) {
+    this.setStatus(SIGN);
+    Emitter.emit('signature', () => { })
+
+    const expirationTimestamp = Math.round(Date.now() / 1000) + expirationTime;
+
+    const offerParams = {
+      amount: price,
+      tokenId: tokenID,
+      tokenAddress: contractAddress,
+      expirationTimestamp,
+      fees: [{
+        recipient: feeRecipientAddress,
+        percentage: 1,
+      }]
+    };
+    return this.link.makeOffer(offerParams);
+  }
+
+  async acceptOffer(orderId: string) {
+    this.setStatus(APPROVING);
+
+    const res = await this.link.acceptOffer({orderId});
+    this.setStatus(APPROVED);
+
     return res;
   }
 

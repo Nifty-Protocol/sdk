@@ -1,3 +1,5 @@
+import { Order } from './../types/OrderInterface';
+import { Item } from './../types/ItemInterface';
 import imxTransaction from '../transaction/blockchainTransaction/imxTransaction';
 import { IMMUTABLEX } from '../utils/chains';
 
@@ -46,7 +48,7 @@ class imxController {
   }
 
   async buyMultiple(orders) {
-    return this.fillOrders(orders.map(x => Number(x.order_id)));
+    return this.fillOrders(orders.map(x => x.order_id));
   }
 
   async list(item, price) {
@@ -58,6 +60,19 @@ class imxController {
     const apiResres = await this.api.externalOrders.update({id: listRes, chainId: this.chainId, source: IMMUTABLEX});
 
     return listRes;
+  }
+
+  async offer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
+    const transaction = await this.initTransaction()
+
+    const { contractAddress, tokenID } = item;
+    return  transaction.offer({ contractAddress, tokenID, price, expirationTime });
+  }
+
+  async acceptOffer(orderId: string) {
+    const transaction = await this.initTransaction()
+
+    return  transaction.acceptOffer(orderId);
   }
 
   async transfer(item, addressToSend) {
@@ -98,7 +113,7 @@ class imxController {
     return buyRes;
   }
 
-  async fillOrders(orders: Number[]) {
+  async fillOrders(orders: string[]) {
     const transaction = await this.initTransaction()
     const buyRes = await transaction.buyMultiple(orders);
 
