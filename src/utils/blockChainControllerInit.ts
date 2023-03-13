@@ -1,12 +1,14 @@
 import EvmController from '../controllers/evmController';
-import imxController from '../controllers/imxController';
+import ImxController from '../controllers/imxController';
+import XrplController from '../controllers/xrplController';
 import { NetworkType } from '../types/NetworkType';
-import { EVM, IMMUTABLEX, SOLANA } from './chains';
+import { EVM, IMMUTABLEX, SOLANA, XRPL } from './chains';
 
 const blockChainControllers = {
   [EVM]: EvmController,
-  [IMMUTABLEX]: imxController,
+  [IMMUTABLEX]: ImxController,
   // [SOLANA]: Solana,
+  [XRPL]: XrplController,
 };
 
 export default function (NetworkType: NetworkType, options: any) {

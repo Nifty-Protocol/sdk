@@ -1,23 +1,23 @@
-import { Order } from './../types/OrderInterface';
 import { Item } from './../types/ItemInterface';
-import imxTransaction from '../transaction/blockchainTransaction/imxTransaction';
-import { IMMUTABLEX } from '../utils/chains';
+import xrplTransaction from '../transaction/blockchainTransaction/xrplTransaction';
+import { XRPL } from '../utils/chains';
 
 const sleep = (time) => new Promise((resolve) => setTimeout(() => resolve(time), time))
 
 class ImxController {
   listener: Function;
   api: any;
-  getListing: any;
+  sdk: any;
   chainId: string;
-  env: string;
+  env: any;
 
   constructor(options) {
     this.listener = options.listener;
     this.api = options.api;
-    this.getListing = options.getListing;
     this.chainId = options.wallet.walletProvider.chainId;
     this.env = options.env;
+    this.sdk = options.wallet.walletProvider;
+    debugger;
   }
 
   setStatusListener(listener: Function) {
@@ -32,7 +32,7 @@ class ImxController {
 
   async initTransaction() {
 
-    const transaction = new imxTransaction(this.env);
+    const transaction = new xrplTransaction(this.sdk);
 
     if (this.listener) {
       transaction.setStatusListener(this.listener);
@@ -42,27 +42,32 @@ class ImxController {
   }
 
 
-  async buy(orderId) {
+  /* async buy(orderId) {
     const orderRes = await this.getListing(orderId, true) as any;
     return this.fillOrder(orderRes)
   }
 
   async buyMultiple(orders) {
     return this.fillOrders(orders.map(x => x.order_id));
-  }
+  } */
 
   async list(item, price) {
     const transaction = await this.initTransaction()
 
     const { contractAddress, tokenID } = item;
-    const listRes = await transaction.list({ contractAddress, tokenID, price });
-    await sleep(2000);
-    const apiResres = await this.api.externalOrders.update({id: listRes, chainId: this.chainId, source: IMMUTABLEX});
+    try {
+      const tx = await transaction.list({ contractAddress, tokenID, price });
+      const apiResres = await this.api.externalOrders.update({id: tx, chainId: this.chainId, source: XRPL});
+      debugger;
+    } catch (e) {
+      debugger;
+    }
+    debugger;
 
-    return listRes;
+    // return listRes;
   }
 
-  async offer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
+  /* async offer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
     const transaction = await this.initTransaction()
 
     const { contractAddress, tokenID } = item;
@@ -93,7 +98,7 @@ class ImxController {
 
     const cancelRes = await transaction.cancelOrder(orderHash);
     await sleep(2000);
-    const apiResres = await this.api.externalOrders.update({id: orderHash, chainId: this.chainId, source: IMMUTABLEX});
+    const apiResres = await this.api.externalOrders.update({id: orderHash, chainId: this.chainId, source: XRPL});
 
     return cancelRes;
   }
@@ -118,7 +123,7 @@ class ImxController {
     const buyRes = await transaction.buyMultiple(orders);
 
     return buyRes;
-  }
+  } */
 }
 
 export default ImxController;

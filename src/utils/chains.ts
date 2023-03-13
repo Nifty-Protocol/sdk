@@ -3,6 +3,7 @@
 export const EVM = 'evm';
 export const IMMUTABLEX = 'immutablex';
 export const SOLANA = 'solana';
+export const XRPL = 'xrpl';
 
 export type chainType = Array <{
   name            : string;
@@ -13,7 +14,7 @@ export type chainType = Array <{
   chainIconWrapper: string;
   network         : string;
   networkId       : number;
-  chainType       : "evm" | "immutablex" | "solana";
+  chainType       : "evm" | "immutablex" | "solana" | "xrpl";
   greenPayFee?: number;
   hasGasless?: boolean;
   nativeCurrency  : any;
