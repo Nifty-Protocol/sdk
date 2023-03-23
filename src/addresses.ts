@@ -88,7 +88,7 @@ const addresses: { [chainId: number]: addressesParameter } = {
     old: addressesOld[1564830818]
   },
   11297108109: {
-    RoyaltiesManager: '',
+    RoyaltiesManager: '0x3FB1d0a5be1f60C44775b6fEF5C8a5Dc41253a2b',
     NativeERC20: '0x4C1f6fCBd233241bF2f4D02811E3bF8429BC27B8', // DAI
     ERC20Proxy: '0x474363A12b5966F7D8221c0a4B0fD31337F7BD83',
     ERC721Proxy: '0x72F864fce4594E98e3378F06FA69D7824a223E44',
