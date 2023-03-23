@@ -94,7 +94,7 @@ const addresses: { [chainId: number]: addressesParameter } = {
     ERC721Proxy: '0x72F864fce4594E98e3378F06FA69D7824a223E44',
     ERC1155Proxy: '0x4B75bA193755A52F5b6398466CB3e9458610CBaf',
     Exchange: '0x4B75bA193755A52F5b6398466CB3e9458610CBaf',
-    Collections: '',
+    Collections: '0x48960A11708eA1AE0D9dbbF3E4a9A147bb212d56',
     LibAssetData: '0x4FB6f91904D2318274CDB5812480835f6859dFEa',
     old: {}
   },
