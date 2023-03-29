@@ -1,5 +1,5 @@
 import { XummSdk } from 'xumm-sdk';
-import { Client, xrpToDrops } from 'xrpl';
+import { Client, xrpToDrops, unixTimeToRippleTime } from 'xrpl';
 import {
   APPROVING,
   APPROVED,
@@ -9,6 +9,8 @@ import {
   TESTNET,
 } from '../../constants';
 import Emitter from '../../utils/emitter';
+
+const brokerAddress = 'r9Aai5Vu7JNgknDn38229eF37vzftNSHJr';
 
 export default class TransactionXrpl {
   listener: Function;
@@ -46,13 +48,18 @@ export default class TransactionXrpl {
     return res;
   } */
 
-  async list({ contractAddress, tokenID, price }) {
+  async list({ contractAddress, tokenID, price, expirationTime }) {
     this.setStatus(SIGN);
     Emitter.emit('signature', () => { })
+
+    let d = new Date();
+    d.setTime(d.getTime() + expirationTime);
 
     const payload = {
       txjson: {
         TransactionType: 'NFTokenCreateOffer',
+        Destination: brokerAddress, // broker
+        Expiration: unixTimeToRippleTime(d.getTime()),
         NFTokenID: tokenID,
         Amount: xrpToDrops(price),
         Flags: 1,
@@ -67,6 +74,62 @@ export default class TransactionXrpl {
 
     const resolveData: any = await resolved;
 
+    if (!resolveData.signed) {
+      throw new Error('The sign request was rejected :(')
+    }
+
+    const { txid } = resolveData;
+
+    return txid;
+  }
+
+  async buy({contractAddress, tokenID, price}) {
+    this.setStatus(APPROVING);
+
+    const payload = {
+      txjson: {
+        TransactionType: 'NFTokenCreateOffer',
+        Destination: brokerAddress, // broker
+        NFTokenID: tokenID,
+        Amount: xrpToDrops(price),
+      }
+    };
+
+    const {resolved} = await this.sdk.payload.createAndSubscribe(payload as any, (payloadEvent) => {
+      if (typeof payloadEvent.data.signed !== 'undefined') {
+        return payloadEvent.data;
+      }
+    });
+
+    const resolveData: any = await resolved;
+
+    if (!resolveData.signed) {
+      throw new Error('The sign request was rejected :(')
+    }
+
+    const { txid } = resolveData;
+
+    return txid;
+  }
+
+  async cancelOrder(orderHash) {
+    this.setStatus(CANCELLING);
+
+    const payload = {
+      txjson: {
+        TransactionType: 'NFTokenCancelOffer',
+        NFTokenOffers: [orderHash],
+      }
+    };
+
+    const {resolved} = await this.sdk.payload.createAndSubscribe(payload as any, (payloadEvent) => {
+      if (typeof payloadEvent.data.signed !== 'undefined') {
+        return payloadEvent.data;
+      }
+    });
+
+    const resolveData: any = await resolved;
+    
     if (!resolveData.signed) {
       throw new Error('The sign request was rejected :(')
     }
