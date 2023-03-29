@@ -93,4 +93,11 @@ export default [
     value: 'Wrapped ETH',
     defaultPaymentMethod:true,
   },
+  {
+    chainId: 11297108109,
+    address: '0x4C1f6fCBd233241bF2f4D02811E3bF8429BC27B8',
+    key: 'DAI',
+    value: 'DAI',
+    defaultPaymentMethod:true,
+  },
 ]
