@@ -10,7 +10,7 @@ import {
 } from '../../constants';
 import Emitter from '../../utils/emitter';
 
-const brokerAddress = 'r9Aai5Vu7JNgknDn38229eF37vzftNSHJr';
+const brokerAddress = 'rEaCC2tUMnPpGcSG6n1Pj75hqNfJeG9TdH';
 
 export default class TransactionXrpl {
   listener: Function;
@@ -78,20 +78,18 @@ export default class TransactionXrpl {
       throw new Error('The sign request was rejected :(')
     }
 
-    const { txid } = resolveData;
-
-    return txid;
+    return resolveData;
   }
 
-  async buy({contractAddress, tokenID, price}) {
+  async buy({contractAddress, tokenID, price, makerAddress}) {
     this.setStatus(APPROVING);
 
     const payload = {
       txjson: {
         TransactionType: 'NFTokenCreateOffer',
-        Destination: brokerAddress, // broker
+        Owner: makerAddress,
         NFTokenID: tokenID,
-        Amount: xrpToDrops(price),
+        Amount: xrpToDrops((price * 1.02).toFixed(5)),
       }
     };
 
@@ -107,9 +105,9 @@ export default class TransactionXrpl {
       throw new Error('The sign request was rejected :(')
     }
 
-    const { txid } = resolveData;
+    this.setStatus(APPROVED);
 
-    return txid;
+    return resolveData;
   }
 
   async cancelOrder(orderHash) {
@@ -134,9 +132,7 @@ export default class TransactionXrpl {
       throw new Error('The sign request was rejected :(')
     }
 
-    const { txid } = resolveData;
-
-    return txid;
+    return resolveData;
   }
 
   /* async transfer({ tokenID, addressToSend, contractAddress }) {

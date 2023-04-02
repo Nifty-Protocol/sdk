@@ -19,7 +19,6 @@ class ImxController {
     this.env = options.env;
     this.sdk = options.wallet.walletProvider;
     this.getListing = options.getListing;
-    debugger;
   }
 
   setStatusListener(listener: Function) {
@@ -48,35 +47,35 @@ class ImxController {
 
     const transaction = await this.initTransaction()
 
-    const { price, contractAddress, tokenID } = orderRes;
+    const { price, contractAddress, tokenID, makerAddress } = orderRes;
 
-    const fee = 0.2;
-    try {
-      const tx = await transaction.buy({ contractAddress, tokenID, price });
-      const apiResres = await this.api.externalOrders.update({id: tx, chainId: this.chainId, orderId, source: XRPL, action: 'buy'});
-      debugger;
-    } catch (e) {
-      debugger;
-    }
-    debugger;
+    const tx = await transaction.buy({ contractAddress, tokenID, price, makerAddress });
+    const apiRes = await this.api.externalOrders.update({
+      id: tx?.txid,
+      chainId: this.chainId,
+      orderId,
+      source: XRPL,
+      txDetails: tx,
+      action: 'buy'
+    });
 
-    // return listRes;
+    return apiRes.data;
   }
 
   async list(item, price, expirationTime: number) {
     const transaction = await this.initTransaction()
 
-    const { contractAddress, tokenID } = item;
-    try {
-      const tx = await transaction.list({ contractAddress, tokenID, price, expirationTime });
-      const apiResres = await this.api.externalOrders.update({id: tx, chainId: this.chainId, source: XRPL});
-      debugger;
-    } catch (e) {
-      debugger;
-    }
-    debugger;
+    const { contractAddress, tokenID, id } = item;
+    const tx = await transaction.list({ contractAddress, tokenID, price, expirationTime });
+    const apiRes = await this.api.externalOrders.update({
+      id: tx?.txid,
+      chainId: this.chainId,
+      source: XRPL,
+      txDetails: tx,
+      tokenId: id
+    });
 
-    // return listRes;
+    return apiRes.data;
   }
 
   async cancelOrder(orderId) {
@@ -86,11 +85,19 @@ class ImxController {
     const orderRes = await this.getListing(orderId, true) as any;
     const { orderHash } = orderRes;
 
-    const cancelRes = await transaction.cancelOrder(orderHash);
-    await sleep(2000);
-    const apiResres = await this.api.externalOrders.update({id: orderHash, chainId: this.chainId, source: XRPL});
+    const tx = await transaction.cancelOrder(orderHash);
+    if (!tx.txid) {
+      throw new Error('no cancel');
+    }
+    const apiRes = await this.api.externalOrders.update({
+      id: orderHash,
+      chainId: this.chainId,
+      source: XRPL,
+      txDetails: tx,
+      action: 'cancel'
+    });
 
-    return cancelRes;
+    return apiRes.data;
   }
 
   /* async offer(item: Item, price: number, expirationTime: number, isFullConversion: boolean) {
