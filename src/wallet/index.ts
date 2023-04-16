@@ -1,12 +1,14 @@
-import { EVM, IMMUTABLEX, SOLANA } from '../utils/chains';
+import { EVM, IMMUTABLEX, SOLANA, XRPL } from '../utils/chains';
 import { Wallet } from '../types/Wallet';
 import Evm from './walletProvider/evm';
 import ImmutableX from './walletProvider/ImmutableX';
 import Solana from './walletProvider/Solana';
+import Xrpl from './walletProvider/xrpl';
 
 const web3Libs = {
   [EVM]: Evm,
   [IMMUTABLEX]: ImmutableX,
+  [XRPL]: Xrpl,
   // [SOLANA]: Solana,
 };
 

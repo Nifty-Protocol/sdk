@@ -24,6 +24,8 @@
     "ethereumjs-util": "^7.0.10",
     "ethers": "^5.0.26",
     "eventemitter3": "^4.0.7",
-    "web3": "^1.7.1"
+    "web3": "^1.7.1",
+    "xrpl": "^2.7.0-beta.0",
+    "xumm-sdk": "^1.7.0"
   }
 }
