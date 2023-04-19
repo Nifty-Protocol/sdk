@@ -3,7 +3,7 @@ import { Wallet } from '../types/Wallet';
 import Evm from './walletProvider/evm';
 import ImmutableX from './walletProvider/ImmutableX';
 import Solana from './walletProvider/Solana';
-import Xrpl from './walletProvider/xrpl';
+import Xrpl from './walletProvider/Xrpl';
 
 const web3Libs = {
   [EVM]: Evm,

@@ -193,10 +193,7 @@ export default class TransactionXrpl {
 
     const info = await this.getTransaction(resolveData.txid);
 
-    return this.getNFTokenID(info.meta);
-
-    /* const tx = await this.contracts.createToken(metadata, selectedCollectionAddress) as any;
-    const { tokenId } = tx.events.Transfer.returnValues; */
+    return this.getNFTokenID(info.meta).NFTokenID;
 
 
     // return tokenId;
