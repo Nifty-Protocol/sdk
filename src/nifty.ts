@@ -4,7 +4,7 @@ import { findChainById } from './utils/chain';
 import { Wallet } from './types/Wallet';
 import wallet from './wallet';
 import addresses, { addressesParameter } from './addresses';
-import { EVM, IMMUTABLEX, SOLANA } from './utils/chains';
+import { EVM, IMMUTABLEX, SOLANA, XRPL } from './utils/chains';
 import { Item } from './types/ItemInterface';
 import { Listing, Listings } from './types/ListingsInterface';
 import { Api } from './types/ApiInterface';
@@ -139,6 +139,10 @@ export class Nifty {
     return this.blockChainController.createNFT(metadata, selectedCollectionAddress);
   }
 
+  async getCollections() {
+    return this.blockChainController.getCollections();
+  }
+
 
   getAvailablePaymentMethods(chainId?: number | string, defaultPaymentMethod: boolean = false): Array<object> {
     return this.blockChainController.getAvailablePaymentMethods(chainId, defaultPaymentMethod);
@@ -214,10 +218,10 @@ export class Nifty {
   * @param chainId chain id of the NFT
   * @returns returns NFT from api
   */
-  async getNFT(contractAddress: string, tokenID: number, chainId: number): Promise<Item> {
+  async getNFT(contractAddress: string, tokenID: number, chainId: number, chainType: string = EVM): Promise<Item> {
     this.verifyMarkletplace();
 
-    const res = await this.api.tokens.get(contractAddress, tokenID, { chainId });
+    const res = await this.api.tokens.get(contractAddress, tokenID, { chainId, chainType });
     return res.data
   }
 
@@ -285,6 +289,7 @@ export class Nifty {
     EVM,
     IMMUTABLEX,
     SOLANA,
+    XRPL,
   };
 
   static envs = {

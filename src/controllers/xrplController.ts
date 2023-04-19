@@ -1,6 +1,7 @@
 import { Item } from './../types/ItemInterface';
 import xrplTransaction from '../transaction/blockchainTransaction/xrplTransaction';
 import { XRPL } from '../utils/chains';
+import { APPROVED } from '../constants';
 
 const sleep = (time) => new Promise((resolve) => setTimeout(() => resolve(time), time))
 
@@ -58,6 +59,8 @@ class ImxController {
       txDetails: tx,
       action: 'buy'
     });
+
+    this.setStatus(APPROVED);
 
     return apiRes.data;
   }
@@ -143,6 +146,48 @@ class ImxController {
 
     return buyRes;
   } */
+
+  getCollectionTaxon(collection: string): number {
+    return Number(collection.split('-').pop() || 0);
+  }
+
+  async getCollections() {
+    const collections = await this.api.contracts.getAll({
+      search: this.sdk.user.account,
+      chainId: this.chainId
+    });
+    return collections.data.map((x) => ({...x, contractAddress: x.address}));
+  }
+
+  async createNFTContract(name: string, symbol: string) {
+    const collections = await this.getCollections();
+    const nftaxons: number[] = collections.map(x => this.getCollectionTaxon(x.address)).sort();
+    return this.api.contracts.create(
+      {
+        account: this.sdk.user.account,
+        name,
+        symbol,
+        nftaxon: (nftaxons.pop() || 0) + 1,
+        chainId: this.chainId,
+        type: XRPL,
+      },
+      this.sdk.jwtUserdata.Meta.jwt
+    );
+  }
+
+
+  async createNFT(metadata: string, selectedCollectionAddress: string) {
+    const transaction = await this.initTransaction();
+
+    const nftaxon: number = this.getCollectionTaxon(selectedCollectionAddress);
+
+    if (!nftaxon) {
+      return;
+    }
+
+    const res = await transaction.createNFT(metadata, nftaxon)
+    return res
+  }
 }
 
 export default ImxController;

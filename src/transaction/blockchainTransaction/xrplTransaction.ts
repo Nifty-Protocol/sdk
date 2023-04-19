@@ -1,5 +1,5 @@
 import { XummSdk } from 'xumm-sdk';
-import { Client, xrpToDrops, unixTimeToRippleTime } from 'xrpl';
+import { Client, xrpToDrops, unixTimeToRippleTime, convertStringToHex } from 'xrpl';
 import {
   APPROVING,
   APPROVED,
@@ -7,6 +7,7 @@ import {
   CANCELLING,
   PROD,
   TESTNET,
+  CREATING,
 } from '../../constants';
 import Emitter from '../../utils/emitter';
 
@@ -47,6 +48,24 @@ export default class TransactionXrpl {
 
     return res;
   } */
+
+  async getTransaction(transaction: string) {
+    const options = {
+      command     : 'tx',
+      transaction,
+      binary      : false,
+    };
+    const client = new Client(this.sdk.user.networkEndpoint);
+    await client.connect();
+
+    try {
+      const info: any = await client.request(options);
+      return info?.result;
+    } catch (e) {
+      console.error(e);
+      return {};
+    }
+  }
 
   async list({ contractAddress, tokenID, price, expirationTime }) {
     this.setStatus(SIGN);
@@ -105,8 +124,6 @@ export default class TransactionXrpl {
       throw new Error('The sign request was rejected :(')
     }
 
-    this.setStatus(APPROVED);
-
     return resolveData;
   }
 
@@ -135,63 +152,89 @@ export default class TransactionXrpl {
     return resolveData;
   }
 
-  /* async transfer({ tokenID, addressToSend, contractAddress }) {
-    this.setStatus(APPROVING);
+  getNFTokenID (meta) {
+    const data = meta.AffectedNodes.find(
+      (x: any) => x.ModifiedNode?.LedgerEntryType === 'NFTokenPage'
+      || x.CreatedNode?.LedgerEntryType === 'NFTokenPage',
+    );
+    const { PreviousFields, FinalFields, NewFields } = data.CreatedNode || data.ModifiedNode;
+    const nfts = NewFields?.NFTokens
+    || FinalFields.NFTokens.filter(
+      (x) => !PreviousFields.NFTokens.some((y) => y.NFToken.NFTokenID === x.NFToken.NFTokenID),
+    );
+    return nfts.shift().NFToken;
+  };
 
-    const res = await this.link.batchNftTransfer([
-      {
-        type: ERC721TokenType.ERC721,
-        tokenId: tokenID,
-        tokenAddress: contractAddress,
-        toAddress: addressToSend,
+  async createNFT(metadata: string, nftaxon: number) {
+    this.setStatus(CREATING);
+
+    const payload = {
+      txjson: {
+        TransactionType: 'NFTokenMint',
+        Account        : this.sdk.user.account,
+        URI            : convertStringToHex(metadata),
+        Flags          : 8,
+        TransferFee    : 2000,
+        NFTokenTaxon   : nftaxon,
       }
-    ])
-    this.setStatus(APPROVED);
-    return res
-  }
-
-  async cancelOrder(orderHash) {
-    this.setStatus(CANCELLING);
-
-    const res = await this.link.cancel({ orderId: orderHash });
-    return res;
-  }
-
-  async offer({ contractAddress, tokenID, price, expirationTime }) {
-    this.setStatus(SIGN);
-    Emitter.emit('signature', () => { })
-
-    const expirationTimestamp = Math.round(Date.now() / 1000) + expirationTime;
-
-    const offerParams = {
-      amount: price,
-      tokenId: tokenID,
-      tokenAddress: contractAddress,
-      expirationTimestamp,
-      fees: [{
-        recipient: feeRecipientAddress,
-        percentage: 1,
-      }]
     };
-    return this.link.makeOffer(offerParams);
+
+    const {resolved} = await this.sdk.payload.createAndSubscribe(payload as any, (payloadEvent) => {
+      if (typeof payloadEvent.data.signed !== 'undefined') {
+        return payloadEvent.data;
+      }
+    });
+
+    const resolveData: any = await resolved;
+    
+    if (!resolveData.signed) {
+      throw new Error('The sign request was rejected :(')
+    }
+
+    const info = await this.getTransaction(resolveData.txid);
+
+    return this.getNFTokenID(info.meta);
+
+    /* const tx = await this.contracts.createToken(metadata, selectedCollectionAddress) as any;
+    const { tokenId } = tx.events.Transfer.returnValues; */
+
+
+    // return tokenId;
   }
 
-  async acceptOffer(orderId: string) {
-    this.setStatus(APPROVING);
+  /* async mint() {
+    const address = await this.getUserAddress();
+    const payload = {
+      txjson: {
+        TransactionType: 'NFTokenMint',
+        Account        : address,
+        URI            : convertStringToHex('https://ipfs.io/ipfs/QmckHPGbrXAPjTPprDuycqpGiPx6tMTmmnhCDTrgMu7559'),
+        Flags          : 8,
+        TransferFee    : 2000,
+        NFTokenTaxon   : 1,
+      },
+    };
 
-    const res = await this.link.acceptOffer({orderId});
-    this.setStatus(APPROVED);
+    this.walletProvider
+      .payload
+      .createAndSubscribe(payload, (payloadEvent) => {
+        if (typeof payloadEvent.data.signed !== 'undefined') {
+        // What we return here will be the resolved value of the `resolved` property
+          return payloadEvent.data;
+        }
+      })
+      .then(({ created, resolved }) => {
+        alert(created.pushed
+          ? 'Now check Xumm, there should be a push notification + sign request in your event list waiting for you ;)'
+          : 'Now check Xumm, there should be a sign request in your event list waiting for you ;) (This would have been pushed, but it seems you did not grant Xumm the push permission)');
 
-    return res;
-  }
-
-  async getBalance(address: string) {
-    const client = await ImmutableXClient.build({
-      publicApiUrl: this.endpoints.api,
-    })
-    const balances = await client.getBalances({ user: address } as any)
-    const balanceFormatted = ethers.utils.formatEther(balances.imx);
-    const balance = Web3.utils.toWei(balanceFormatted);
-    return balance;
+        resolved.then((payloadOutcome) => {
+          alert(`Payload ${payloadOutcome.signed ? `signed (TX Hash: ${payloadOutcome.txid})` : 'rejected'}, see the browser console for more info`);
+          console.log(payloadOutcome);
+        });
+      })
+      .catch((e) => {
+        alert('Paylaod error', e.message);
+      });
   } */
 }

@@ -168,6 +168,14 @@ class EvmController {
     return res
   }
 
+  async getCollections() {
+    this.verifyWallet();
+
+    const transaction = await this.initTransaction();
+
+    return transaction.getCollections();
+  }
+
 
 
   /**
