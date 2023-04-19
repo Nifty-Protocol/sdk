@@ -492,6 +492,10 @@ export default class TransactionEVM {
     return tokenId;
   }
 
+  async getCollections() {
+    return this.contracts.getCollections();
+  }
+
   async buyFromOpenSea(order: ExternalOrder) {
     const provider = new ethers.providers.Web3Provider(this.wallet.web3.currentProvider);
     const seaport = new Seaport(provider);

@@ -23,6 +23,9 @@ export default function (base) {
     }),
     getStats: (id, params = {}) => httpRequest({ url: `${URL}/${id}/stats`, params }),
     getTopCollections: (params = {}) => httpRequest({ url: `${URL}/top-collections`, params }),
+    create: (params = {}, token) => httpRequest({
+      url: `${URL}`, method: 'post', params, headers: { authorization: `Bearer ${token}` }
+    }),
   }
 }
 
