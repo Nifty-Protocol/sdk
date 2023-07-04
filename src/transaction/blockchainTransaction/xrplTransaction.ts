@@ -78,7 +78,7 @@ export default class TransactionXrpl {
       txjson: {
         TransactionType: 'NFTokenCreateOffer',
         Destination: brokerAddress, // broker
-        Expiration: unixTimeToRippleTime(d.getTime()),
+        // Expiration: unixTimeToRippleTime(d.getTime()),
         NFTokenID: tokenID,
         Amount: xrpToDrops(price),
         Flags: 1,
